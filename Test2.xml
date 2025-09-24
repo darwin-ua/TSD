@@ -1,0 +1,4518 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="values">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string" minOccurs="0" />
+                <xs:element name="RU" type="xs:string" minOccurs="0" />
+                <xs:element name="UA" type="xs:string" minOccurs="0" />
+                <xs:element name="ENG" type="xs:string" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет основы</RU>
+    <UA>Колір основи</UA>
+    <ENG>Profile color</ENG>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка</RU>
+    <UA>1 ст ручка</UA>
+    <ENG>White</ENG>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_RC2</RU>
+    <UA>1 ст ручка_RC2</UA>
+    <ENG>Caramel</ENG>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_автодовод</RU>
+    <UA>1 ст ручка_автодовод</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_автодовод_RC2</RU>
+    <UA>1 ст ручка_автодовод_RC2</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Белый</RU>
+    <UA>1 ст ручка_білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Бронза</RU>
+    <UA>1 ст ручка_бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Кор</RU>
+    <UA>1 ст ручка_Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Серебро</RU>
+    <UA>1 ст ручка_Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Черный</RU>
+    <UA>1 ст ручка_Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1.5 замк</RU>
+    <UA>1.5 замк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1.5 с загибом</RU>
+    <UA>1.5 із загином</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1.5 труба</RU>
+    <UA>1.5 труба</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1000 нерж</RU>
+    <UA>1000 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>145 гр</RU>
+    <UA>145 гр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1500 нерж</RU>
+    <UA>1500 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка</RU>
+    <UA>2 ст ручка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_автодовод_ключ</RU>
+    <UA>2 ст ручка_автодовод_ключ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Кор</RU>
+    <UA>2 ст ручка_Біл/Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Сер</RU>
+    <UA>2 ст ручка_Біл/Сір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Бронза</RU>
+    <UA>2 ст ручка_Біл/Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Черный</RU>
+    <UA>2 ст ручка_Біл/Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Белый</RU>
+    <UA>2 ст ручка_Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бронза</RU>
+    <UA>2 ст ручка_Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Кор</RU>
+    <UA>2 ст ручка_Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_ключ</RU>
+    <UA>2 ст ручка_ключ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Серебро</RU>
+    <UA>2 ст ручка_Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Черный</RU>
+    <UA>2 ст ручка_Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2.0 с 2-загибами</RU>
+    <UA>2.0 з 2-загинами</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2.0 замк</RU>
+    <UA>2.0 замк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2.0 труба</RU>
+    <UA>2.0 труба</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2.5 замк</RU>
+    <UA>2.5 замк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2000 нерж</RU>
+    <UA>2000 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст вузька УкраЇна</RU>
+    <UA>2-ст вузька Україна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст Польша</RU>
+    <UA>2-ст Польща</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка узкая Украина</RU>
+    <UA>2-ст ручка вузька Україна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка вузька УкраЇна біл</RU>
+    <UA>2-ст ручка вузька Україна біл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка вузька УкраЇна кор</RU>
+    <UA>2-ст ручка вузька Україна кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка Польша</RU>
+    <UA>2-ст ручка Польща</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка Польша біл</RU>
+    <UA>2-ст ручка Польща біл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-стор</RU>
+    <UA>2-стор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>3. смещение 350</RU>
+    <UA>3. зміщення 350</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>3.0 труба</RU>
+    <UA>3.0 труба</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>4.0 труба</RU>
+    <UA>4.0 труба</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>500 нерж</RU>
+    <UA>500 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 будинок</RU>
+    <UA>860*2050 будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 квартира</RU>
+    <UA>860*2050 квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 Ліві будинок</RU>
+    <UA>860*2050 Ліві будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 Ліві квартира</RU>
+    <UA>860*2050 Ліві квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 Праві будинок</RU>
+    <UA>860*2050 Праві будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>860*2050 Праві квартира</RU>
+    <UA>860*2050 Праві квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>90 гр</RU>
+    <UA>90 гр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 будинок</RU>
+    <UA>960*2050 будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 квартира</RU>
+    <UA>960*2050 квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 Ліві будинок</RU>
+    <UA>960*2050 Ліві будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 Ліві квартира</RU>
+    <UA>960*2050 Ліві квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 Праві будинок</RU>
+    <UA>960*2050 Праві будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>960*2050 Праві квартира</RU>
+    <UA>960*2050 Праві квартира</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Alutop цвет</RU>
+    <UA>Alutop колір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 120 кг Покраска</RU>
+    <UA>AT 120 кг Покраска</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 120 кг RAL 7012 О/С</RU>
+    <UA>AT 120 кг RAL 7012 О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 120 кг RAL 7016 О/С</RU>
+    <UA>AT 120 кг RAL 7016 О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 120 кг Белый</RU>
+    <UA>AT 120 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 120 кг Кор</RU>
+    <UA>AT 120 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 80 кг Покраска</RU>
+    <UA>AT 80 кг Покраска</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 80 кг RAL 7016 О/С</RU>
+    <UA>AT 80 кг RAL 7016 О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 80 кг RAL 7024 О/С</RU>
+    <UA>AT 80 кг RAL 7024 О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 80 кг Белый</RU>
+    <UA>AT 80 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>AT 80 кг Кор</RU>
+    <UA>AT 80 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 1 точка 92/D25 защ_ролик</RU>
+    <UA>Axor 1 точка 92/D25 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 1 точка 92/D25 защ_ригель</RU>
+    <UA>Axor 1 точка 92/D25 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 1 точка 92/D35 защ_ролик</RU>
+    <UA>Axor 1 точка 92/D35 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 1 точка 92/D35 защ_ригель</RU>
+    <UA>Axor 1 точка 92/D35 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 4 точки 92/D25</RU>
+    <UA>Axor 4 точки 92/D25</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 4 точки 92/D35</RU>
+    <UA>Axor 4 точки 92/D35</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor 4 точки 92/D35 защ_ролик</RU>
+    <UA>Axor 4 точки 92/D35 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor K2000_06 Т белый</RU>
+    <UA>Axor K2000_06 Т білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor K2000_06 Т кор</RU>
+    <UA>Axor K2000_06 Т кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor верх_низ</RU>
+    <UA>Axor верх_низ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Br імпост 86 мм</RU>
+    <UA>Br імпост 86 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Br штульп</RU>
+    <UA>Br штульп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>F профіль</RU>
+    <UA>F профіль</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>FKS 1 ст ручка</RU>
+    <UA>FKS 1 ст ручка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>FKS 2 ст ручка</RU>
+    <UA>FKS 2 ст ручка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 1 точка D25</RU>
+    <UA>Fuhr 1 точка D25</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 1 точка D35</RU>
+    <UA>Fuhr 1 точка D35</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 4 точки D25</RU>
+    <UA>Fuhr 4 точки D25</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 4 точки D25 + прижим</RU>
+    <UA>Fuhr 4 точки D25 + притиск</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 4 точки D35</RU>
+    <UA>Fuhr 4 точки D35</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Fuhr 4 точки D35 + прижим</RU>
+    <UA>Fuhr 4 точки D35 + притиск</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geneo імпост 98 мм маса Зол.Дуб 2178001</RU>
+    <UA>Geneo імпост 98 мм маса Зол.Дуб 2178001</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geneo імпост 98 мм УщілСір</RU>
+    <UA>Geneo імпост 98 мм УщілСір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geneo імпост 98 мм УщілЧор</RU>
+    <UA>Geneo імпост 98 мм УщілЧор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V антрацит</RU>
+    <UA>Geze TS1500 V антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V белый</RU>
+    <UA>Geze TS1500 V білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V кор</RU>
+    <UA>Geze TS1500 V кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V серебро</RU>
+    <UA>Geze TS1500 V срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V покраска</RU>
+    <UA>Geze TS1500 V фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V антрацит</RU>
+    <UA>Geze TS2000 V антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V белый</RU>
+    <UA>Geze TS2000 V білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V кор</RU>
+    <UA>Geze TS2000 V кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V серебро</RU>
+    <UA>Geze TS2000 V срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V покраска</RU>
+    <UA>Geze TS2000 V фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V черный</RU>
+    <UA>Geze TS2000 V чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 100 кг Белый</RU>
+    <UA>GreenteQ 100 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 100 кг Кор</RU>
+    <UA>GreenteQ 100 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 100 кг Серебро</RU>
+    <UA>GreenteQ 100 кг Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 100 кг Покраска</RU>
+    <UA>GreenteQ 100 кг Фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 120 кг Белый</RU>
+    <UA>GreenteQ 120 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 120 кг Кор</RU>
+    <UA>GreenteQ 120 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 120 кг Серебро</RU>
+    <UA>GreenteQ 120 кг Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ 120 кг Покраска</RU>
+    <UA>GreenteQ 120 кг Фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ з ключиком</RU>
+    <UA>GreenteQ з ключиком</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ з ключиком біл</RU>
+    <UA>GreenteQ з ключиком білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ з ключиком кор</RU>
+    <UA>GreenteQ з ключиком кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Bogota біл</RU>
+    <UA>Hoppe Bogota білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Compact біл</RU>
+    <UA>Hoppe Compact біл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Compact кор</RU>
+    <UA>Hoppe Compact кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD Kisi біл</RU>
+    <UA>Hoppe LD Kisi білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik антрацит</RU>
+    <UA>Hoppe LD secustik антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik біл</RU>
+    <UA>Hoppe LD secustik білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik з ключиком біл</RU>
+    <UA>Hoppe LD secustik з ключиком білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik з ключиком кор</RU>
+    <UA>Hoppe LD secustik з ключиком кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik кор</RU>
+    <UA>Hoppe LD secustik кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik сталь</RU>
+    <UA>Hoppe LD secustik сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik DarWin біл</RU>
+    <UA>Hoppe Stuttgart secustik DarWin білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik антрацит</RU>
+    <UA>Hoppe Stuttgart secustik антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik бел</RU>
+    <UA>Hoppe Stuttgart secustik білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik бронза</RU>
+    <UA>Hoppe Stuttgart secustik бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik золото мат</RU>
+    <UA>Hoppe Stuttgart secustik золото мат</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik кор</RU>
+    <UA>Hoppe Stuttgart secustik кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik срібло</RU>
+    <UA>Hoppe Stuttgart secustik срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Stuttgart secustik сталь</RU>
+    <UA>Hoppe Stuttgart secustik сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Toulon антрацит</RU>
+    <UA>Hoppe Toulon антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Toulon біл</RU>
+    <UA>Hoppe Toulon білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Toulon чорна</RU>
+    <UA>Hoppe Toulon чорна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг Gold-A</RU>
+    <UA>Jocker 120 кг Gold-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг RAL 7016</RU>
+    <UA>Jocker 120 кг RAL 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг RAL 8019</RU>
+    <UA>Jocker 120 кг RAL 8019</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг RAL 9005</RU>
+    <UA>Jocker 120 кг RAL 9005</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг RAL 9016</RU>
+    <UA>Jocker 120 кг RAL 9016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг Satin-A</RU>
+    <UA>Jocker 120 кг Satin-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг Silver-A</RU>
+    <UA>Jocker 120 кг Silver-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 120 кг Titan-A</RU>
+    <UA>Jocker 120 кг Titan-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг Gold-A</RU>
+    <UA>Jocker 80 кг Gold-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг RAL 7016</RU>
+    <UA>Jocker 80 кг RAL 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг RAL 8019</RU>
+    <UA>Jocker 80 кг RAL 8019</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг RAL 9005</RU>
+    <UA>Jocker 80 кг RAL 9005</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг RAL 9016</RU>
+    <UA>Jocker 80 кг RAL 9016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг Satin-A</RU>
+    <UA>Jocker 80 кг Satin-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг Silver-A</RU>
+    <UA>Jocker 80 кг Silver-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Jocker 80 кг Titan-A</RU>
+    <UA>Jocker 80 кг Titan-A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Kale 1 точка 85/D25 защ_ролик</RU>
+    <UA>Kale 1 точка 85/D25 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>KFV с крюками</RU>
+    <UA>KFV з гаками</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco Harmony с ключиком</RU>
+    <UA>Maco Harmony з ключиком</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco Harmony с ключиком G/S</RU>
+    <UA>Maco Harmony з ключиком G/S</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM верх_низ</RU>
+    <UA>Maco MM верх_низ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM нижняя</RU>
+    <UA>Maco MM нижня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM средняя</RU>
+    <UA>Maco MM середня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco петля регулируемая</RU>
+    <UA>Maco петля регульована</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>PSK + другий контур сигналізації</RU>
+    <UA>PSK + другий контур сигналізації</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 7016 глц</RU>
+    <UA>RAL 7016 глц</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 7016 мат</RU>
+    <UA>RAL 7016 мат</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Roto 1 ст ручка</RU>
+    <UA>Roto 1 ст ручка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Roto 2 ст ручка</RU>
+    <UA>Roto 2 ст ручка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RotoSwing Secustik бел</RU>
+    <UA>RotoSwing Secustik Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia 4 точки D35 RC2</RU>
+    <UA>Siegenia 4 точки D35 RC2</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia D25 OS</RU>
+    <UA>Siegenia D25 OS</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit верх_низ</RU>
+    <UA>Siegenia Favorit верх_низ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit нижняя</RU>
+    <UA>Siegenia Favorit нижня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit средняя</RU>
+    <UA>Siegenia Favorit середня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan AF верх_низ</RU>
+    <UA>Siegenia Titan AF верх_низ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan AF средняя</RU>
+    <UA>Siegenia Titan AF середня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan верх_низ</RU>
+    <UA>Siegenia Titan верх_низ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Белый</RU>
+    <UA>Siku RB 3D Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Бронза</RU>
+    <UA>Siku RB 3D Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Кор</RU>
+    <UA>Siku RB 3D Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Нержавейка</RU>
+    <UA>Siku RB 3D Нержавіюча сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Титан</RU>
+    <UA>Siku RB 3D Титан</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siku RB 3D Черный</RU>
+    <UA>Siku RB 3D Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Антрацит 7016</RU>
+    <UA>Simonswerk 100 кг Антрацит 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Белый</RU>
+    <UA>Simonswerk 100 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Бронза</RU>
+    <UA>Simonswerk 100 кг Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Кор</RU>
+    <UA>Simonswerk 100 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Серебро</RU>
+    <UA>Simonswerk 100 кг Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 100 кг Покраска</RU>
+    <UA>Simonswerk 100 кг Фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Антрацит 7016</RU>
+    <UA>Simonswerk 120 кг Антрацит 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Белый</RU>
+    <UA>Simonswerk 120 кг Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Бронза</RU>
+    <UA>Simonswerk 120 кг Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Кор</RU>
+    <UA>Simonswerk 120 кг Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Серебро</RU>
+    <UA>Simonswerk 120 кг Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Покраска</RU>
+    <UA>Simonswerk 120 кг Фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Simonswerk 120 кг Черный</RU>
+    <UA>Simonswerk 120 кг Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Synego MD імп 96 маса Антр струк 701605-167 [2.0]</RU>
+    <UA>Synego MD імп 96 маса Антр струк 701605-167 [2.0]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Synego MD імпост 96 мм</RU>
+    <UA>Synego MD імпост 96 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Titan AF Отк_Арка</RU>
+    <UA>Titan AF Отк_Арка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Titan AF Пов_Отк_Арка</RU>
+    <UA>Titan AF Пов_Отк_Арка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Titan AF Пов_Отк_Трапеция</RU>
+    <UA>Titan AF Пов_Отк_Трапеція</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 1 точка 85/92/D25 защ_ролик</RU>
+    <UA>Vorne 1 точка 85/92/D25 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 1 точка 85/92/D35 защ_ролик</RU>
+    <UA>Vorne 1 точка 85/92/D35 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 1 точка 92/D25 защ_ригель</RU>
+    <UA>Vorne 1 точка 92/D25 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 1 точка 92/D35 240 защ_ригель</RU>
+    <UA>Vorne 1 точка 92/D35 240 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 4 точки 92/D35 защ_ригель</RU>
+    <UA>Vorne 4 крапки 92/D35 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 4 точки 92/D25 защ_ригель</RU>
+    <UA>Vorne 4 точки 92/D25 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 4 точки 92/D35 защ_ролик</RU>
+    <UA>Vorne 4 точки 92/D35 защ_ролик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Vorne 4 точки запирания 92/D35 защ_ригель</RU>
+    <UA>Vorne 4 точки замикання 92/D35 защ_ригель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>VSThermo Гібридний полімер 600 ml</RU>
+    <UA>VSThermo Гібридний полімер 600 ml</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Адреса</RU>
+    <UA>Адреси</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>АКЦІЯ! Hoppe Stuttgart DarWin</RU>
+    <UA>АКЦІЯ!</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU 1.5 мм</RU>
+    <UA>Анкерна пластина REHAU 1.5 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU 160/42 1.2 мм з ус_уп</RU>
+    <UA>Анкерна пластина REHAU 160/42 1.2 мм з ус_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU 160/42 1.5 мм з ус 8 мм</RU>
+    <UA>Анкерна пластина REHAU 160/42 1.5 мм з ус 8 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU с ус_уп</RU>
+    <UA>Анкерна пластина REHAU з ус_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Антрацит</RU>
+    <UA>Антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Армування</RU>
+    <UA>Армування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Армирование импост</RU>
+    <UA>Армування імпост</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Армирование рама</RU>
+    <UA>Армування рама</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Армирование створка</RU>
+    <UA>Армування стулка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>арт.865520</RU>
+    <UA>арт.865520</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Многозап FUHR</RU>
+    <UA>Багатозап FUHR</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Многозап GreenteQ</RU>
+    <UA>Багатозап GreenteQ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Многозап Roto</RU>
+    <UA>Багатозап Roto</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Многозап Vorne</RU>
+    <UA>Багатозап Vorne</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Базовая безопасность</RU>
+    <UA>Базова безпека</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Балконная защелка</RU>
+    <UA>Балконна защіпка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без декора</RU>
+    <UA>Без декору</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без демпфера</RU>
+    <UA>Без демпфера</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без замка</RU>
+    <UA>Без замку</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без накладок</RU>
+    <UA>Без накладок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без петель</RU>
+    <UA>Без петель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без регулировки</RU>
+    <UA>Без регулювання</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без ручки</RU>
+    <UA>Без ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без ручки_наж</RU>
+    <UA>Без ручки_наж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без ручки_офис</RU>
+    <UA>Без ручки_офіс</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без цилиндра</RU>
+    <UA>Без циліндра</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без цилиндра [з отв]</RU>
+    <UA>Без циліндра [з отв]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Кор</RU>
+    <UA>Біл/Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Антрацит</RU>
+    <UA>Біл/Антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Біл/Антрацит</RU>
+    <UA>Біл/Антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Бронза</RU>
+    <UA>Біл/Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Цвет</RU>
+    <UA>Біл/Колір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Серебро</RU>
+    <UA>Біл/Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Сталь</RU>
+    <UA>Біл/Сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Покраска</RU>
+    <UA>Біл/Фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Покраска Vorne</RU>
+    <UA>Біл/Фарбування Vorne</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Черный</RU>
+    <UA>Біл/Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бел/Черный глянец</RU>
+    <UA>Біл/Чорний глянець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Белый</RU>
+    <UA>Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Белый 9016</RU>
+    <UA>Білий 9016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Білий/Срібло</RU>
+    <UA>Білий/Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Блокиратор антидетка</RU>
+    <UA>Блокатор антидітка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бронза</RU>
+    <UA>Бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Бронза F4</RU>
+    <UA>Бронза F4</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Будинок</RU>
+    <UA>Будинок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стройка</RU>
+    <UA>Будівництво</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>в ущільнювачі</RU>
+    <UA>в ущільнювачі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вага</RU>
+    <UA>Вага</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вартість</RU>
+    <UA>Вартість</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вартість замовлення дійсна 1 робочий день</RU>
+    <UA>Вартість замовлення дійсна 1 робочий день</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вертикальний</RU>
+    <UA>Вертикальний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>від</RU>
+    <UA>від</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вид конструкцій з боку петель! Відкривання на себе</RU>
+    <UA>Вид конструкцій з боку петель! Відкриття на себе</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Выезд замерщика за город</RU>
+    <UA>Виїзд замірника за місто</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Випуск</RU>
+    <UA>Випуск</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк</RU>
+    <UA>Відк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк противовзлом</RU>
+    <UA>Відк протизлом</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк_Арка</RU>
+    <UA>Відк_Арка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк_Противовзлом</RU>
+    <UA>Відк_Протизлом</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк_только петли</RU>
+    <UA>Відк_тільки петлі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Відкоси</RU>
+    <UA>Відкоси</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>відкосів</RU>
+    <UA>відкосів</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Відлив</RU>
+    <UA>Відлив</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Віконні петлі</RU>
+    <UA>Віконні петлі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вінчестер</RU>
+    <UA>Вінчестер</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вклейка</RU>
+    <UA>Вклейка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вниз</RU>
+    <UA>Вниз</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр пароізоляційна стрічка 70 мм/25м</RU>
+    <UA>Внутр пароізоляційна стрічка 70 мм/25м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр пароізоляційна стрічка 100 мм/5м</RU>
+    <UA>Внутр пароізоляційна стрічка 100 мм/5м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутрішня монтажна стрічка Rehau 25 м</RU>
+    <UA>Внутрішня монтажна стрічка Rehau 25 м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр пароізоляційна стрічка 100 мм/25м_уп</RU>
+    <UA>Внутр пароізоляційна стрічка 100 мм/25м_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Водоотводящие заглушки</RU>
+    <UA>Водовідвідні заглушки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр стрічка Beltape повноклейка 100 мм/20м</RU>
+    <UA>Всередині стрічка Beltape повноклейка 100 мм/20м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр</RU>
+    <UA>Внутр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Всі стандартні пов-відк обв'язки укомплектовані мікропровітрюванням</RU>
+    <UA>Всі стандартні пов-відк обв'язки укомплектовані мікропровітрюванням</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Устанавливать</RU>
+    <UA>Встановлювати</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Устанавливать Siegenia с цапфой</RU>
+    <UA>Встановлювати Siegenia із цапфою</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вузький</RU>
+    <UA>Вузький</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Герметик Profflex A_7 кг</RU>
+    <UA>Герметик Profflex A_7 кг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Герметик Profflex B_7 кг</RU>
+    <UA>Герметик Profflex B_7 кг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Гібридний фасадний герметик 600 мл</RU>
+    <UA>Гібридний фасадний герметик 600 мл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Глухар</RU>
+    <UA>Глухар</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Глянець</RU>
+    <UA>Глянець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Глас Треш</RU>
+    <UA>Глас Треш</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Горизонтальний</RU>
+    <UA>Горизонтальний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Орех</RU>
+    <UA>Горіх</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Графіт кварцитовий</RU>
+    <UA>Графіт кварцитовий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Датчик сигналізації</RU>
+    <UA>Датчик сигналізації</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>дверей</RU>
+    <UA>дверей</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Двері</RU>
+    <UA>Двері</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Двери_Привод</RU>
+    <UA>Двері_Привід</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Двери_Шпингалеты</RU>
+    <UA>Двері_Шпінгалети</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дверной замок</RU>
+    <UA>Дверний замок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дверные</RU>
+    <UA>Дверні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Демпфер</RU>
+    <UA>Демпфер</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Детский замок врезной</RU>
+    <UA>Дитячий замок врізний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Доводчик</RU>
+    <UA>Доводчик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Додаткова продукція та Послуги</RU>
+    <UA>Додаткова продукція та Послуги</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дополнительный</RU>
+    <UA>Додатковий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дополнительные материалы</RU>
+    <UA>Додаткові матеріали</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дополнительные работы</RU>
+    <UA>Додаткові роботи</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дорнмасс</RU>
+    <UA>Дорнмас</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дюбель нейлон Т6/Е 8/40_уп</RU>
+    <UA>Дюбель нейлон Т6/Е 8/40_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дюбель ударний гриб 6/40_уп</RU>
+    <UA>Дюбель ударний гриб 6/40_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дюбель ударний гриб 6/60_уп</RU>
+    <UA>Дюбель ударний гриб 6/60_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-60 імпост 118 мм</RU>
+    <UA>Е-60 імпост 118 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-60 імпост 78 мм</RU>
+    <UA>Е-60 імпост 78 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-60 імпост 86 мм</RU>
+    <UA>Е-60 імпост 86 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-60 штульп</RU>
+    <UA>Е-60 штульп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 120 мм</RU>
+    <UA>Е-70 імпост 120 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм</RU>
+    <UA>Е-70 імпост 78 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм [метал мех соед]</RU>
+    <UA>Е-70 імпост 78 мм [метал мех з'єдн.]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм маса Антр струк 701605-083</RU>
+    <UA>Е-70 імпост 78 мм маса Антр струк 701605-083</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм маса Антр струк 701605-167</RU>
+    <UA>Е-70 імпост 78 мм маса Антр струк 701605-167</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм маса Зол.Дуб 2178001</RU>
+    <UA>Е-70 імпост 78 мм маса Зол.Дуб 2178001</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм маса Махагон 2065021</RU>
+    <UA>Е-70 імпост 78 мм маса Махагон 2065021</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 78 мм маса Тем.Дуб 2052089</RU>
+    <UA>Е-70 імпост 78 мм маса Тем.Дуб 2052089</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 імпост 86 мм</RU>
+    <UA>Е-70 імпост 86 мм</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70 штульп маса Махагон 2065021</RU>
+    <UA>Е-70 штульп маса Махагон 2065021</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Е-70/Br штульп</RU>
+    <UA>Е-70/Br штульп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>С рычагом</RU>
+    <UA>З важелем</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>С регулировкой</RU>
+    <UA>З регулюванням</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>С цапфой</RU>
+    <UA>З цапфою</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальна вартість</RU>
+    <UA>Загальна вартість</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальна площа</RU>
+    <UA>Загальна площа</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальний периметр</RU>
+    <UA>Загальний периметр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Заглушка</RU>
+    <UA>Заглушка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Заглушка паза штапика</RU>
+    <UA>Заглушка паза штапика</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Закруглённый</RU>
+    <UA>Круглий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Заміна</RU>
+    <UA>Заміна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замер</RU>
+    <UA>Замір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замовлення</RU>
+    <UA>Замовлення</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замовник</RU>
+    <UA>Замовник</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замок 4 точки D30 офис</RU>
+    <UA>Замок 4 точки D30 офіс</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замок Антидетка_накладной китай белый</RU>
+    <UA>Замок накладний Китай Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов Занижение ручки</RU>
+    <UA>Пов Заниження ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Занижение ручки</RU>
+    <UA>Заниження ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Заповнения</RU>
+    <UA>Заповнення</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Защита порога</RU>
+    <UA>Захист порога</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зверніть увагу</RU>
+    <UA>Зверніть увагу</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд</RU>
+    <UA>з'єд</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 120/180</RU>
+    <UA>з'єд 120/180</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 180/180</RU>
+    <UA>з'єд 180/180</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 500</RU>
+    <UA>з'єд 500</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 600</RU>
+    <UA>з'єд 600</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 90/135</RU>
+    <UA>з'єд 90/135</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>з'єд 90/180</RU>
+    <UA>з'єд 90/180</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>соед. Danke 120/180</RU>
+    <UA>з'єд Danke 120/180</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>соед. Danke 90/135</RU>
+    <UA>з'єд Danke 90/135</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зима-Лето</RU>
+    <UA>Зима-Літо</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовн</RU>
+    <UA>Зовн</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовн гідроізоляційна стрічка 100 мм/5м</RU>
+    <UA>Зовн гідроізоляційна стрічка 100 мм/5м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовн стрічка Beltape повноклейка 100 мм/20м</RU>
+    <UA>Зовн стрічка Beltape повноклейка 100 мм/20м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовнішня монтажна стрічка Rehau 25 м</RU>
+    <UA>Зовнішня монтажна стрічка Rehau 25 м</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зол.Дуб</RU>
+    <UA>Зол.Дуб</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Золото</RU>
+    <UA>Золото</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Золото глянец</RU>
+    <UA>Золото глянець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Золото мат</RU>
+    <UA>Золото мат</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Золото матовое</RU>
+    <UA>Золото матове</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Імпост</RU>
+    <UA>Імпост</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Импост МС</RU>
+    <UA>Імпост МС</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Імпост/штульп в зборі</RU>
+    <UA>Імпост/штульп у зборі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Индикатор открывания Siegenia</RU>
+    <UA>Індикатор відкриття Siegenia</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Карамель</RU>
+    <UA>Карамель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>кв.м.</RU>
+    <UA>кв.м.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Квадратный</RU>
+    <UA>Квадратний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кварц</RU>
+    <UA>Кварц</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Китай</RU>
+    <UA>Китай</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кіл</RU>
+    <UA>Кіл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кількість виробів</RU>
+    <UA>Кількість виробів</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Количество петель</RU>
+    <UA>Кількість петель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Клин монтажний_уп</RU>
+    <UA>Клин монтажний_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ключ/Барашек</RU>
+    <UA>Ключ/Баранець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ключ врізного замка</RU>
+    <UA>Ключ врізного замку</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ключ/Барашек О/С</RU>
+    <UA>Ключ/Баранець О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ключ/Ключ</RU>
+    <UA>Ключ/Ключ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ключ/Ключ О/С</RU>
+    <UA>Ключ/Ключ О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 6005</RU>
+    <UA>Ковпачок Medos RAL 6005</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 7001</RU>
+    <UA>Ковпачок Medos RAL 7001</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 7016</RU>
+    <UA>Ковпачок Medos RAL 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 7039</RU>
+    <UA>Ковпачок Medos RAL 7039</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 7046</RU>
+    <UA>Ковпачок Medos RAL 7046</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 8003</RU>
+    <UA>Ковпачок Medos RAL 8003</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 8017</RU>
+    <UA>Ковпачок Medos RAL 8017</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 8019</RU>
+    <UA>Ковпачок Medos RAL 8019</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 8077</RU>
+    <UA>Ковпачок Medos RAL 8077</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL 9005</RU>
+    <UA>Ковпачок Medos RAL 9005</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колпачок Medos RAL біл</RU>
+    <UA>Ковпачок Medos RAL Білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Козирок</RU>
+    <UA>Козирок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет оконной ручки</RU>
+    <UA>Колір віконної ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колір внутр / зовн</RU>
+    <UA>Колір внутр / зовн</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет водоотводящих заглушек</RU>
+    <UA>Колір водовідвідних заглушок</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колір врізного замка</RU>
+    <UA>Колір врізного замку</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет дверных петель</RU>
+    <UA>Колір дверних петель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет декор накладок на петли</RU>
+    <UA>Колір декор накладок на петлі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет заглушки паза штапика</RU>
+    <UA>Колір заглушки паза штапика</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет москитной сетки</RU>
+    <UA>Колір МС</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет наж гарнитура</RU>
+    <UA>Колір наж гарнітура</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет основы</RU>
+    <UA>Колір основи</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет основы RAL</RU>
+    <UA>Колір основи RAL</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет офис ручки</RU>
+    <UA>Колір офіс ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колір ручки</RU>
+    <UA>Колір ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет ручки ПСК</RU>
+    <UA>Колір ручки ПСК</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цвет уплотнения</RU>
+    <UA>Колір ущільнення</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колір ущільнювача клапана REHAU</RU>
+    <UA>Колір ущільнювача клапана REHAU</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Комментар</RU>
+    <UA>Коментар</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Коментар до замовлення</RU>
+    <UA>Коментар до замовлення</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Комерційна пропозиція</RU>
+    <UA>Комерційна пропозиція</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>конструкції</RU>
+    <UA>конструкції</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор</RU>
+    <UA>Кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор RAL 8019</RU>
+    <UA>Кор RAL 8019</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор/Антрацит</RU>
+    <UA>Кор/Антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор/Бел</RU>
+    <UA>Кор/Біл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор/Серебро</RU>
+    <UA>Кор/Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор/Черный глянец</RU>
+    <UA>Кор/Чорний глянець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_2052089</RU>
+    <UA>Кор_2052089</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_2065021</RU>
+    <UA>Кор_2065021</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_2178001</RU>
+    <UA>Кор_2178001</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_2178007</RU>
+    <UA>Кор_2178007</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_3149008</RU>
+    <UA>Кор_3149008</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_701605-167</RU>
+    <UA>Кор_701605-167</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кор_851805</RU>
+    <UA>Кор_851805</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Коричневый</RU>
+    <UA>Коричневий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9006 серебро</RU>
+    <UA>Хром. кронш 9006 срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кронштейн 10/14</RU>
+    <UA>Кронштейн 10/14</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Круглий</RU>
+    <UA>Круглий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Угловой переключатель</RU>
+    <UA>Кутовий перемикач</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>м.кв.</RU>
+    <UA>м. кв.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>м.п.</RU>
+    <UA>м.п.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МАГАЗИН</RU>
+    <UA>МАГАЗИН</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Матовий</RU>
+    <UA>Матовий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Махонь</RU>
+    <UA>Махонь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Меламін</RU>
+    <UA>Меламін</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Менеджер</RU>
+    <UA>Менеджер</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Метиз</RU>
+    <UA>Метиз</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Микро</RU>
+    <UA>Мікро</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Микропроветривание</RU>
+    <UA>Мікропровітрювання</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ</RU>
+    <UA>МК МДФ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 600</RU>
+    <UA>МК МДФ 600</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 600 ліві</RU>
+    <UA>МК МДФ 600 ліві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 600 ліві з добором</RU>
+    <UA>МК МДФ 600 ліві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 600 праві</RU>
+    <UA>МК МДФ 600 праві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 600 праві з добором</RU>
+    <UA>МК МДФ 600 праві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 700</RU>
+    <UA>МК МДФ 700</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 700 ліві</RU>
+    <UA>МК МДФ 700 ліві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 700 ліві з добором</RU>
+    <UA>МК МДФ 700 ліві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 700 праві</RU>
+    <UA>МК МДФ 700 праві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 700 праві з добором</RU>
+    <UA>МК МДФ 700 праві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 800</RU>
+    <UA>МК МДФ 800</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 800 ліві</RU>
+    <UA>МК МДФ 800 ліві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 800 ліві з добором</RU>
+    <UA>МК МДФ 800 ліві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 800 праві</RU>
+    <UA>МК МДФ 800 праві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 800 праві з добором</RU>
+    <UA>МК МДФ 800 праві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 900</RU>
+    <UA>МК МДФ 900</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 900 ліві</RU>
+    <UA>МК МДФ 900 ліві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 900 ліві з добором</RU>
+    <UA>МК МДФ 900 ліві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 900 праві</RU>
+    <UA>МК МДФ 900 праві</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МК МДФ 900 праві з добором</RU>
+    <UA>МК МДФ 900 праві з добором</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Монтаж</RU>
+    <UA>Монтаж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Монтажні матеріали</RU>
+    <UA>Монтажні матеріали</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Монтажні матеріали REHAU</RU>
+    <UA>Монтажні матеріали REHAU</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Монтажні матеріали О/С</RU>
+    <UA>Монтажні матеріали О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Anwis (св.пр)</RU>
+    <UA>МС Anwis (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Anwis G/S (св.пр)</RU>
+    <UA>МС Anwis G/S (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite (св.пр)</RU>
+    <UA>МС Valko Elite (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite G/S (св.пр)</RU>
+    <UA>МС Valko Elite G/S (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite антиалергенна (св.пр)</RU>
+    <UA>МС Valko Elite антиалергенна (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite антиалергенна G/S (св.пр)</RU>
+    <UA>МС Valko Elite антиалергенна G/S (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite антикішка (св.пр)</RU>
+    <UA>МС Valko Elite антикішка (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite антикішка G/S (св.пр)</RU>
+    <UA>МС Valko Elite антикішка G/S (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Elite дверная на петлях (габ)</RU>
+    <UA>МС Valko Elite дверна на петлях (габ)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Exclusive (св.пр)</RU>
+    <UA>МС Valko Exclusive (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Premium (св.пр)</RU>
+    <UA>МС Valko Premium (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Premium G/S (св.пр)</RU>
+    <UA>МС Valko Premium G/S (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Premium NEW (св.пр)</RU>
+    <UA>МС Valko Premium NEW (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС Valko Premium NEW G/S (св.пр)</RU>
+    <UA>МС Valko Premium NEW G/S (св.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС дверная на петлях (габ)</RU>
+    <UA>МС дверна на петлях (габ)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС дверная на петлях 17_25 (габ)</RU>
+    <UA>МС дверна на петлях 17_25 (габ)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>МС на карманах (св.пр)</RU>
+    <UA>МС на кишенях (св.пр)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнітур</RU>
+    <UA>Наж гарнітур</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe Austin</RU>
+    <UA>Наж гарнітур Hoppe Austin</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe Liege G/S</RU>
+    <UA>Наж гарнітур Hoppe Liege G/S</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe Liege бел/кор</RU>
+    <UA>Наж гарнітур Hoppe Liege біл/кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe New York</RU>
+    <UA>Наж гарнітур Hoppe New York</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наружу</RU>
+    <UA>Назовні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Найменування</RU>
+    <UA>Найменування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Найменування (внутр / зовн)</RU>
+    <UA>Найменування (внутр / зовн)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка 2-стор</RU>
+    <UA>Накладка 2-стор.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка внутри</RU>
+    <UA>Накладка внутр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка снаружи</RU>
+    <UA>Накладка зовні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладки на сэндвич</RU>
+    <UA>Накладки на сендвіч</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладной</RU>
+    <UA>Накладний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Axor Carina</RU>
+    <UA>Наж гарнітур Axor Carina</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe Liege</RU>
+    <UA>Наж гарнітур Hoppe Liege</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Hoppe Toulon</RU>
+    <UA>Наж гарнітур Hoppe Toulon</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Medos Jowisz</RU>
+    <UA>Наж гарнітур Medos Jowisz</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Vorne</RU>
+    <UA>Наж гарнітур Vorne</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Наж гарнитур Vorne 92</RU>
+    <UA>Наж гарнітур Vorne 92</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нащільник</RU>
+    <UA>Нащільник</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нащільник REHAU</RU>
+    <UA>Нащільник REHAU</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Не устанавливать</RU>
+    <UA>Не встановлювати</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Не ставить</RU>
+    <UA>Не ставити</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нержавейка</RU>
+    <UA>Нержавіюча сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нет</RU>
+    <UA>Ні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нипель крепежный</RU>
+    <UA>Ніпель кріпильний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ограничитель окрывания</RU>
+    <UA>Обмежувач відкривання</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Опции</RU>
+    <UA>Опції</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Отк_Пов TBT</RU>
+    <UA>Отк_Пов TBT</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Оцинковка</RU>
+    <UA>Оцинковка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>оцинковки</RU>
+    <UA>оцинковки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>ПВХ конструкції</RU>
+    <UA>ПВХ конструкції</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Переробка</RU>
+    <UA>Переробка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Периметр</RU>
+    <UA>Периметр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли Axor</RU>
+    <UA>Петлі Axor</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли Maco</RU>
+    <UA>Петлі Maco</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли Siegenia Titan</RU>
+    <UA>Петлі Siegenia Titan</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли Siegenia Titan 130</RU>
+    <UA>Петлі Siegenia Titan 130</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли оконные</RU>
+    <UA>Петлі віконні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли дверные</RU>
+    <UA>Петлі дверні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Петли нижняя</RU>
+    <UA>Петлі нижня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Подвесное О/С</RU>
+    <UA>Підвісне О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Підкладки під сп 42/1 мм_уп</RU>
+    <UA>Підкладки під сп 42/1 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Підкладки під сп 70_уп/Уточнити термін! Вказати 3 або 5/</RU>
+    <UA>Підкладки під сп 70_уп/Уточнити термін! Вказати 3 або 5/</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Підпис</RU>
+    <UA>Підпис</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна REHAU R65 універсал</RU>
+    <UA>Піна REHAU R65 універсал</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Soma Fix Profit зима</RU>
+    <UA>Піна Soma Fix Profit зима</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Soma Fix проф Mega 65 plus зима</RU>
+    <UA>Піна Soma Fix проф Mega 65 plus зима</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Tekapur</RU>
+    <UA>Піна Tekapur</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Tekapur Winter Gun 850</RU>
+    <UA>Піна Tekapur Winter Gun 850</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Tytan</RU>
+    <UA>Піна Tytan</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Піна Tytan зима</RU>
+    <UA>Піна Tytan зима</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Площа</RU>
+    <UA>Площа</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов</RU>
+    <UA>Пов</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов / Вiдк / Вх.група</RU>
+    <UA>Пов / Відк / Вх.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов противовзлом RC2_ШТУЛЬП</RU>
+    <UA>Пов протизлом RC2_ШТУЛЬП</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов противовзлом_ШТУЛЬП</RU>
+    <UA>Пов протизлом_ШТУЛЬП</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк</RU>
+    <UA>Пов_Отк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк RC2</RU>
+    <UA>Пов_Отк RC2</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Арка</RU>
+    <UA>Пов_Отк Арка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Базовая безопасность</RU>
+    <UA>Пов_Отк Базова безпека</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Занижение ручки</RU>
+    <UA>Пов_Отк Заниження ручки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Увеличенный прижим</RU>
+    <UA>Пов_Отк Збільшений притиск</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Скрытые петли</RU>
+    <UA>Пов_Отк Приховані петлі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Скрытые петли RC2</RU>
+    <UA>Пов_Отк Приховані петлі RC2</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк противовзлом</RU>
+    <UA>Пов_Отк протизлом</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк противовзлом RC2</RU>
+    <UA>Пов_Отк протизлом RC2</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Противозломная</RU>
+    <UA>Пов_Отк протизломна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов_Отк Трапеция</RU>
+    <UA>Пов_Отк Трапеція</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов-Відк</RU>
+    <UA>Пов-Відк</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Узгоджено</RU>
+    <UA>Узгоджено</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Поз</RU>
+    <UA>Поз</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пошаговое</RU>
+    <UA>Покрокове</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пошаговое проветривание</RU>
+    <UA>Покрокове провітрювання</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Поріг</RU>
+    <UA>Поріг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Усиленные 130</RU>
+    <UA>Посилені 130</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Поставщик стеклопакетов</RU>
+    <UA>Постачальник склопакетів</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Привод</RU>
+    <UA>Привід</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Привод с ручкой</RU>
+    <UA>Привід із ручкою</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Прижим</RU>
+    <UA>Притиск</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Скрытый</RU>
+    <UA>Прихований</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Скрытые</RU>
+    <UA>Приховані</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Проветривание</RU>
+    <UA>Провітрювання</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Профіль</RU>
+    <UA>Профіль</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>ПСУС Аленор НВ-500 [ш.15мм/д.6м]</RU>
+    <UA>ПСУС Аленор НВ-500 [ш.15мм/д.6м]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рама</RU>
+    <UA>Рама</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рем. ущільнення S/G притвору рами сіре</RU>
+    <UA>Рем. ущільнення S/G притвору рами сір</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рідка дифузійна мембрана 600 мл</RU>
+    <UA>Рідка дифузійна мембрана 600 мл</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рідка пароізоляційна мембрана 1 кг</RU>
+    <UA>Рідка пароізоляційна мембрана 1 кг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Работы и услуги</RU>
+    <UA>Роботи та послуги</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Розміри</RU>
+    <UA>Розміри</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка HST</RU>
+    <UA>Ручка HST</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка Medos наж + офіс</RU>
+    <UA>Ручка Medos наж + офіс</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка Slide</RU>
+    <UA>Ручка Slide</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка віконна</RU>
+    <UA>Ручка віконна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка оконная внутри</RU>
+    <UA>Ручка віконна всередині</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка вход двери</RU>
+    <UA>Ручка вхід двері</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка ракушка</RU>
+    <UA>Ручка ракушка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка ракушка бел.</RU>
+    <UA>Ручка ракушка білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка ракушка кор.</RU>
+    <UA>Ручка ракушка кор.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная L-600/45 нерж</RU>
+    <UA>Ручка офісна L-600/45 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офісна Штанга</RU>
+    <UA>Ручка офісна Штанга</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 1000 нерж</RU>
+    <UA>Ручка офісна Штанга 1000 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 1500 нерж</RU>
+    <UA>Ручка офісна Штанга 1500 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 2000 нерж</RU>
+    <UA>Ручка офісна Штанга 2000 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 500</RU>
+    <UA>Ручка офісна Штанга 500</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 500 нерж</RU>
+    <UA>Ручка офісна Штанга 500 нерж</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ручка офисная Штанга 800</RU>
+    <UA>Ручка офісна Штанга 800</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз з буром та пресшайбою. потай 4.2/65 мм_уп</RU>
+    <UA>Саморіз із буром та пресшайбою. потай 4.2/65 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз з буром. потай 4.8/50 мм_уп</RU>
+    <UA>Саморіз з буром. потай 4.8/50 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз з буром. потай 4.8/60 мм_уп</RU>
+    <UA>Саморіз з буром. потай 4.8/60 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз з буром. потай 4.8/80 мм_уп</RU>
+    <UA>Саморіз з буром. потай 4.8/80 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз з буром. потай 3.9/32 мм_уп</RU>
+    <UA>Саморіз з буром. потай 3.9/32 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Саморіз універсальний 5/50 мм_уп</RU>
+    <UA>Саморіз універсальний 5/50 мм_уп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Сантех</RU>
+    <UA>Сантех</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>сендвіча</RU>
+    <UA>сендвіча</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Средняя бронза</RU>
+    <UA>Середня бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серый</RU>
+    <UA>Сірий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серый RAL 7016</RU>
+    <UA>Сірий RAL 7016</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серый_701605-083</RU>
+    <UA>Сірий_701605-083</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серый_701605-167</RU>
+    <UA>Сірий_701605-167</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серый_Black Ulti-Matt</RU>
+    <UA>Сірий_Black Ulti-Matt</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Склопакет</RU>
+    <UA>Склопакет</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>склопакета</RU>
+    <UA>склопакета</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>склопакета. шт</RU>
+    <UA>склопакета. шт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>склопакета. м.кв</RU>
+    <UA>склопакета. м.кв</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Слоновая кость</RU>
+    <UA>Слонова кістка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серебро</RU>
+    <UA>Срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Серебро натуральное</RU>
+    <UA>Срібло натуральне</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Срібний</RU>
+    <UA>Срібний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ставить</RU>
+    <UA>Ставити</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Сталь</RU>
+    <UA>Сталь</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стандарт</RU>
+    <UA>Стандарт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стандарт 100</RU>
+    <UA>Стандарт 100</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Старое золото</RU>
+    <UA>Старе золото</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стеклайн</RU>
+    <UA>Стеклайн</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіз В 0.9 кг</RU>
+    <UA>Стіз 0.9 кг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіз А 0.9 кг</RU>
+    <UA>Стіз А 0.9 кг</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіз А_відро</RU>
+    <UA>Стіз А_відро</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіз В_відро</RU>
+    <UA>Стіз В_відро</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур</RU>
+    <UA>Стіродур</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 10</RU>
+    <UA>Стіродур 10</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 20</RU>
+    <UA>Стіродур 20</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 30</RU>
+    <UA>Стіродур 30</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 40</RU>
+    <UA>Стіродур 40</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 50</RU>
+    <UA>Стіродур 50</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стіродур 60</RU>
+    <UA>Стіродур 60</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стопорные ножницы</RU>
+    <UA>Стопорні ножиці</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>стор</RU>
+    <UA>стор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Сторона</RU>
+    <UA>Сторона</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Структура підвіконня</RU>
+    <UA>Структура підвіконня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стулка</RU>
+    <UA>Стулка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>стулки</RU>
+    <UA>стулки</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Схема A</RU>
+    <UA>Схема A</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Схема C</RU>
+    <UA>Схема C</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да</RU>
+    <UA>Так</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [наж.гар Axor]</RU>
+    <UA>Так [наж.гар Axor]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [наж.гар Hoppe]</RU>
+    <UA>Так [наж.гар Hoppe]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [наж.гар Medos]</RU>
+    <UA>Так [наж.гар Medos]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [наж.гар Vorne]</RU>
+    <UA>Так [наж.гар Vorne]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [офис 1000]</RU>
+    <UA>Так [офіс 1000]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [офис 1500]</RU>
+    <UA>Так [офіс 1500]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [офис 2000]</RU>
+    <UA>Так [офіс 2000]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [офис 500]</RU>
+    <UA>Так [офіс 500]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да [офис 800]</RU>
+    <UA>Так [офіс 800]</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Да. 145гр</RU>
+    <UA>Так. 145гр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>тел</RU>
+    <UA>тел</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Темная бронза</RU>
+    <UA>Темна бронза</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тем-кор</RU>
+    <UA>Тем-кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тип виробу</RU>
+    <UA>Тип виробу</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тип москитной сетки</RU>
+    <UA>Тип МС</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тип петель</RU>
+    <UA>Тип петель</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Титан</RU>
+    <UA>Титан</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Титан мат светлый</RU>
+    <UA>Титан мат світлий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц 300</RU>
+    <UA>торц 300</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц 350</RU>
+    <UA>торц 350</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц 480</RU>
+    <UA>торц 480</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц 600</RU>
+    <UA>торц 600</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц 700</RU>
+    <UA>торц 700</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц. Danke 350</RU>
+    <UA>торц Danke 350</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц. Danke 700</RU>
+    <UA>торц Danke 700</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торцевая до 700</RU>
+    <UA>торцева до 700</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тюбик краски</RU>
+    <UA>Тюбик фарби</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>в стіні</RU>
+    <UA>у стіні</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Усі ціни вказані в грн.</RU>
+    <UA>Усі ціни вказані в грн.</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ущільнювач</RU>
+    <UA>Ущільнювач</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ущільнювач для еркера</RU>
+    <UA>Ущільнювач для еркера</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>ущільнювача</RU>
+    <UA>ущільнювача</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>фигурный</RU>
+    <UA>фігурний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фіктивний матеріал алюміній</RU>
+    <UA>Фіктивний матеріал алюміній</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Форма штапика</RU>
+    <UA>Форма штапика</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрамужная петля 1 шт</RU>
+    <UA>Фрамужна петля 1 шт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрамужная петля 2 шт</RU>
+    <UA>Фрамужна петля 2 шт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрамужная петля 3 шт</RU>
+    <UA>Фрамужна петля 3 шт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрамужные петли</RU>
+    <UA>Фрамужні петлі</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрезеровать под ручку</RU>
+    <UA>Фрезерувати під ручку</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрикционные ножницы</RU>
+    <UA>Фрикційні ножиці</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фурнітура</RU>
+    <UA>Фурнітура</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фурнітура для фарбування</RU>
+    <UA>Фурнітура для фарбування</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фурнітура з прорахунку</RU>
+    <UA>Фурнітура з прорахунку</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>фурнітури</RU>
+    <UA>фурнітури</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром</RU>
+    <UA>Хром</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 бел/9006 сер</RU>
+    <UA>Хром. кронш 9016 біл/9006 срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 бел/9005 чер</RU>
+    <UA>Хром. кронш 9016 біл/9005 чор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 бел/8019 кор</RU>
+    <UA>Хром. кронш 9016 біл/8019 кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 7016 антрацит</RU>
+    <UA>Хром. кронш 7016 антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 8019 кор</RU>
+    <UA>Хром. кронш 8019 кор</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9005 черный</RU>
+    <UA>Хром. кронш 9005 чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 белый</RU>
+    <UA>Хром. кронш 9016 білий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9005 чорний</RU>
+    <UA>Хром. кронш 9005 чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 білий/ 7016 антрацит</RU>
+    <UA>Хром. кронш 9016 біл/7016 антрацит</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 білий/кронш 9006 срібло</RU>
+    <UA>Хром. кронш 9016 біл/кронш 9006 срібло</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 бел/7016 ант</RU>
+    <UA>Хром. кронш 9016 біл/7016 ант</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цилиндр</RU>
+    <UA>Циліндр</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цилиндр 45_45 ключ-ключ О/С</RU>
+    <UA>Циліндр 45_45 ключ-ключ О/С</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Цилиндр 45_50 ключ-ключ</RU>
+    <UA>Циліндр 45_50 ключ-ключ</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ціна</RU>
+    <UA>Ціна</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Чорний</RU>
+    <UA>Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Черный</RU>
+    <UA>Чорний</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Черный RAL 9005 мат</RU>
+    <UA>Чорний RAL 9005 мат</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Черный глянец</RU>
+    <UA>Чорний глянець</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Черный матовый</RU>
+    <UA>Чорний матовий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Чорний під 44 сп</RU>
+    <UA>Чорний під 44 сп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шампань</RU>
+    <UA>Шампань</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ширина відливу</RU>
+    <UA>Ширина відливу</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ширина козирка</RU>
+    <UA>Ширина козирка</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ширина металу за кресленням</RU>
+    <UA>Ширина металу за кресленням</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ширина нащільника</RU>
+    <UA>Ширина нащільника</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ширина підвіконня</RU>
+    <UA>Ширина підвіконня</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Широкий</RU>
+    <UA>Широкий</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шпингалеты</RU>
+    <UA>Шпінгалети</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>шт</RU>
+    <UA>шт</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 10.5</RU>
+    <UA>Штапик 10.5</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 12.5</RU>
+    <UA>Штапик 12.5</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 14.5 /3к-24. 5к-32/</RU>
+    <UA>Штапик 14.5 /3к-24. 5к-32/</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 14.5 G/S (в глух.с/п)</RU>
+    <UA>Штапик 14.5 G/S (в глух.с/п)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 16.5</RU>
+    <UA>Штапик 16.5</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 22.5 /3к-16. 5к-24/</RU>
+    <UA>Штапик 22.5 /3к-16. 5к-24/</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 26.5</RU>
+    <UA>Штапик 26.5</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 34.5</RU>
+    <UA>Штапик 34.5</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 34.5 /3к-4/</RU>
+    <UA>Штапик 34.5 /3к-4/</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 34.5 G/S</RU>
+    <UA>Штапик 34.5 G/S</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 6.5 /3к32. 5к40/</RU>
+    <UA>Штапик 6.5 /3к32. 5к40/</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик 6.5 G/S (в глух.с/п)</RU>
+    <UA>Штапик 6.5 G/S (в глух.с/п)</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик G 44</RU>
+    <UA>Штапик G 44</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик G 52</RU>
+    <UA>Штапик G 52</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик S 42</RU>
+    <UA>Штапик S 42</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик S 50</RU>
+    <UA>Штапик S 50</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик</RU>
+    <UA>штапик</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик G/S</RU>
+    <UA>штапик G/S</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штапик для</RU>
+    <UA>штапик для</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штроба</RU>
+    <UA>Штроба</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Штульп</RU>
+    <UA>Штульп</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*112</RU>
+    <UA>Шуруп T30 7.5*112</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*122</RU>
+    <UA>Шуруп T30 7.5*122</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*132</RU>
+    <UA>Шуруп T30 7.5*132</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*152</RU>
+    <UA>Шуруп T30 7.5*152</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*182</RU>
+    <UA>Шуруп T30 7.5*182</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*212</RU>
+    <UA>Шуруп T30 7.5*212</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*300</RU>
+    <UA>Шуруп T30 7.5*300</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*62</RU>
+    <UA>Шуруп T30 7.5*62</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*92</RU>
+    <UA>Шуруп T30 7.5*92</UA>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дюбель ударний гриб 6/60_уп</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Підкладки під сп 70_уп/Уточнити термін! Вказати 3 або 5/</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутр стрічка Beltape повноклейка 100 мм/20м</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовн стрічка Beltape повноклейка 100 мм/20м</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU 160/42 1.5 мм з ус 8 мм</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Анкерна пластина REHAU 160/42 1.2 мм з ус_уп</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кронштейн 10/14</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco Harmony</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco Harmony с ключиком</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco Harmony с ключиком G/S</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Bogota G/S (не продаем)</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка узкая Украина</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>GreenteQ с ключиком</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RotoSwing secustik</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2-ст ручка Польша</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>АКЦІЯ! Hoppe Stuttgart DarWin</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe Toulon secustik</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Hoppe LD secustik с ключиком</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Не ставить</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>склопакета. шт</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>сендвіча</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>ущільнювача</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>фурнітури</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>стулки</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>склопакета. м.кв</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>відкосів</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>ПВХ конструкції</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>дверей</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>оцинковки</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>підвіконня</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц. Danke 700</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>торц. Danke 350</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>соед. Danke 90/135</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>соед. Danke 120/180</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замер</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Выезд замерщика за город</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дополнительные работы</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Дополнительные материалы</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*112</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*122</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*132</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*152</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*182</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*212</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*62</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*92</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Шуруп T30 7.5*300</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов / Вiдк / Вх.група</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Пов-Відк</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>PSK + другий контур сигналізації</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нипель крепежный</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Коричневий</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Так</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ні</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фрамужные петли</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Скрытые</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рідка дифузійна мембрана 600 мл</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рідка пароізоляційна мембрана 1 кг</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Гібридний фасадний герметик 600 мл</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Внутрішня монтажна стрічка Rehau 25 м</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зовнішня монтажна стрічка Rehau 25 м</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Белый</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Кор</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Серебро</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Белый</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Кор</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Серебро</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Кор</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Сер</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Схема A</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Схема C</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8019</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 9005</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8014</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 7039</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8024</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8001</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 6012</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8007</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 7016</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>RAL 8003</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2.0_R</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1.75</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 білий</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9005 чорний</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9006 срібло</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 білий/ 7016 антрацит</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Хром. кронш 9016 білий/кронш 9006 срібло</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>500 нерж</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1000 нерж</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1500 нерж</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2000 нерж</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V білий</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V срібло</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V фарбування</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor K2000_06 Т білий</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V білий</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V срібло</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS1500 V фарбування</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Geze TS2000 V чорний</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Soft Close</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Soft Close+Open</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без демпфера</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Soft Close 200</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Soft Close+Open 200</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan AF верх_низ</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan верх_низ</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Titan AF средняя</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit верх_низ</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit нижняя</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Siegenia Favorit средняя</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM верх_низ</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM нижняя</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Maco MM средняя</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Axor верх_низ</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Без декора</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка снаружи</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка внутри</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Накладка 2-стор</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Відлив</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Козирок</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Нащільник</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>в стіні</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>в ущільнювачі</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Бронза</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бронза</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Бронза</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>1 ст ручка_Черный</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Черный</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>2 ст ручка_Бел/Черный</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Roto 1 ст ручка</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Roto 2 ст ручка</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>FKS 1 ст ручка</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>FKS 2 ст ручка</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ущільнювач для еркера</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>арт.865520</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>40x80x4</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>40x80x2</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>40x80x3</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>тел</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Комерційна пропозиція</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>від</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замовник</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Адреса</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Коментар до замовлення</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Профіль</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Фурнітура</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кількість виробів</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>шт</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальний периметр</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>м.п.</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальна площа</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>кв.м.</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вартість</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Загальна вартість</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Усі ціни вказані в грн.</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Поз</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Кіл</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Площа</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Периметр</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вага</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Колір внутр / зовн</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Тип виробу</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Рама</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Стулка</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Імпост</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Поріг</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Заповнения</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Занижение ручки</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Комментар</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Найменування (внутр / зовн)</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Розміри</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Ціна</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вартість</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Додаткова продукція та Послуги</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Найменування</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Зверніть увагу</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вартість замовлення дійсна 1 робочий день</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Вид конструкцій з боку петель! Відкривання на себе</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Всі стандартні пов-відк обв'язки укомплектовані мікропровітрюванням</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замовлення</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Менеджер</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Замовник</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Підпис</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>стор</RU>
+  </values>
+  <values>
+    <ID>1</ID>
+    <RU>Узгоджено</RU>
+  </values>
+</NewDataSet>
