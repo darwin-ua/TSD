@@ -14,6 +14,7 @@ use App\Http\Controllers\Sklad\SkladAlertController;
 use App\Http\Controllers\UserDataController;
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Redis;
+use App\Http\Controllers\Sklad\SkladScanController;
 
 Route::get('/test', [TestController::class, 'getUsers']);
 
@@ -95,6 +96,28 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
         ->name('sklad.orders.pick');
     Route::post('/sklad/orders/accept/fetch', [SkladOrderController::class, 'fetchAcceptOrders'])->name('sklad.orders.accept.fetch');
     Route::get ('/sklad/orders/accept',       [SkladOrderController::class, 'showAcceptOrders'])->name('sklad.orders.accept');
+
+
+    Route::post('/sklad/scan/store', [SkladScanController::class, 'store'])->name('sklad.scan.store');
+
+    // активная ячейка
+    Route::post('/sklad/scan/session/cell', [SkladScanController::class, 'setCell'])->name('sklad.scan.session.cell');
+    Route::get('/sklad/scan/session',        [SkladScanController::class, 'getState'])->name('sklad.scan.session.state');
+    Route::delete('/sklad/scan/session',     [SkladScanController::class, 'clearCell'])->name('sklad.scan.session.clear');
+
+    // запись позиции документа (scan_position_document)
+    Route::post('/sklad/scan/position', [SkladScanController::class, 'storePosition'])->name('sklad.scan.position.store');
+
     // Новый маршрут сканирования
     Route::post('/sklad/scan', [\App\Http\Controllers\Sklad\SkladScanController::class, 'scan'])->name('sklad.scan');
+
+    // запись скана
+    Route::post('/sklad/scan/store', [SkladScanController::class, 'store'])
+        ->name('sklad.scan.store')
+        ->middleware('auth'); // убери, если нужно и для неавторизованных
+
+// просмотреть (опционально)
+    Route::get('/sklad/scan', [SkladScanController::class, 'index'])
+        ->name('sklad.scan.index')
+        ->middleware('auth');
 });
