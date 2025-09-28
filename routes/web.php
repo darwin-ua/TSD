@@ -97,6 +97,8 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     Route::post('/sklad/orders/accept/fetch', [SkladOrderController::class, 'fetchAcceptOrders'])->name('sklad.orders.accept.fetch');
     Route::get ('/sklad/orders/accept',       [SkladOrderController::class, 'showAcceptOrders'])->name('sklad.orders.accept');
 
+    Route::post('/sklad/scan/send', [SkladScanController::class, 'sendTo1C'])
+        ->name('sklad.scan.send');
 
     Route::post('/sklad/scan/store', [SkladScanController::class, 'store'])->name('sklad.scan.store');
 

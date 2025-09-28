@@ -19,5 +19,6 @@ class ScanPositionDocument extends Model
         'code',
         'amount',
         'status',
+        'id_ssylka',   // 👈 ДОБАВЬ ЭТО
     ];
 }

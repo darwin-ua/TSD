@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\QueryException;
 use Throwable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 
@@ -148,106 +149,531 @@ class SkladScanController extends Controller
      */
     public function storePosition(Request $request)
     {
-        Log::info('scan.position.store: incoming', $this->ctx($request, [
-            'payload' => $request->all()
-        ]));
+        Log::info('scan.position.store: incoming', $this->ctx($request, ['payload' => $request->all()]));
 
-        // Валидатор
         $validator = Validator::make($request->all(), [
             'document_id'     => 'required|string|max:50',
             'warehouse_id'    => 'nullable|integer',
-            'position_name'   => 'nullable|integer',
-            'number_position' => 'nullable|integer',
-            'quantity'        => 'nullable|integer',
             'code'            => 'required|string|max:' . self::POS_CODE_MAX,
-            'amount'          => 'nullable|integer',
+            'quantity'        => 'nullable|integer',
             'status'          => 'nullable|integer',
 
-            // чисто для логов:
+            'number_position' => 'nullable|integer',
+            'lines'           => 'nullable|array',
+            'lines.*'         => 'integer',
+
             'doc_link'        => 'nullable|string|max:255',
             'nom'             => 'nullable|string|max:255',
             'line_no'         => 'nullable|integer',
         ]);
-
         if ($validator->fails()) {
-            Log::warning('scan.position.store: validation failed', $this->ctx($request, [
-                'errors' => $validator->errors()->toArray()
-            ]));
             return response()->json(['ok' => false, 'errors' => $validator->errors()], 422);
         }
 
-        // активная ячейка
         $state = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
-        Log::info('scan.position.store: active_cell state', $this->ctx($request, ['state' => $state]));
-
         if (!$state || empty($state['cell'])) {
-            Log::warning('scan.position.store: no active cell', $this->ctx($request));
             return response()->json(['ok' => false, 'msg' => 'Активная ячейка не выбрана'], 422);
         }
 
-        // безопасное усечение кода
+        // нормализация
         $safeCode = mb_substr((string)$request->input('code'), 0, self::POS_CODE_MAX);
 
-        // ===== Нормализация номера документа =====
         $docIdRaw = trim((string)$request->input('document_id'));
         if ($docIdRaw === '') {
             return response()->json(['ok' => false, 'msg' => 'Порожній document_id'], 422);
         }
+        $documentId = ctype_digit($docIdRaw)
+            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
+            : mb_substr($docIdRaw, 0, 50);
 
-        if (ctype_digit($docIdRaw)) {
-            // если просто число — делаем формат "00-00000270"
-            $documentId = '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT);
-        } else {
-            $documentId = mb_substr($docIdRaw, 0, 50);
-        }
-
-        // ===== Определяем warehouse_id =====
         $warehouseId = $request->input('warehouse_id');
         if ($warehouseId === null && is_array($state) && !empty($state['warehouse_id'])) {
             $warehouseId = (int)$state['warehouse_id'];
         }
 
+        // id ячейки
+        $linkId = DB::table('skladskie_yacheiki')
+            ->where('number', $state['cell'])
+            ->value('id');
+
+        // ---- 1) собрать позиции из запроса
+        $lines = $request->input('lines');
+        if (!is_array($lines) || !count($lines)) {
+            $single = $request->input('number_position');
+            if ($single !== null) $lines = [(int)$single];
+        }
+        $lines = array_values(array_unique(array_map('intval', (array)$lines)));
+
+        Log::info('scan.position.store: incoming lines (raw)', $this->ctx($request, [
+            'lines' => $lines,
+            'document_id' => $documentId,
+            'code' => $safeCode,
+        ]));
+
+        // ---- 2) если пришла 0/1 позиция — расширим из session('pick_orders')
+        if (count($lines) <= 1) {
+            $docs = (array) session('pick_orders', []);
+            $expanded = [];
+
+            foreach ($docs as $doc) {
+                $link = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
+                $docNo = $documentId; // уже '00-00000334'
+                $sameDoc =
+                    (isset($doc['document_id']) && (string)$doc['document_id'] === $docNo)
+                    || ($link && mb_strpos($link, $docNo) !== false);
+
+                if (!$sameDoc) continue;
+
+                $rows = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
+                if (!is_array($rows)) $rows = [];
+
+                foreach ($rows as $r) {
+                    $bc = mb_strtolower((string)($r['Штрихкод'] ?? $r->Штрихкод ?? ''));
+                    if ($bc === '') continue;
+
+                    if ($bc === mb_strtolower($safeCode) || mb_strpos($bc, mb_strtolower($safeCode)) !== false) {
+                        $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
+                        if ($ln > 0) $expanded[] = $ln;
+                    }
+                }
+                break;
+            }
+
+            if (count($expanded)) {
+                $before = $lines;
+                $lines = array_values(array_unique(array_merge($lines, $expanded)));
+                Log::info('scan.position.store: expanded lines from session', $this->ctx($request, [
+                    'before' => $before,
+                    'expanded' => $expanded,
+                    'final' => $lines,
+                ]));
+            }
+        }
+
+        if (!count($lines)) {
+            return response()->json(['ok' => false, 'msg' => 'Не переданы позиции (lines/number_position), і не удалось расширить из сессии'], 422);
+        }
+
+        $ids = [];
         try {
-            $row = ScanPositionDocument::create([
-                'user_register'   => Auth::user()->name ?? 'system',
-                'document_id'     => $documentId,
-                'warehouse_id'    => $warehouseId,
-                'position_name'   => $request->input('position_name'),
-                'number_position' => $request->input('number_position'),
-                'quantity'        => $request->input('quantity', 1),
-                'cell'            => $state['cell'],
-                'code'            => $safeCode,
-                'amount'          => $request->input('amount'),
-                'status'          => $request->input('status', 1),
-            ]);
+            DB::beginTransaction();
 
-            // подробный лог
-            Log::info('scan.position.store: SAVED', $this->ctx($request, [
-                'row_id'       => $row->id,
-                'document_id'  => $row->document_id,
-                'warehouse_id' => $row->warehouse_id,
-                'cell'         => $row->cell,
-                'code'         => $row->code,
-                'nom'          => $request->input('nom'),
-                'line_no'      => $request->input('line_no'),
-                'doc_link'     => $request->input('doc_link'),
-            ]));
+            foreach ($lines as $lineNo) {
+                $deltaQty = (int) $request->input('quantity', 1);
+                if ($deltaQty === 0) $deltaQty = 1;
 
-            return response()->json(['ok' => true, 'id' => $row->id]);
+                $existing = ScanPositionDocument::query()
+                    ->where('document_id', $documentId)
+                    ->where('cell', $state['cell'])
+                    ->where('code', $safeCode)
+                    ->where('number_position', $lineNo)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing) {
+                    $before = (int) $existing->quantity;
+                    $existing->quantity = max(0, $before) + $deltaQty;
+
+                    if ($request->filled('status')) {
+                        $existing->status = (int) $request->input('status');
+                    }
+                    if ($request->filled('amount')) {
+                        $existing->amount = $request->input('amount');
+                    }
+                    if ($warehouseId !== null && $existing->warehouse_id !== $warehouseId) {
+                        $existing->warehouse_id = $warehouseId;
+                    }
+
+                    $existing->save();
+
+                    Log::info('scan.position.store: incremented existing line', $this->ctx($request, [
+                        'line'   => $lineNo,
+                        'before' => $before,
+                        'delta'  => $deltaQty,
+                        'after'  => $existing->quantity,
+                        'id'     => $existing->id,
+                    ]));
+
+                    $ids[] = $existing->id;
+                    continue;
+                }
+
+                $row = ScanPositionDocument::create([
+                    'user_register'   => Auth::user()->name ?? 'system',
+                    'document_id'     => $documentId,
+                    'warehouse_id'    => $warehouseId,
+                    'id_ssylka'       => $linkId,
+                    'number_position' => $lineNo,
+                    'quantity'        => $deltaQty,
+                    'cell'            => $state['cell'],
+                    'code'            => $safeCode,
+                    'amount'          => $request->input('amount'),
+                    'status'          => $request->input('status', 1),
+                ]);
+
+                $ids[] = $row->id;
+
+                Log::info('scan.position.store: created new line', $this->ctx($request, [
+                    'line' => $lineNo,
+                    'id'   => $row->id,
+                    'qty'  => $deltaQty,
+                ]));
+            }
+
+            DB::commit();
         } catch (QueryException $qe) {
-            Log::error('scan.position.store: DB error', $this->ctx($request, [
-                'message' => $qe->getMessage(),
-                'sqlState'=> $qe->errorInfo[0] ?? null,
-                'sqlCode' => $qe->errorInfo[1] ?? null,
-            ]));
+            DB::rollBack();
             return response()->json(['ok' => false, 'msg' => 'DB error: '.$qe->getMessage()], 500);
         } catch (Throwable $e) {
-            Log::error('scan.position.store: fatal error', $this->ctx($request, [
-                'message' => $e->getMessage()
-            ]));
+            DB::rollBack();
             return response()->json(['ok' => false, 'msg' => 'Server error'], 500);
         }
+
+        Log::info('scan.position.store: SAVED_BATCH', $this->ctx($request, [
+            'count'         => count($ids),
+            'ids'           => $ids,
+            'document_id'   => $documentId,
+            'cell'          => $state['cell'],
+            'code'          => $safeCode,
+            'id_ssylka'     => $linkId,
+        ]));
+
+        return response()->json(['ok' => true, 'count' => count($ids), 'ids' => $ids]);
     }
+
+    public function sendTo1C(Request $request)
+    {
+        Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
+
+        // 0) Валидация входа
+        $request->validate([
+            'document_id'      => 'required|string|max:50',
+            'mode'             => 'nullable|in:delta,absolute', // delta = СканДельта (по умолчанию), absolute = НовоеКоличество
+            'only_active_cell' => 'nullable|boolean',
+            'fill_placed'      => 'nullable|boolean',
+        ]);
+
+        // 1) Нормализация параметров
+        $docIdRaw   = trim((string)$request->input('document_id'));
+        $documentId = ctype_digit($docIdRaw)
+            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
+            : mb_substr($docIdRaw, 0, 50);
+
+        $mode            = $request->input('mode', 'delta');       // 'delta' | 'absolute'
+        $onlyActiveCell  = (bool)$request->boolean('only_active_cell', true);
+        $fillPlaced      = (bool)$request->boolean('fill_placed', true);
+
+        // 2) Активная ячейка
+        $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+        $activeCell = $state['cell'] ?? null;
+
+        // 3) Сбор дельт из БД
+        $q = DB::table('scan_position_document')
+            ->select([
+                'number_position',
+                DB::raw('SUM(quantity)    AS qty_total'),
+                DB::raw('GROUP_CONCAT(id) AS ids')
+            ])
+            ->where('document_id', $documentId)
+            ->where('status', 1);
+
+        if ($onlyActiveCell && $activeCell) {
+            $q->where('cell', $activeCell);
+        }
+
+        $rows = $q->groupBy('number_position')
+            ->orderBy('number_position')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return response()->json(['ok' => false, 'msg' => 'Нет данных для отправки по этому документу'], 422);
+        }
+
+        // 4) Подтянем ПЛАН и стартовый ФАКТ из session('pick_orders') для расчёта статуса
+        $planMap      = []; // line => Количество (план)
+        $factStartMap = []; // line => Факт/Отобрано на момент открытия (если есть), иначе 0
+
+        $docs = (array) session('pick_orders', []);
+        foreach ($docs as $doc) {
+            $link    = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
+            $sameDoc =
+                (isset($doc['document_id']) && (string)$doc['document_id'] === $documentId)
+                || ($link && mb_strpos($link, $documentId) !== false);
+
+            if (!$sameDoc) continue;
+
+            $lines = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
+            if (!is_array($lines)) $lines = [];
+
+            foreach ($lines as $r) {
+                $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
+                if ($ln <= 0) continue;
+
+                $pl = (int)($r['Количество'] ?? $r->Количество ?? 0);
+                $fc = (int)($r['Факт'] ?? $r->Факт ?? ($r['Отобрано'] ?? $r->Отобрано ?? 0));
+
+                $planMap[$ln]      = $pl;
+                $factStartMap[$ln] = $fc;
+            }
+            break; // нашли нужный документ
+        }
+
+        // 5) Сбор позиций для 1С + список отправляемых ID + карта дельт
+        $positions   = [];
+        $sentScanIds = [];
+        $deltaMap    = []; // line => delta
+
+        foreach ($rows as $r) {
+            $line  = (int)$r->number_position;
+            $delta = (int)$r->qty_total;
+
+            $ids = array_filter(array_map('intval', explode(',', (string)$r->ids)));
+            $sentScanIds = array_merge($sentScanIds, $ids);
+
+            $deltaMap[$line] = ($deltaMap[$line] ?? 0) + $delta;
+
+            if ($mode === 'absolute') {
+                // НовоеКоличество = план (если знаем) + дельта
+                $newQty = ($planMap[$line] ?? 0) + $delta;
+                $positions[] = [
+                    'НомерСтроки'     => $line,
+                    'НовоеКоличество' => $newQty,
+                ];
+            } else {
+                // delta (СканДельта) по умолчанию
+                $positions[] = [
+                    'НомерСтроки' => $line,
+                    'СканДельта'  => $delta,
+                ];
+            }
+        }
+
+        // 6) Рассчитать "СтатусДокумента"
+        // Итоговый факт = стартовый факт + дельта (только по строкам, что отправляем).
+        // Без ошибок — если для всех строк, где есть план, итоговый факт == плану.
+        $allOk = true;
+        foreach ($planMap as $line => $planQty) {
+            $factStart = $factStartMap[$line] ?? 0;
+            $delta     = $deltaMap[$line] ?? 0; // если в этой отправке строки нет — дельта 0
+            $factFinal = $factStart + $delta;
+
+            if ($factFinal !== $planQty) {
+                $allOk = false;
+                break;
+            }
+        }
+        $docStatusStr = $allOk ? 'Выполнено без ошибок' : 'Выполнено с ошибками';
+
+        // 7) Формируем payload в 1С
+        $payload = [
+            'Номер'              => $documentId,
+            'Позиции'            => $positions,
+            'ЗаполнитьРазмещено' => $fillPlaced,
+            'СтатусДокумента'    => $docStatusStr,
+        ];
+
+        Log::info('scan.send1c: payload', $this->ctx($request, ['payload' => $payload]));
+
+        // 8) Адрес 1С
+        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
+
+        // 9) Отправка в 1С (жёстко прошитая Basic Auth)
+        try {
+            $client = new \GuzzleHttp\Client([
+                'timeout' => 20,
+                'verify'  => false,
+            ]);
+
+            $resp = $client->post($url, [
+                'headers' => [
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json; charset=utf-8',
+                ],
+                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'], // <<< авторизация как просил
+                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+
+            $body = (string)$resp->getBody();
+            $code = $resp->getStatusCode();
+
+            Log::info('scan.send1c: 1C response', $this->ctx($request, ['status' => $code, 'body' => $body]));
+
+            if ($code < 200 || $code >= 300) {
+                return response()->json(['ok' => false, 'msg' => '1C HTTP '.$code, 'body' => $body], 502);
+            }
+
+            // 10) Успех: пометить отправленные сканы статусом = 2
+            if (!empty($sentScanIds)) {
+                DB::table('scan_position_document')
+                    ->whereIn('id', $sentScanIds)
+                    ->update(['status' => 2, 'updated_at' => now()]);
+            }
+
+            return response()->json([
+                'ok'             => true,
+                'sent_positions' => count($positions),
+                'sent_scans'     => count($sentScanIds),
+                'one_c_reply'    => $body ? json_decode($body, true) : null,
+                'doc_status'     => $docStatusStr,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('scan.send1c: error', $this->ctx($request, ['err' => $e->getMessage()]));
+            return response()->json(['ok' => false, 'msg' => 'Ошибка отправки в 1С: '.$e->getMessage()], 500);
+        }
+    }
+
+
+
+//    public function sendTo1C(Request $request)
+//    {
+//        Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
+//
+//        // 0) Валидация входа
+//        $request->validate([
+//            'document_id' => 'required|string|max:50',
+//            'mode' => 'nullable|in:delta,absolute', // delta = СканДельта (по умолчанию), absolute = НовоеКоличество
+//            'only_active_cell' => 'nullable|boolean', // если true — шлём только по активной ячейке
+//            'fill_placed' => 'nullable|boolean',      // пробросить "ЗаполнитьРазмещено" в 1С
+//        ]);
+//
+//        // 1) Нормализация параметров
+//        $docIdRaw = trim((string)$request->input('document_id'));
+//        $documentId = ctype_digit($docIdRaw)
+//            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
+//            : mb_substr($docIdRaw, 0, 50);
+//
+//        $mode = $request->input('mode', 'delta'); // 'delta' | 'absolute'
+//        $onlyActiveCell = (bool)$request->boolean('only_active_cell', true);
+//        $fillPlaced = (bool)$request->boolean('fill_placed', true);
+//
+//        // 2) Активная ячейка (для фильтрации отправляемых сканов)
+//        $state = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+//        $activeCell = $state['cell'] ?? null;
+//
+//        // 3) Сбор дельт из БД
+//        $q = DB::table('scan_position_document')
+//            ->select([
+//                'number_position',
+//                DB::raw('SUM(quantity)    AS qty_total'),
+//                DB::raw('GROUP_CONCAT(id) AS ids')
+//            ])
+//            ->where('document_id', $documentId)
+//            ->where('status', 1);
+//
+//        if ($onlyActiveCell && $activeCell) {
+//            $q->where('cell', $activeCell);
+//        }
+//
+//        $rows = $q->groupBy('number_position')
+//            ->orderBy('number_position')
+//            ->get();
+//
+//        if ($rows->isEmpty()) {
+//            return response()->json(['ok' => false, 'msg' => 'Нет данных для отправки по этому документу'], 422);
+//        }
+//
+//        // 4) Для absolute режима можно подтянуть план из session
+//        $absoluteMap = [];
+//        if ($mode === 'absolute') {
+//            $docs = (array)session('pick_orders', []);
+//            foreach ($docs as $doc) {
+//                $link = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
+//                $sameDoc =
+//                    (isset($doc['document_id']) && (string)$doc['document_id'] === $documentId)
+//                    || ($link && mb_strpos($link, $documentId) !== false);
+//                if (!$sameDoc) continue;
+//
+//                $lines = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
+//                if (!is_array($lines)) $lines = [];
+//                foreach ($lines as $r) {
+//                    $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
+//                    $pl = (int)($r['Количество'] ?? $r->Количество ?? 0);
+//                    if ($ln > 0) $absoluteMap[$ln] = $pl;
+//                }
+//                break;
+//            }
+//        }
+//
+//        // 5) Сбор позиций для 1С
+//        $positions = [];
+//        $sentScanIds = [];
+//        foreach ($rows as $r) {
+//            $line = (int)$r->number_position;
+//            $delta = (int)$r->qty_total;
+//            $ids = array_filter(array_map('intval', explode(',', (string)$r->ids)));
+//            $sentScanIds = array_merge($sentScanIds, $ids);
+//
+//            if ($mode === 'absolute') {
+//                $newQty = ($absoluteMap[$line] ?? 0) + $delta;
+//                $positions[] = [
+//                    'НомерСтроки' => $line,
+//                    'НовоеКоличество' => $newQty,
+//                ];
+//            } else {
+//                $positions[] = [
+//                    'НомерСтроки' => $line,
+//                    'СканДельта' => $delta,
+//                ];
+//            }
+//        }
+//
+//        // 6) Формируем payload
+//        $payload = [
+//            'Номер' => $documentId,
+//            'Позиции' => $positions,
+//            'ЗаполнитьРазмещено' => $fillPlaced,
+//        ];
+//
+//        Log::info('scan.send1c: payload', $this->ctx($request, ['payload' => $payload]));
+//
+//        // 7) Адрес 1С
+//        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
+//
+//        // 8) Отправка в 1С
+//        try {
+//            $client = new \GuzzleHttp\Client([
+//                'timeout' => 20,
+//                'verify'  => false,
+//            ]);
+//
+//            $resp = $client->post($url, [
+//                'headers' => [
+//                    'Accept'       => 'application/json',
+//                    'Content-Type' => 'application/json; charset=utf-8',
+//                ],
+//                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'], // <<< добавил авторизацию
+//                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+//            ]);
+//
+//            $body = (string)$resp->getBody();
+//            $code = $resp->getStatusCode();
+//
+//            Log::info('scan.send1c: 1C response', $this->ctx($request, ['status' => $code, 'body' => $body]));
+//
+//            if ($code < 200 || $code >= 300) {
+//                return response()->json(['ok' => false, 'msg' => '1C HTTP ' . $code, 'body' => $body], 502);
+//            }
+//
+//            // 9) Успех — обновляем статусы
+//            if (!empty($sentScanIds)) {
+//                DB::table('scan_position_document')
+//                    ->whereIn('id', $sentScanIds)
+//                    ->update(['status' => 2, 'updated_at' => now()]);
+//            }
+//
+//            return response()->json([
+//                'ok' => true,
+//                'sent_positions' => count($positions),
+//                'sent_scans'     => count($sentScanIds),
+//                'one_c_reply'    => $body ? json_decode($body, true) : null,
+//            ]);
+//
+//        } catch (\Throwable $e) {
+//            Log::error('scan.send1c: error', $this->ctx($request, ['err' => $e->getMessage()]));
+//            return response()->json(['ok' => false, 'msg' => 'Ошибка отправки в 1С: ' . $e->getMessage()], 500);
+//        }
+//    }
 
 
 

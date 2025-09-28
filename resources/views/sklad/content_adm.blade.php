@@ -6,7 +6,7 @@
         <div class="container-fluid" id="operationBlock">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm">Оновити</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
                     <button type="button" class="btn btn-danger btn-sm">Помилка</button>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         <div class="container-fluid d-none" id="alloperation">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm">Оновити</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
                     <button type="button" class="btn btn-danger btn-sm">Помилка</button>
                 </div>
             </div>
@@ -98,7 +98,7 @@
         <div class="container-fluid d-none" id="receiveoperation">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm">Оновити</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
                     <button type="button" class="btn btn-danger btn-sm">Помилка</button>
                 </div>
             </div>

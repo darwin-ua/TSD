@@ -37,8 +37,6 @@
                     <input id="barcodeInput" type="text" class="form-control form-control-lg"
                            placeholder="Сканируйте номенклатуру или штрихкод..." autocomplete="off">
                 </div>
-
-
                 {{-- Список документов --}}
                 <div id="documentsList">
                     @forelse(session('accept_orders', []) as $i => $doc)
@@ -64,7 +62,6 @@
         </section>
     </div>
 @endsection
-
 @push('scripts')
     <style>
         /* чтобы элементы внутри li шли столбцом */
@@ -97,8 +94,6 @@
             white-space: nowrap;
         }
     </style>
-
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const documents = @json(session('accept_orders', []));
@@ -131,8 +126,6 @@
     </div>
   `;
             }
-
-
             function showDocuments() {
                 docList.classList.remove('d-none');
                 posList.classList.add('d-none');
