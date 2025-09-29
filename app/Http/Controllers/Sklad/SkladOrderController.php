@@ -186,6 +186,8 @@ class SkladOrderController extends Controller
 
         return response()->json(['message' => 'Данные успешно получены и обработаны'], 200);
     }
+
+
     public function finishAcceptance(Request $request)
     {
         // 1) Валидация JSON
@@ -243,47 +245,64 @@ class SkladOrderController extends Controller
     public function fetchPickOrders(\Illuminate\Http\Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $login = (string) $user->name;
+        $login    = (string) $user->name;
         $password = (string) $user->parol_1c;
-        Log::info('DEBUG login', [
-            'len' => $user->name,
-            'hex' => bin2hex($user->name),
+
+        // 1) Готовим payload для 1С
+        $executor = trim((string) $request->input('Исполнитель', $user->data_executor ?: 'Кучеренко Денис'));
+
+        // Нормализуем статус (допустимы: ВРаботе / Подготовлено / КПоступлению и т.п.)
+        $statusRaw = (string) $request->input('Статус', 'ВРаботе');
+        $status    = preg_replace('/\s+/u', '', $statusRaw); // "В работе" -> "Вработе" (если в 1С ждёшь без пробелов)
+
+        $payload = [
+            'Исполнитель' => $executor,
+            'Статус'      => $status, // если нужно точно "ВРаботе" — передавай уже таким
+        ];
+
+        \Log::info('pick.fetch → 1C payload', $payload);
+        \Log::info('pick.fetch → auth', [
+            'login_len' => mb_strlen($login),
+            'login_hex' => bin2hex($login),
         ]);
 
+        // 2) Запрос в 1С
         $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
-            ->acceptJson()->timeout(60)
-            ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', []);
+            ->asJson()                             // гарантируем JSON-формат тела
+            ->acceptJson()                         // ждём JSON в ответ
+            ->timeout(60)
+            ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', $payload);
 
+        // режим отладки: просто проксируем ответ 1С
         if ($request->boolean('debug')) {
             return response($resp->body(), $resp->status())
                 ->withHeaders(['Content-Type' => 'application/json; charset=utf-8']);
         }
 
         if (!$resp->successful()) {
-            \Log::error('1C HTTP error', ['status'=>$resp->status(),'body'=>mb_substr($resp->body(),0,1000)]);
-            return response()->json(['ok'=>false,'msg'=>'Ошибка 1С: '.$resp->status()], 200);
+            \Log::error('1C HTTP error', ['status' => $resp->status(), 'body' => mb_substr($resp->body(), 0, 1000)]);
+            return response()->json(['ok' => false, 'msg' => 'Ошибка 1С: ' . $resp->status()], 200);
         }
 
-        $raw = $resp->body();
+        $raw  = $resp->body();
         $json = json_decode($raw, true);
-
         if (!is_array($json)) {
             $json = $this->sanitize1CJson($raw);
         }
-
         if (!is_array($json)) {
-            \Log::error('Bad JSON from 1C (even after fix)', ['raw'=>mb_substr($raw,0,1000)]);
-            return response()->json(['ok'=>false,'msg'=>'Некорректный JSON от 1С'], 200);
+            \Log::error('Bad JSON from 1C (even after fix)', ['raw' => mb_substr($raw, 0, 1000)]);
+            return response()->json(['ok' => false, 'msg' => 'Некорректный JSON от 1С'], 200);
         }
 
         $orders = $json['documents'] ?? [];
-        if ($orders instanceof \Illuminate\Support\Collection) $orders = $orders->toArray();
-        elseif (is_string($orders)) $orders = json_decode($orders, true) ?: [];
+        if ($orders instanceof \Illuminate\Support\Collection) {
+            $orders = $orders->toArray();
+        } elseif (is_string($orders)) {
+            $orders = json_decode($orders, true) ?: [];
+        }
 
-        Log::info('RAW response from 1C:', ['raw' => $raw]);
-        Log::info('Parsed JSON:', ['json' => $json]);
+        \Log::info('RAW response from 1C:', ['raw' => $raw]);
+        \Log::info('Parsed JSON:', ['json' => $json]);
 
         session(['pick_orders' => $orders]);
 
@@ -293,7 +312,7 @@ class SkladOrderController extends Controller
             'Статус' => $orders[0]['Статус'] ?? null,
         ] : null;
 
-        \Log::info('pick.fetch saved to session', ['count'=>$count,'first'=>$first]);
+        \Log::info('pick.fetch saved to session', ['count' => $count, 'first' => $first]);
 
         return response()->json([
             'ok'       => true,
@@ -302,6 +321,7 @@ class SkladOrderController extends Controller
             'redirect' => route('sklad.orders.pick'),
         ], 200);
     }
+
     public function fetchAcceptOrders(Request $request)
     {
         $payload = [
@@ -379,12 +399,29 @@ class SkladOrderController extends Controller
         // раньше было: return response()->json($orders);
         return view('sklad.orders.accept', ['orders' => $orders]);
     }
+//    public function pickPage()
+//    {
+//        $orders = session('pick_orders', []);
+//        // на всякий случай добьём нормализацию
+//        if ($orders instanceof \Illuminate\Support\Collection) $orders = $orders->toArray();
+//        if (is_string($orders)) $orders = json_decode($orders, true) ?: [];
+//
+//        return view('sklad.orders.pick', compact('orders'));
+//    }
+
     public function pickPage()
     {
         $orders = session('pick_orders', []);
-        // на всякий случай добьём нормализацию
         if ($orders instanceof \Illuminate\Support\Collection) $orders = $orders->toArray();
         if (is_string($orders)) $orders = json_decode($orders, true) ?: [];
+
+        // если документов нет — сразу уходим на free, передав активную ячейку
+        if (empty($orders)) {
+            $cell = session('scan_state.cell');
+            return $cell
+                ? redirect()->route('sklad.scan.free', ['cell' => $cell])
+                : redirect()->route('sklad.scan.free');
+        }
 
         return view('sklad.orders.pick', compact('orders'));
     }

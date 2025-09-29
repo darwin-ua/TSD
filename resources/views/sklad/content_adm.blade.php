@@ -135,7 +135,7 @@
                     <div class="col-12">
                         <div class="small-box" style="background-color:#b3b3b3;">
                             <div class="inner" style="color:#ffffff;">
-                                <p>Сканируйте штрихкод</p>
+                                <p>Сканируйте штрихкод пп</p>
                                 <input id="placementBarcode" type="text"
                                        class="form-control form-control-lg mt-2"
                                        placeholder="Скан..." autocomplete="off">
@@ -144,9 +144,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- === конец вставки === --}}
-
 
                 <div class="col-12">
                     <div class="small-box" style="background-color: #b3b3b3;">
@@ -286,6 +283,9 @@
         const barcodeEl    = document.getElementById('placementBarcode');   // input
         const submitBtn    = document.getElementById('placementScanSubmit');// внутренняя кнопка "Так"
 
+        // маршрут свободного сканирования (редирект если доков нет)
+        const FREE_ROUTE = "{{ route('sklad.scan.free') }}";
+
         // Показать ТОЛЬКО блок "Сканируйте штрихкод"
         if (btnPick && receiveBlock && scanRow) {
             btnPick.addEventListener('click', (e) => {
@@ -384,13 +384,23 @@
                     let data = {};
                     try { data = raw ? JSON.parse(raw) : {}; } catch {}
 
+                    // === КЛЮЧЕВОЕ МЕСТО ===
                     if (data.ok && data.redirect) {
-                        window.location.href = data.redirect; // стандартный флоу: открываем документы
+                        // документы есть → идём в стандартный флоу
+                        window.location.href = data.redirect;
                         return;
                     }
 
-                    // если бекенд ответил без redirect — покажем, что пришло
-                    alert('Документы: ' + JSON.stringify(data.docs || []));
+                    // нет redirect; проверяем массив docs и редиректим в free при пустом списке
+                    const docs = Array.isArray(data.docs) ? data.docs : [];
+                    if (docs.length === 0) {
+                        // документов НЕТ → свободное сканирование
+                        window.location.href = FREE_ROUTE;
+                        return;
+                    }
+
+                    // fallback: документы есть, но бекенд не прислал redirect — сообщим
+                    alert('Документы найдены, но redirect не пришёл. Проверь ответ сервера.');
 
                 } catch (err) {
                     console.error(err);
@@ -403,205 +413,4 @@
         }
     });
 </script>
-
-{{--<script>--}}
-{{--    document.addEventListener('DOMContentLoaded', () => {--}}
-{{--        /* ===== Переключатель экранов (Главное меню ↔ подпункты) ===== */--}}
-{{--        document.querySelectorAll('.btn-switch').forEach((btn) => {--}}
-{{--            btn.addEventListener('click', () => {--}}
-{{--                const targetId = btn.getAttribute('data-target');--}}
-{{--                // Скрыть все контейнеры-экраны--}}
-{{--                document.querySelectorAll('.container-fluid').forEach(el => el.classList.add('d-none'));--}}
-{{--                // Показать нужный--}}
-{{--                const target = document.getElementById(targetId);--}}
-{{--                if (target) target.classList.remove('d-none');--}}
-{{--            });--}}
-{{--        });--}}
-
-{{--        /* ===== Кнопка "Обновить" (если есть в DOM) ===== */--}}
-{{--        const refreshBtn = document.getElementById('refreshButton');--}}
-{{--        if (refreshBtn) {--}}
-{{--            refreshBtn.addEventListener('click', (e) => {--}}
-{{--                e.preventDefault();--}}
-{{--                const icon = document.getElementById('refreshIcon');--}}
-{{--                if (icon) icon.classList.add('rotate');--}}
-
-{{--                fetch(window.location.pathname + '?refresh=1')--}}
-{{--                    .then((resp) => {--}}
-{{--                        if (resp.ok) {--}}
-{{--                            window.location.href = window.location.pathname;--}}
-{{--                        } else {--}}
-{{--                            console.error('Ошибка при обновлении данных');--}}
-{{--                            if (icon) icon.classList.remove('rotate');--}}
-{{--                        }--}}
-{{--                    })--}}
-{{--                    .catch((err) => {--}}
-{{--                        console.error('Ошибка запроса:', err);--}}
-{{--                        if (icon) icon.classList.remove('rotate');--}}
-{{--                    });--}}
-{{--            });--}}
-{{--        }--}}
-
-{{--        /* ===== Приёмка (btnAccept) ===== */--}}
-{{--        const btnAccept = document.getElementById('btnAccept');--}}
-{{--        if (btnAccept) {--}}
-{{--            const ORIGINAL = btnAccept.textContent;--}}
-{{--            btnAccept.addEventListener('click', async () => {--}}
-{{--                btnAccept.disabled = true;--}}
-{{--                btnAccept.textContent = 'Загрузка…';--}}
-
-{{--                try {--}}
-{{--                    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';--}}
-{{--                    const resp = await fetch("{{ route('sklad.orders.accept.fetch') }}", {--}}
-{{--                        method: 'POST',--}}
-{{--                        headers: {--}}
-{{--                            'X-CSRF-TOKEN': csrf,--}}
-{{--                            'Accept': 'application/json',--}}
-{{--                            'Content-Type': 'application/json',--}}
-{{--                            'X-Requested-With': 'XMLHttpRequest',--}}
-{{--                        },--}}
-{{--                        credentials: 'same-origin',--}}
-{{--                        body: JSON.stringify({}),--}}
-{{--                    });--}}
-
-{{--                    const raw = await resp.text();--}}
-{{--                    console.log('accept.fetch STATUS:', resp.status, resp.statusText);--}}
-{{--                    console.log('accept.fetch RAW   :', raw);--}}
-
-{{--                    if (!resp.ok) {--}}
-{{--                        alert(`Ошибка запроса: HTTP ${resp.status}\n` + (raw?.slice(0, 500) || ''));--}}
-{{--                        return;--}}
-{{--                    }--}}
-
-{{--                    let data;--}}
-{{--                    try { data = raw ? JSON.parse(raw) : {}; }--}}
-{{--                    catch {--}}
-{{--                        alert('Некорректный ответ сервера (не JSON).');--}}
-{{--                        return;--}}
-{{--                    }--}}
-
-{{--                    if (data.ok && data.redirect) {--}}
-{{--                        window.location.href = data.redirect;--}}
-{{--                    } else {--}}
-{{--                        alert((data && (data.msg || data.body)) || 'Неизвестная ошибка.');--}}
-{{--                    }--}}
-{{--                } catch (err) {--}}
-{{--                    console.error('Fetch error:', err);--}}
-{{--                    alert('Сбой сети/сервера. Проверьте консоль и Network.');--}}
-{{--                } finally {--}}
-{{--                    btnAccept.disabled = false;--}}
-{{--                    btnAccept.textContent = ORIGINAL;--}}
-{{--                }--}}
-{{--            });--}}
-{{--        }--}}
-
-{{--        /* ===== Размещение → Сканируйте штрихкод ===== */--}}
-{{--        const btnPick      = document.getElementById('btnPick');            // кнопка "Размещение → Так"--}}
-{{--        const receiveBlock = document.getElementById('receiveoperation');   // экран "Принять"--}}
-{{--        const scanRow      = document.getElementById('placementScan');      // наш ряд с инпутом--}}
-{{--        const barcodeEl    = document.getElementById('placementBarcode');   // input--}}
-{{--        const submitBtn    = document.getElementById('placementScanSubmit');// внутренняя кнопка "Так"--}}
-
-{{--        // Показать ТОЛЬКО блок "Сканируйте штрихкод"--}}
-{{--        if (btnPick && receiveBlock && scanRow) {--}}
-{{--            btnPick.addEventListener('click', (e) => {--}}
-{{--                e.preventDefault();--}}
-
-{{--                // Скрыть только верхнеуровневые карточки (соседи), не трогая вложенные--}}
-{{--                const topCols = receiveBlock.querySelectorAll(':scope > .row > .col-12');--}}
-{{--                topCols.forEach(col => col.classList.add('d-none'));--}}
-
-{{--                // Показать наш блок-строку и его содержимое--}}
-{{--                scanRow.classList.remove('d-none');--}}
-{{--                scanRow.querySelectorAll('.col-12').forEach(col => col.classList.remove('d-none'));--}}
-
-{{--                // Фокус в поле--}}
-{{--                setTimeout(() => barcodeEl?.focus(), 0);--}}
-{{--            });--}}
-{{--        }--}}
-
-{{--        // Enter в поле = нажать "Так"--}}
-{{--        if (barcodeEl && submitBtn) {--}}
-{{--            barcodeEl.addEventListener('keydown', (e) => {--}}
-{{--                if (e.key === 'Enter') {--}}
-{{--                    e.preventDefault();--}}
-{{--                    submitBtn.click();--}}
-{{--                }--}}
-{{--            });--}}
-{{--        }--}}
-
-{{--        // Отправка скана--}}
-{{--        if (submitBtn && barcodeEl) {--}}
-{{--            submitBtn.addEventListener('click', async () => {--}}
-{{--                const code = (barcodeEl.value || '').trim();--}}
-{{--                if (!code) {--}}
-{{--                    barcodeEl.classList.add('is-invalid');--}}
-{{--                    setTimeout(() => barcodeEl.classList.remove('is-invalid'), 800);--}}
-{{--                    barcodeEl.focus();--}}
-{{--                    return;--}}
-{{--                }--}}
-
-{{--                try {--}}
-{{--                    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';--}}
-
-{{--                    /* 1) (если настроено) — логируем скан в таблицу scan_code */--}}
-{{--                    try {--}}
-{{--                        await fetch("{{ route('sklad.scan.store') }}", {--}}
-{{--                            method: 'POST',--}}
-{{--                            headers: {--}}
-{{--                                'X-CSRF-TOKEN': csrf,--}}
-{{--                                'Accept': 'application/json',--}}
-{{--                                'Content-Type': 'application/json',--}}
-{{--                            },--}}
-{{--                            credentials: 'same-origin',--}}
-{{--                            body: JSON.stringify({--}}
-{{--                                code: code,           // штрихкод--}}
-{{--                                // Можно дополнить: document_id, warehouse_id, cell, amount, status, order_date--}}
-{{--                            }),--}}
-{{--                        });--}}
-{{--                    } catch (e) {--}}
-{{--                        // если маршрут ещё не создан — просто молча продолжаем--}}
-{{--                        console.warn('scan.store недоступен (пока). Продолжаем…');--}}
-{{--                    }--}}
-
-{{--                    /* 2) основной шаг — поиск/переход к документам */--}}
-{{--                    const resp = await fetch("{{ route('sklad.orders.pick.fetch') }}", {--}}
-{{--                        method: 'POST',--}}
-{{--                        headers: {--}}
-{{--                            'X-CSRF-TOKEN': csrf,--}}
-{{--                            'Accept': 'application/json',--}}
-{{--                            'Content-Type': 'application/json',--}}
-{{--                            'X-Requested-With': 'XMLHttpRequest',--}}
-{{--                        },--}}
-{{--                        credentials: 'same-origin',--}}
-{{--                        body: JSON.stringify({ barcode: code }),--}}
-{{--                    });--}}
-
-{{--                    const raw = await resp.text();--}}
-{{--                    let data = {};--}}
-{{--                    try { data = raw ? JSON.parse(raw) : {}; } catch {}--}}
-
-{{--                    if (data.ok && data.redirect) {--}}
-{{--                        window.location.href = data.redirect; // стандартный флоу: открываем документы--}}
-{{--                        return;--}}
-{{--                    }--}}
-
-{{--                    // если бекенд ответил без redirect — покажем, что пришло--}}
-{{--                    alert('Документы: ' + JSON.stringify(data.docs || []));--}}
-
-{{--                } catch (err) {--}}
-{{--                    console.error(err);--}}
-{{--                    alert('Помилка мережі/сервера');--}}
-{{--                } finally {--}}
-{{--                    barcodeEl.value = '';--}}
-{{--                    barcodeEl.focus();--}}
-{{--                }--}}
-{{--            });--}}
-{{--        }--}}
-{{--    });--}}
-{{--</script>--}}
-
-
-
-
 

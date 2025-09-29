@@ -122,4 +122,53 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     Route::get('/sklad/scan', [SkladScanController::class, 'index'])
         ->name('sklad.scan.index')
         ->middleware('auth');
+
+    Route::get('/sklad/scan/free', [SkladScanController::class, 'freeScanPage'])
+        ->name('sklad.scan.free');
+
+    Route::post('/sklad/scan/free/scan', [SkladScanController::class, 'freeScanStore'])
+        ->name('sklad.scan.free.store');
+
+    // routes/web.php
+    Route::get('/sklad/cell/label', function (\Illuminate\Http\Request $request) {
+        $num = (string) $request->query('number', '');
+        $row = null;
+
+        if ($num !== '') {
+            $row = \Illuminate\Support\Facades\DB::table('skladskie_yacheiki')
+                ->select('ssylka', 'room')
+                ->where('number', $num)
+                ->first();
+        }
+
+        $label = $row->ssylka ?? null;
+        $room  = $row->room   ?? null;
+
+        // Маппинг room -> tab
+        $r = mb_strtolower((string)$room);
+        $tab =
+            (str_contains($r, 'доп'))               ? 'dopy' :
+                ((str_contains($r, 'комп'))             ? 'kom'  :
+                    /* по умолчанию всё остальное — ГП */      'gp');
+
+        return response()->json([
+            'label' => $label,
+            'room'  => $room,
+            'tab'   => $tab,
+        ]);
+    })->name('sklad.cell.label');
+
+
+//    // routes/web.php
+//    Route::get('/sklad/cell/label', function (\Illuminate\Http\Request $request) {
+//        $num = (string)$request->query('number', '');
+//        $label = null;
+//        if ($num !== '') {
+//            $label = \Illuminate\Support\Facades\DB::table('skladskie_yacheiki')
+//                ->where('number', $num)
+//                ->value('ssylka');
+//        }
+//        return response()->json(['label' => $label]);
+//    })->name('sklad.cell.label');
+
 });

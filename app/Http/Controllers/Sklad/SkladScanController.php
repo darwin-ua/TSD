@@ -341,6 +341,8 @@ class SkladScanController extends Controller
         return response()->json(['ok' => true, 'count' => count($ids), 'ids' => $ids]);
     }
 
+
+
     public function sendTo1C(Request $request)
     {
         Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
@@ -523,159 +525,114 @@ class SkladScanController extends Controller
         }
     }
 
+    public function freeScanPage(Request $request)
+    {
+        $cell = $request->query('cell');
+
+        if (!$cell) {
+            $state = $request->session()->get('active_cell');
+            $cell  = $state['cell'] ?? null;
+        }
+
+        if ($cell) {
+            session(['scan_state.cell' => $cell]); // для совместимости
+        }
+
+        $cellRow = null;
+        if ($cell) {
+            $cellRow = \DB::table('skladskie_yacheiki')
+                ->where('number', $cell)
+                ->orWhere('ssylka', $cell)
+                ->orWhere('room', $cell)
+                ->first();
+        }
+
+        Log::info('FREE_SCAN: входящий cell', [
+            'query'   => $request->query('cell'),
+            'session' => session('scan_state.cell'),
+            'active'  => $request->session()->get('active_cell'),
+        ]);
+
+        return view('sklad.free_scan', [
+            'activeCell' => $cell,
+            'cellRow'    => $cellRow,
+        ]);
+    }
 
 
-//    public function sendTo1C(Request $request)
+
+// Пример: SkladScanController.php
+    public function saveActiveCell(Request $request)
+    {
+        $cell = trim((string) $request->input('cell', ''));
+        $warehouseId = $request->input('warehouse_id'); // если надо
+        session(['scan_state.cell' => $cell, 'scan_state.warehouse_id' => $warehouseId]);
+        return response()->json(['ok' => true, 'state' => session('scan_state')], 200);
+    }
+//    public function freeScanPage(\Illuminate\Http\Request $request)
 //    {
-//        Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
+//        // Здесь предполагаем, что ты уже где-то сохраняешь active state (ячейку) в сессии
+//        // Например, у тебя есть эндпоинт STATE_FETCH_URL, который это делает.
+//        // Для Blade страницы просто отдадим то, что знаем:
+//        $state = $request->session()->get('scan_state'); // или откуда ты его берёшь
+//        $cell  = $state['cell'] ?? null;
 //
-//        // 0) Валидация входа
-//        $request->validate([
-//            'document_id' => 'required|string|max:50',
-//            'mode' => 'nullable|in:delta,absolute', // delta = СканДельта (по умолчанию), absolute = НовоеКоличество
-//            'only_active_cell' => 'nullable|boolean', // если true — шлём только по активной ячейке
-//            'fill_placed' => 'nullable|boolean',      // пробросить "ЗаполнитьРазмещено" в 1С
+//        // Можно дополнительно красиво получить label/room, если есть свой сервис/роут
+//        return view('sklad.free_scan', [
+//            'cell' => $cell,
+//            // опционально: 'label' => ..., 'room' => ...,
 //        ]);
-//
-//        // 1) Нормализация параметров
-//        $docIdRaw = trim((string)$request->input('document_id'));
-//        $documentId = ctype_digit($docIdRaw)
-//            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
-//            : mb_substr($docIdRaw, 0, 50);
-//
-//        $mode = $request->input('mode', 'delta'); // 'delta' | 'absolute'
-//        $onlyActiveCell = (bool)$request->boolean('only_active_cell', true);
-//        $fillPlaced = (bool)$request->boolean('fill_placed', true);
-//
-//        // 2) Активная ячейка (для фильтрации отправляемых сканов)
-//        $state = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
-//        $activeCell = $state['cell'] ?? null;
-//
-//        // 3) Сбор дельт из БД
-//        $q = DB::table('scan_position_document')
-//            ->select([
-//                'number_position',
-//                DB::raw('SUM(quantity)    AS qty_total'),
-//                DB::raw('GROUP_CONCAT(id) AS ids')
-//            ])
-//            ->where('document_id', $documentId)
-//            ->where('status', 1);
-//
-//        if ($onlyActiveCell && $activeCell) {
-//            $q->where('cell', $activeCell);
-//        }
-//
-//        $rows = $q->groupBy('number_position')
-//            ->orderBy('number_position')
-//            ->get();
-//
-//        if ($rows->isEmpty()) {
-//            return response()->json(['ok' => false, 'msg' => 'Нет данных для отправки по этому документу'], 422);
-//        }
-//
-//        // 4) Для absolute режима можно подтянуть план из session
-//        $absoluteMap = [];
-//        if ($mode === 'absolute') {
-//            $docs = (array)session('pick_orders', []);
-//            foreach ($docs as $doc) {
-//                $link = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
-//                $sameDoc =
-//                    (isset($doc['document_id']) && (string)$doc['document_id'] === $documentId)
-//                    || ($link && mb_strpos($link, $documentId) !== false);
-//                if (!$sameDoc) continue;
-//
-//                $lines = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
-//                if (!is_array($lines)) $lines = [];
-//                foreach ($lines as $r) {
-//                    $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
-//                    $pl = (int)($r['Количество'] ?? $r->Количество ?? 0);
-//                    if ($ln > 0) $absoluteMap[$ln] = $pl;
-//                }
-//                break;
-//            }
-//        }
-//
-//        // 5) Сбор позиций для 1С
-//        $positions = [];
-//        $sentScanIds = [];
-//        foreach ($rows as $r) {
-//            $line = (int)$r->number_position;
-//            $delta = (int)$r->qty_total;
-//            $ids = array_filter(array_map('intval', explode(',', (string)$r->ids)));
-//            $sentScanIds = array_merge($sentScanIds, $ids);
-//
-//            if ($mode === 'absolute') {
-//                $newQty = ($absoluteMap[$line] ?? 0) + $delta;
-//                $positions[] = [
-//                    'НомерСтроки' => $line,
-//                    'НовоеКоличество' => $newQty,
-//                ];
-//            } else {
-//                $positions[] = [
-//                    'НомерСтроки' => $line,
-//                    'СканДельта' => $delta,
-//                ];
-//            }
-//        }
-//
-//        // 6) Формируем payload
-//        $payload = [
-//            'Номер' => $documentId,
-//            'Позиции' => $positions,
-//            'ЗаполнитьРазмещено' => $fillPlaced,
-//        ];
-//
-//        Log::info('scan.send1c: payload', $this->ctx($request, ['payload' => $payload]));
-//
-//        // 7) Адрес 1С
-//        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
-//
-//        // 8) Отправка в 1С
-//        try {
-//            $client = new \GuzzleHttp\Client([
-//                'timeout' => 20,
-//                'verify'  => false,
-//            ]);
-//
-//            $resp = $client->post($url, [
-//                'headers' => [
-//                    'Accept'       => 'application/json',
-//                    'Content-Type' => 'application/json; charset=utf-8',
-//                ],
-//                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'], // <<< добавил авторизацию
-//                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-//            ]);
-//
-//            $body = (string)$resp->getBody();
-//            $code = $resp->getStatusCode();
-//
-//            Log::info('scan.send1c: 1C response', $this->ctx($request, ['status' => $code, 'body' => $body]));
-//
-//            if ($code < 200 || $code >= 300) {
-//                return response()->json(['ok' => false, 'msg' => '1C HTTP ' . $code, 'body' => $body], 502);
-//            }
-//
-//            // 9) Успех — обновляем статусы
-//            if (!empty($sentScanIds)) {
-//                DB::table('scan_position_document')
-//                    ->whereIn('id', $sentScanIds)
-//                    ->update(['status' => 2, 'updated_at' => now()]);
-//            }
-//
-//            return response()->json([
-//                'ok' => true,
-//                'sent_positions' => count($positions),
-//                'sent_scans'     => count($sentScanIds),
-//                'one_c_reply'    => $body ? json_decode($body, true) : null,
-//            ]);
-//
-//        } catch (\Throwable $e) {
-//            Log::error('scan.send1c: error', $this->ctx($request, ['err' => $e->getMessage()]));
-//            return response()->json(['ok' => false, 'msg' => 'Ошибка отправки в 1С: ' . $e->getMessage()], 500);
-//        }
 //    }
 
+    /**
+     * Принимает одиночный скан "без документа".
+     * Требования минимальные: есть активная ячейка и штрихкод.
+     */
+    public function freeScanStore(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'code'          => 'required|string|max:255',
+            'quantity'      => 'nullable|integer|min:1',
+            'warehouse_id'  => 'nullable|integer',
+        ]);
 
+        $state = $request->session()->get('scan_state'); // твой способ хранить активную ячейку
+        $cell  = $state['cell'] ?? null;
+
+        if (!$cell) {
+            return response()->json([
+                'ok'  => false,
+                'msg' => 'Активная ячейка не выбрана. Отсканируйте ячейку на экране "Размещение".',
+            ], 422);
+        }
+
+        $qty  = (int)($data['quantity'] ?? 1);
+        if ($qty < 1) $qty = 1;
+
+        // Сохраняем как "свободный" скан. Используй свою модель/таблицу.
+        // Пример для модели ScanCode (подстрой под свои поля):
+        try {
+            \App\Models\ScanCode::create([
+                'mode'          => 'free',    // чтобы отличать от сканов в документ
+                'code'          => mb_substr($data['code'], 0, 50), // если у тебя ограничение 11 — сократи до 11
+                'quantity'      => $qty,
+                'warehouse_id'  => $data['warehouse_id'] ?? null,
+                'cell'          => $cell,
+                'user_id'       => optional(auth()->user())->id,
+                // добавь нужные поля (время, источник и т.д.)
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('freeScanStore failed', ['e' => $e->getMessage()]);
+            return response()->json(['ok' => false, 'msg' => 'Помилка збереження'], 500);
+        }
+
+        return response()->json([
+            'ok'        => true,
+            'saved'     => 1,
+            'cell'      => $cell,
+            'quantity'  => $qty,
+        ]);
+    }
 
     /** Список логов (как было) */
     public function index()
