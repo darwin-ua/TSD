@@ -524,18 +524,18 @@ class SkladScanController extends Controller
             return response()->json(['ok' => false, 'msg' => 'Ошибка отправки в 1С: '.$e->getMessage()], 500);
         }
     }
-
     public function freeScanPage(Request $request)
     {
         $cell = $request->query('cell');
 
         if (!$cell) {
             $state = $request->session()->get('active_cell');
-            $cell  = $state['cell'] ?? null;
+            $cell  = is_array($state) ? ($state['cell'] ?? null) : $state;
         }
 
         if ($cell) {
-            session(['scan_state.cell' => $cell]); // для совместимости
+            // старый ключ на совместимость
+            session(['scan_state.cell' => $cell]);
         }
 
         $cellRow = null;
@@ -543,23 +543,32 @@ class SkladScanController extends Controller
             $cellRow = \DB::table('skladskie_yacheiki')
                 ->where('number', $cell)
                 ->orWhere('ssylka', $cell)
-                ->orWhere('room', $cell)
+                ->orWhere('room',   $cell)
                 ->first();
         }
 
-        Log::info('FREE_SCAN: входящий cell', [
+        // Красивое имя для вывода
+        $cellName = null;
+        if ($cellRow) {
+            $cellName = $cellRow->ssylka ?: ($cellRow->room ?: null);
+            if (!$cellName && !empty($cellRow->number)) {
+                $cellName = '№ ' . $cellRow->number;
+            }
+        }
+
+        \Log::info('FREE_SCAN: входящий cell', [
             'query'   => $request->query('cell'),
             'session' => session('scan_state.cell'),
             'active'  => $request->session()->get('active_cell'),
+            'resolved_cellName' => $cellName,
         ]);
 
         return view('sklad.free_scan', [
-            'activeCell' => $cell,
-            'cellRow'    => $cellRow,
+            'activeCell' => $cell,     // что реально активно (может быть номером)
+            'cellRow'    => $cellRow,  // строка БД
+            'cellName'   => $cellName, // красивое имя для UI
         ]);
     }
-
-
 
 // Пример: SkladScanController.php
     public function saveActiveCell(Request $request)

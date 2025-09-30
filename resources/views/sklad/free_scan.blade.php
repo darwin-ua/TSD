@@ -4,9 +4,18 @@
 
 
     @include('sklad.header_adm')
+
     @if(!empty($activeCell))
+        @php
+            // Приоритет: ssylka → room → "№ number" → сам activeCell
+            $displayCell = $cellName
+                ?? ($cellRow->ssylka ?? null)
+                ?? ($cellRow->room   ?? null)
+                ?? (!empty($cellRow->number) ? '№ '.$cellRow->number : null)
+                ?? $activeCell;
+        @endphp
         <div class="alert alert-info">
-            Ячейка: <b>{{ $cellRow->ssylka ?? $cellRow->room ?? $activeCell }}</b>
+            Ячейка: <b>{{ $displayCell }}</b>
         </div>
     @else
         <div class="alert alert-warning">
@@ -19,9 +28,9 @@
         <section class="content">
             <div class="container-fluid" id="freeScanContainer">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <a href="{{ route('sklad.index') }}" class="btn btn-secondary">← Назад</a>
+                    <a href="{{ route('sklad.index') }}" class="btn btn-secondary">←</a>
                     <div class="text-center flex-grow-1">
-                        <strong>Сканування без документа</strong>
+                        <strong>Сканування</strong>
                     </div>
                     <div style="width:88px"></div>
                 </div>
@@ -112,7 +121,9 @@
     <script>
         console.log("📦 $activeCell =", @json($activeCell));
         console.log("📋 $cellRow =", @json($cellRow));
+        console.log("🏷️ $cellName =", @json($cellName));
         console.log("🗄️ Сессия scan_state =", @json(session('scan_state')));
     </script>
+
 
 @endpush
