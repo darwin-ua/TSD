@@ -14,6 +14,8 @@ use Illuminate\Database\QueryException;
 use Throwable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+
 
 
 class SkladScanController extends Controller
@@ -36,6 +38,116 @@ class SkladScanController extends Controller
             'user'    => Auth::user()->name ?? null,
             'route'   => $r->path(),
         ], $extra);
+    }
+
+    public function searchBarcode(Request $request)
+    {
+        $request->validate([
+            'barcode' => 'required|string|max:64',
+        ]);
+
+        $barcode = trim((string)$request->input('barcode'));
+
+        // URL лучше вынести в конфиг/ ENV, но оставлю дефолт для быстрого старта
+        $url = config('services.tsd.search_barcode_url', 'http://192.168.170.105/PROD_copy/hs/tsd/SearchBarcode');
+
+        // Хелпер контекста для логов
+        $ctx = function (array $extra = []) use ($request, $barcode, $url) {
+            return array_merge([
+                'ip'     => $request->ip(),
+                'userId' => Auth::id(),
+                'user'   => optional(Auth::user())->name,
+                'route'  => $request->path(),
+                'url'    => $url,
+                'barcode'=> $barcode,
+            ], $extra);
+        };
+
+        $t0 = microtime(true);
+        Log::info('scan.searchBarcode: start', $ctx());
+
+        try {
+            // Готовим HTTP-клиент (логин/пароль лучше в .env)
+            $login    = env('TSD_LOGIN',     'КучеренкоД');
+            $password = env('TSD_PASSWORD',  'NitraPa$$@0@!');
+
+            Log::info('scan.searchBarcode: request', $ctx([
+                'payload' => ['barcode' => $barcode],
+                'auth_user' => $login, // пароль в лог НЕ пишем
+            ]));
+
+            $resp = Http::withBasicAuth($login, $password)
+                ->acceptJson()
+                ->asJson()
+                ->timeout(8)
+                ->post($url, ['barcode' => $barcode]);
+
+            $ms = (int) round((microtime(true) - $t0) * 1000);
+
+            Log::info('scan.searchBarcode: response', $ctx([
+                'status'       => $resp->status(),
+                'ok'           => $resp->ok(),
+                'duration_ms'  => $ms,
+                'headers'      => $resp->headers(),
+                'raw'          => $resp->body(), // если страшно — закомментируй
+            ]));
+
+            if (!$resp->ok()) {
+                // Ошибка уровня HTTP от 1С
+                return response()->json([
+                    'ok'  => false,
+                    'msg' => '1C HTTP ' . $resp->status(),
+                    'raw' => $resp->body(),
+                ], $resp->status());
+            }
+
+            // Парсим JSON безопасно
+            $data = $resp->json();
+            if (!is_array($data)) {
+                Log::warning('scan.searchBarcode: invalid JSON, fallback to empty array', $ctx([
+                    'raw' => $resp->body(),
+                ]));
+                $data = [];
+            }
+
+            // Преобразование items
+            $items = [];
+            if (!empty($data['items']) && is_array($data['items'])) {
+                foreach ($data['items'] as $it) {
+                    $items[] = [
+                        'barcode'             => $it['barcode'] ?? $it['Штрихкод'] ?? $barcode,
+                        'nomen'               => $it['nomen'] ?? $it['Номенклатура'] ?? null,
+                        'characteristic'      => $it['characteristic'] ?? $it['Характеристика'] ?? null,
+                        'package'             => $it['package'] ?? $it['Упаковка'] ?? null,
+                        'nomen_guid'          => $it['nomen_guid'] ?? null,
+                        'characteristic_guid' => $it['characteristic_guid'] ?? null,
+                        'package_guid'        => $it['package_guid'] ?? null,
+                    ];
+                }
+            }
+
+            Log::info('scan.searchBarcode: parsed', $ctx([
+                'items_count' => count($items),
+            ]));
+
+            return response()->json([
+                'ok'    => true,
+                'items' => $items,
+            ]);
+        } catch (\Throwable $e) {
+            $ms = (int) round((microtime(true) - $t0) * 1000);
+            Log::error('scan.searchBarcode: error', $ctx([
+                'duration_ms' => $ms,
+                'error'       => $e->getMessage(),
+                // при желании можно урезать трейс, чтобы не раздувать лог
+                'trace'       => substr($e->getTraceAsString(), 0, 4000),
+            ]));
+
+            return response()->json([
+                'ok'  => false,
+                'msg' => 'Помилка сервера: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -341,8 +453,6 @@ class SkladScanController extends Controller
         return response()->json(['ok' => true, 'count' => count($ids), 'ids' => $ids]);
     }
 
-
-
     public function sendTo1C(Request $request)
     {
         Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
@@ -578,6 +688,84 @@ class SkladScanController extends Controller
         session(['scan_state.cell' => $cell, 'scan_state.warehouse_id' => $warehouseId]);
         return response()->json(['ok' => true, 'state' => session('scan_state')], 200);
     }
+
+// ...
+
+    public function creatingBlankDocument(Request $request)
+    {
+        // валидируем вход
+        $request->validate([
+            'code'    => 'required|string|max:64',
+            'scan_id' => 'nullable|string|max:64',
+        ]);
+
+        $cid   = (string)($request->input('scan_id') ?: $request->header('X-Scan-ID') ?: Str::uuid());
+        $code  = (string)$request->input('code');
+
+        Log::info('scan.1c.creatingBlank: start', $this->ctx($request, [
+            'cid'   => $cid,
+            'code'  => $code,
+        ]));
+
+        $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+        $activeCell = is_array($state) ? ($state['cell'] ?? null) : null;
+
+        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
+
+        try {
+            $client = new \GuzzleHttp\Client(['timeout' => 10, 'verify' => false]);
+
+            $payload = [
+                'barcode'    => $code,
+                'ActiveCell' => $activeCell,
+                'scan_id'    => $cid,
+            ];
+
+            Log::info('scan.1c.creatingBlank: request', $this->ctx($request, [
+                'cid'     => $cid,
+                'url'     => $url,
+                'payload' => $payload,
+            ]));
+
+            $resp = $client->post($url, [
+                'headers' => [
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json; charset=utf-8',
+                ],
+                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+
+            $status = $resp->getStatusCode();
+            $body   = (string)$resp->getBody();
+            $bodyShort = mb_substr($body, 0, 2000);
+
+            Log::info('scan.1c.creatingBlank: response', $this->ctx($request, [
+                'cid'    => $cid,
+                'status' => $status,
+                'body'   => $bodyShort,
+            ]));
+
+            if ($status < 200 || $status >= 300) {
+                return response()->json(['ok' => false, 'cid' => $cid, 'msg' => '1C HTTP '.$status], 502);
+            }
+
+            return response()->json([
+                'ok'    => true,
+                'cid'   => $cid,
+                'reply' => $body ? json_decode($body, true) : null,
+                'echo'  => ['barcode' => $code, 'active_cell' => $activeCell],
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('scan.1c.creatingBlank: error', $this->ctx($request, [
+                'cid' => $cid,
+                'err' => $e->getMessage(),
+            ]));
+            return response()->json(['ok' => false, 'cid' => $cid, 'msg' => 'Ошибка вызова 1С: '.$e->getMessage()], 500);
+        }
+    }
+
+
 //    public function freeScanPage(\Illuminate\Http\Request $request)
 //    {
 //        // Здесь предполагаем, что ты уже где-то сохраняешь active state (ячейку) в сессии
@@ -597,50 +785,53 @@ class SkladScanController extends Controller
      * Принимает одиночный скан "без документа".
      * Требования минимальные: есть активная ячейка и штрихкод.
      */
-    public function freeScanStore(\Illuminate\Http\Request $request)
+    public function freeScanStore(Request $request)
     {
         $data = $request->validate([
             'code'          => 'required|string|max:255',
             'quantity'      => 'nullable|integer|min:1',
             'warehouse_id'  => 'nullable|integer',
+            'scan_id'       => 'nullable|string|max:64',
         ]);
 
-        $state = $request->session()->get('scan_state'); // твой способ хранить активную ячейку
-        $cell  = $state['cell'] ?? null;
+        $cid = (string)($data['scan_id'] ?? $request->header('X-Scan-ID') ?? Str::uuid());
+        Log::info('scan.free: start', $this->ctx($request, ['cid' => $cid, 'code' => $data['code']]));
+
+        $state = $request->session()->get('active_cell')
+            ?: $request->session()->get('scan_state')
+                ?: Cache::get($this->cellCacheKey());
+        $cell  = is_array($state) ? ($state['cell'] ?? null) : null;
 
         if (!$cell) {
-            return response()->json([
-                'ok'  => false,
-                'msg' => 'Активная ячейка не выбрана. Отсканируйте ячейку на экране "Размещение".',
-            ], 422);
+            Log::warning('scan.free: no active cell', $this->ctx($request, ['cid' => $cid]));
+            return response()->json(['ok' => false, 'msg' => 'Активная ячейка не выбрана', 'cid' => $cid], 422);
         }
 
-        $qty  = (int)($data['quantity'] ?? 1);
-        if ($qty < 1) $qty = 1;
+        $qty      = max(1, (int)($data['quantity'] ?? 1));
+        $safeCode = mb_substr($data['code'], 0, 50);
 
-        // Сохраняем как "свободный" скан. Используй свою модель/таблицу.
-        // Пример для модели ScanCode (подстрой под свои поля):
         try {
-            \App\Models\ScanCode::create([
-                'mode'          => 'free',    // чтобы отличать от сканов в документ
-                'code'          => mb_substr($data['code'], 0, 50), // если у тебя ограничение 11 — сократи до 11
-                'quantity'      => $qty,
+            $payload = [
+                'user_register' => Auth::user()->name ?? 'system',
+                'document_id'   => 0,
                 'warehouse_id'  => $data['warehouse_id'] ?? null,
+                'user_id'       => Auth::id(),
                 'cell'          => $cell,
-                'user_id'       => optional(auth()->user())->id,
-                // добавь нужные поля (время, источник и т.д.)
-            ]);
-        } catch (\Throwable $e) {
-            \Log::error('freeScanStore failed', ['e' => $e->getMessage()]);
-            return response()->json(['ok' => false, 'msg' => 'Помилка збереження'], 500);
-        }
+                'code'          => $safeCode,
+                'order_date'    => now(),
+                'amount'        => $qty,
+                'status'        => 1,
+            ];
 
-        return response()->json([
-            'ok'        => true,
-            'saved'     => 1,
-            'cell'      => $cell,
-            'quantity'  => $qty,
-        ]);
+            Log::info('scan.free: db.insert', $this->ctx($request, ['cid' => $cid, 'payload' => $payload]));
+            $scan = \App\Models\ScanCode::create($payload);
+
+            Log::info('scan.free: db.ok', $this->ctx($request, ['cid' => $cid, 'id' => $scan->id]));
+            return response()->json(['ok' => true, 'saved' => 1, 'id' => $scan->id, 'cid' => $cid]);
+        } catch (\Throwable $e) {
+            Log::error('scan.free: db.fail', $this->ctx($request, ['cid' => $cid, 'err' => $e->getMessage()]));
+            return response()->json(['ok' => false, 'cid' => $cid, 'msg' => 'Помилка збереження: '.$e->getMessage()], 500);
+        }
     }
 
     /** Список логов (как было) */

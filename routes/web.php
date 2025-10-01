@@ -129,6 +129,19 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     Route::post('/sklad/scan/free/scan', [SkladScanController::class, 'freeScanStore'])
         ->name('sklad.scan.free.store');
 
+    Route::post('/sklad/tsd/creating-blank', [\App\Http\Controllers\Sklad\SkladScanController::class, 'creatingBlankDocument'])
+        ->name('sklad.tsd.creating_blank');
+
+
+
+
+    Route::post(
+        '/sklad/scan/search-barcode',
+        [\App\Http\Controllers\Sklad\SkladScanController::class, 'searchBarcode']
+    )->name('sklad.scan.search.barcode');
+
+
+
     // routes/web.php
     Route::get('/sklad/cell/label', function (\Illuminate\Http\Request $request) {
         $num = (string) $request->query('number', '');
