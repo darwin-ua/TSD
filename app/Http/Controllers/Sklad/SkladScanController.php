@@ -40,6 +40,60 @@ class SkladScanController extends Controller
         ], $extra);
     }
 
+    public function finishAcceptance(Request $request)
+    {
+        // ===== 1) Валидация =====
+        $data = $request->validate([
+            'number' => ['required','string'],
+            'at'     => ['nullable','date'], // опционально
+        ]);
+
+        // ===== 2) Жёстко зашитые параметры 1С =====
+        $endpoint = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAcceptance';
+        $login    = 'КучеренкоД';
+        $password = 'NitraPa$$@0@!';
+        $timeout  = 15;
+
+        // Формируем тело так, как ждёт 1С
+        $payload = [
+            'Номер' => (string) $data['number'],
+        ];
+        if (!empty($data['at'])) {
+            // 1С съедает ISO-8601; можно и сырую дату отдать
+            $payload['НаМомент'] = date('c', strtotime($data['at']));
+        }
+
+        // ===== 3) Вызов 1С =====
+        try {
+            $resp = Http::withBasicAuth($login, $password)
+                ->withHeaders([
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json; charset=utf-8',
+                    'X-Scan-ID'    => $request->header('X-Scan-ID', (string) Str::uuid()),
+                ])
+                ->timeout($timeout)
+                ->post($endpoint, $payload);
+
+            $status = $resp->status();
+            $raw    = $resp->body();
+
+            // Пробуем JSON — 1С у тебя возвращает JSON
+            $json = null;
+            try { $json = json_decode($raw, true, 512, JSON_THROW_ON_ERROR); } catch (\Throwable $e) {}
+
+            if ($json !== null) {
+                return response()->json($json, $status, [], JSON_UNESCAPED_UNICODE);
+            }
+            return response($raw, $status)->header('Content-Type', 'text/plain; charset=utf-8');
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok'  => false,
+                'msg' => '1С недоступна: '.$e->getMessage(),
+            ], 502, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
     public function searchBarcode(Request $request)
     {
         $request->validate([
@@ -261,225 +315,82 @@ class SkladScanController extends Controller
      */
     public function storePosition(Request $request)
     {
-        Log::info('scan.position.store: incoming', $this->ctx($request, ['payload' => $request->all()]));
+        Log::info('scan.pos.store: incoming', $this->ctx($request, ['payload' => $request->all()]));
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'document_id'     => 'required|string|max:50',
+            'code'            => 'required|string|max:50',
+            'quantity'        => 'required|integer|min:1',
+            'number_position' => 'required|integer|min:1',
             'warehouse_id'    => 'nullable|integer',
-            'code'            => 'required|string|max:' . self::POS_CODE_MAX,
-            'quantity'        => 'nullable|integer',
-            'status'          => 'nullable|integer',
-
-            'number_position' => 'nullable|integer',
-            'lines'           => 'nullable|array',
-            'lines.*'         => 'integer',
-
-            'doc_link'        => 'nullable|string|max:255',
-            'nom'             => 'nullable|string|max:255',
-            'line_no'         => 'nullable|integer',
+            'doc_link'        => 'nullable|string',
+            'active_cell'     => 'nullable|string|max:128',   // <<< NEW
         ]);
-        if ($validator->fails()) {
-            return response()->json(['ok' => false, 'errors' => $validator->errors()], 422);
+
+        $documentId     = trim((string)$request->input('document_id'));
+        $code           = trim((string)$request->input('code'));
+        $qty            = (int)$request->input('quantity', 1);
+        $numberPosition = (int)$request->input('number_position');
+        $warehouseId    = $request->input('warehouse_id');
+
+        $activeCell = $request->input('active_cell');
+        if (!$activeCell) {
+            $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+            $activeCell = $state['cell'] ?? null;
         }
+        Log::info('scan.pos.store: active_cell', $this->ctx($request, ['active_cell' => $activeCell]));
 
-        $state = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
-        if (!$state || empty($state['cell'])) {
-            return response()->json(['ok' => false, 'msg' => 'Активная ячейка не выбрана'], 422);
-        }
+        $id = DB::table('scan_position_document')->insertGetId([
+            'document_id'     => $documentId,
+            'code'            => $code,
+            'quantity'        => $qty,
+            'number_position' => $numberPosition,
+            'status'          => 1,
+            'cell'            => $activeCell,    // <<< NEW
+            'warehouse_id'    => $warehouseId,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
 
-        // нормализация
-        $safeCode = mb_substr((string)$request->input('code'), 0, self::POS_CODE_MAX);
-
-        $docIdRaw = trim((string)$request->input('document_id'));
-        if ($docIdRaw === '') {
-            return response()->json(['ok' => false, 'msg' => 'Порожній document_id'], 422);
-        }
-        $documentId = ctype_digit($docIdRaw)
-            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
-            : mb_substr($docIdRaw, 0, 50);
-
-        $warehouseId = $request->input('warehouse_id');
-        if ($warehouseId === null && is_array($state) && !empty($state['warehouse_id'])) {
-            $warehouseId = (int)$state['warehouse_id'];
-        }
-
-        // id ячейки
-        $linkId = DB::table('skladskie_yacheiki')
-            ->where('number', $state['cell'])
-            ->value('id');
-
-        // ---- 1) собрать позиции из запроса
-        $lines = $request->input('lines');
-        if (!is_array($lines) || !count($lines)) {
-            $single = $request->input('number_position');
-            if ($single !== null) $lines = [(int)$single];
-        }
-        $lines = array_values(array_unique(array_map('intval', (array)$lines)));
-
-        Log::info('scan.position.store: incoming lines (raw)', $this->ctx($request, [
-            'lines' => $lines,
-            'document_id' => $documentId,
-            'code' => $safeCode,
-        ]));
-
-        // ---- 2) если пришла 0/1 позиция — расширим из session('pick_orders')
-        if (count($lines) <= 1) {
-            $docs = (array) session('pick_orders', []);
-            $expanded = [];
-
-            foreach ($docs as $doc) {
-                $link = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
-                $docNo = $documentId; // уже '00-00000334'
-                $sameDoc =
-                    (isset($doc['document_id']) && (string)$doc['document_id'] === $docNo)
-                    || ($link && mb_strpos($link, $docNo) !== false);
-
-                if (!$sameDoc) continue;
-
-                $rows = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
-                if (!is_array($rows)) $rows = [];
-
-                foreach ($rows as $r) {
-                    $bc = mb_strtolower((string)($r['Штрихкод'] ?? $r->Штрихкод ?? ''));
-                    if ($bc === '') continue;
-
-                    if ($bc === mb_strtolower($safeCode) || mb_strpos($bc, mb_strtolower($safeCode)) !== false) {
-                        $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
-                        if ($ln > 0) $expanded[] = $ln;
-                    }
-                }
-                break;
-            }
-
-            if (count($expanded)) {
-                $before = $lines;
-                $lines = array_values(array_unique(array_merge($lines, $expanded)));
-                Log::info('scan.position.store: expanded lines from session', $this->ctx($request, [
-                    'before' => $before,
-                    'expanded' => $expanded,
-                    'final' => $lines,
-                ]));
-            }
-        }
-
-        if (!count($lines)) {
-            return response()->json(['ok' => false, 'msg' => 'Не переданы позиции (lines/number_position), і не удалось расширить из сессии'], 422);
-        }
-
-        $ids = [];
-        try {
-            DB::beginTransaction();
-
-            foreach ($lines as $lineNo) {
-                $deltaQty = (int) $request->input('quantity', 1);
-                if ($deltaQty === 0) $deltaQty = 1;
-
-                $existing = ScanPositionDocument::query()
-                    ->where('document_id', $documentId)
-                    ->where('cell', $state['cell'])
-                    ->where('code', $safeCode)
-                    ->where('number_position', $lineNo)
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($existing) {
-                    $before = (int) $existing->quantity;
-                    $existing->quantity = max(0, $before) + $deltaQty;
-
-                    if ($request->filled('status')) {
-                        $existing->status = (int) $request->input('status');
-                    }
-                    if ($request->filled('amount')) {
-                        $existing->amount = $request->input('amount');
-                    }
-                    if ($warehouseId !== null && $existing->warehouse_id !== $warehouseId) {
-                        $existing->warehouse_id = $warehouseId;
-                    }
-
-                    $existing->save();
-
-                    Log::info('scan.position.store: incremented existing line', $this->ctx($request, [
-                        'line'   => $lineNo,
-                        'before' => $before,
-                        'delta'  => $deltaQty,
-                        'after'  => $existing->quantity,
-                        'id'     => $existing->id,
-                    ]));
-
-                    $ids[] = $existing->id;
-                    continue;
-                }
-
-                $row = ScanPositionDocument::create([
-                    'user_register'   => Auth::user()->name ?? 'system',
-                    'document_id'     => $documentId,
-                    'warehouse_id'    => $warehouseId,
-                    'id_ssylka'       => $linkId,
-                    'number_position' => $lineNo,
-                    'quantity'        => $deltaQty,
-                    'cell'            => $state['cell'],
-                    'code'            => $safeCode,
-                    'amount'          => $request->input('amount'),
-                    'status'          => $request->input('status', 1),
-                ]);
-
-                $ids[] = $row->id;
-
-                Log::info('scan.position.store: created new line', $this->ctx($request, [
-                    'line' => $lineNo,
-                    'id'   => $row->id,
-                    'qty'  => $deltaQty,
-                ]));
-            }
-
-            DB::commit();
-        } catch (QueryException $qe) {
-            DB::rollBack();
-            return response()->json(['ok' => false, 'msg' => 'DB error: '.$qe->getMessage()], 500);
-        } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['ok' => false, 'msg' => 'Server error'], 500);
-        }
-
-        Log::info('scan.position.store: SAVED_BATCH', $this->ctx($request, [
-            'count'         => count($ids),
-            'ids'           => $ids,
-            'document_id'   => $documentId,
-            'cell'          => $state['cell'],
-            'code'          => $safeCode,
-            'id_ssylka'     => $linkId,
-        ]));
-
-        return response()->json(['ok' => true, 'count' => count($ids), 'ids' => $ids]);
+        return response()->json(['ok' => true, 'id' => $id]);
     }
 
     public function sendTo1C(Request $request)
     {
         Log::info('scan.send1c: incoming', $this->ctx($request, ['payload' => $request->all()]));
 
-        // 0) Валидация входа
         $request->validate([
             'document_id'      => 'required|string|max:50',
-            'mode'             => 'nullable|in:delta,absolute', // delta = СканДельта (по умолчанию), absolute = НовоеКоличество
+            'mode'             => 'nullable|in:delta,absolute',
             'only_active_cell' => 'nullable|boolean',
             'fill_placed'      => 'nullable|boolean',
         ]);
 
-        // 1) Нормализация параметров
         $docIdRaw   = trim((string)$request->input('document_id'));
         $documentId = ctype_digit($docIdRaw)
             ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
             : mb_substr($docIdRaw, 0, 50);
 
-        $mode            = $request->input('mode', 'delta');       // 'delta' | 'absolute'
+        $mode            = $request->input('mode', 'delta');
         $onlyActiveCell  = (bool)$request->boolean('only_active_cell', true);
         $fillPlaced      = (bool)$request->boolean('fill_placed', true);
 
-        // 2) Активная ячейка
-        $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
-        $activeCell = $state['cell'] ?? null;
+        // ==== ЯЧЕЙКА: number → ssylka ====
+        $state            = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+        $activeCellNumber = $state['cell'] ?? null;
+        $cellRef          = null;
 
-        // 3) Сбор дельт из БД
+        if (!empty($activeCellNumber)) {
+            $cellRow = DB::table('skladskie_yacheiki')->where('number', $activeCellNumber)->first();
+            $cellRef = $cellRow->ssylka ?? null;
+        }
+
+        Log::info('scan.send1c: active_cell', $this->ctx($request, [
+            'active_cell_number' => $activeCellNumber,
+            'active_cell_ref'    => $cellRef,
+        ]));
+
+        // 3) Дельты из БД
         $q = DB::table('scan_position_document')
             ->select([
                 'number_position',
@@ -489,8 +400,8 @@ class SkladScanController extends Controller
             ->where('document_id', $documentId)
             ->where('status', 1);
 
-        if ($onlyActiveCell && $activeCell) {
-            $q->where('cell', $activeCell);
+        if ($onlyActiveCell && $activeCellNumber) {
+            $q->where('cell', $activeCellNumber);
         }
 
         $rows = $q->groupBy('number_position')
@@ -501,39 +412,34 @@ class SkladScanController extends Controller
             return response()->json(['ok' => false, 'msg' => 'Нет данных для отправки по этому документу'], 422);
         }
 
-        // 4) Подтянем ПЛАН и стартовый ФАКТ из session('pick_orders') для расчёта статуса
-        $planMap      = []; // line => Количество (план)
-        $factStartMap = []; // line => Факт/Отобрано на момент открытия (если есть), иначе 0
-
+        // 4) План/факт
+        $planMap      = [];
+        $factStartMap = [];
         $docs = (array) session('pick_orders', []);
         foreach ($docs as $doc) {
             $link    = (string)($doc['Ссылка'] ?? $doc->Ссылка ?? '');
             $sameDoc =
                 (isset($doc['document_id']) && (string)$doc['document_id'] === $documentId)
                 || ($link && mb_strpos($link, $documentId) !== false);
-
             if (!$sameDoc) continue;
 
             $lines = $doc['ТоварыРазмещение'] ?? ($doc->ТоварыРазмещение ?? []);
             if (!is_array($lines)) $lines = [];
-
             foreach ($lines as $r) {
                 $ln = (int)($r['НомерСтроки'] ?? $r->НомерСтроки ?? 0);
                 if ($ln <= 0) continue;
-
                 $pl = (int)($r['Количество'] ?? $r->Количество ?? 0);
                 $fc = (int)($r['Факт'] ?? $r->Факт ?? ($r['Отобрано'] ?? $r->Отобрано ?? 0));
-
                 $planMap[$ln]      = $pl;
                 $factStartMap[$ln] = $fc;
             }
-            break; // нашли нужный документ
+            break;
         }
 
-        // 5) Сбор позиций для 1С + список отправляемых ID + карта дельт
+        // 5) Позиции
         $positions   = [];
         $sentScanIds = [];
-        $deltaMap    = []; // line => delta
+        $deltaMap    = [];
 
         foreach ($rows as $r) {
             $line  = (int)$r->number_position;
@@ -545,76 +451,77 @@ class SkladScanController extends Controller
             $deltaMap[$line] = ($deltaMap[$line] ?? 0) + $delta;
 
             if ($mode === 'absolute') {
-                // НовоеКоличество = план (если знаем) + дельта
                 $newQty = ($planMap[$line] ?? 0) + $delta;
-                $positions[] = [
+                $p = [
                     'НомерСтроки'     => $line,
                     'НовоеКоличество' => $newQty,
                 ];
             } else {
-                // delta (СканДельта) по умолчанию
-                $positions[] = [
+                $p = [
                     'НомерСтроки' => $line,
                     'СканДельта'  => $delta,
                 ];
             }
+
+            if (!empty($cellRef)) {
+                $p['Ячейка'] = $cellRef; // ← слать ssylka
+            }
+
+            $positions[] = $p;
         }
 
-        // 6) Рассчитать "СтатусДокумента"
-        // Итоговый факт = стартовый факт + дельта (только по строкам, что отправляем).
-        // Без ошибок — если для всех строк, где есть план, итоговый факт == плану.
+        // 6) СтатусДокумента
         $allOk = true;
         foreach ($planMap as $line => $planQty) {
             $factStart = $factStartMap[$line] ?? 0;
-            $delta     = $deltaMap[$line] ?? 0; // если в этой отправке строки нет — дельта 0
+            $delta     = $deltaMap[$line] ?? 0;
             $factFinal = $factStart + $delta;
-
-            if ($factFinal !== $planQty) {
-                $allOk = false;
-                break;
-            }
+            if ($factFinal !== $planQty) { $allOk = false; break; }
         }
         $docStatusStr = $allOk ? 'Выполнено без ошибок' : 'Выполнено с ошибками';
 
-        // 7) Формируем payload в 1С
+        // 7) Полный справочник ячеек
+        $warehouseStorage = DB::table('skladskie_yacheiki')
+            ->select(['id', 'ssylka', 'number', 'room', 'versiya_dannykh'])
+            ->orderBy('id')
+            ->get()
+            ->map(fn($row) => [
+                'id'              => (int)$row->id,
+                'ssylka'          => (string)$row->ssylka,
+                'number'          => (string)$row->number,
+                'room'            => (string)$row->room,
+                'versiya_dannykh' => (string)$row->versiya_dannykh,
+            ])
+            ->toArray();
+
+        // Payload
         $payload = [
             'Номер'              => $documentId,
             'Позиции'            => $positions,
             'ЗаполнитьРазмещено' => $fillPlaced,
             'СтатусДокумента'    => $docStatusStr,
+            'warehouse_storage'  => $warehouseStorage,
         ];
-
         Log::info('scan.send1c: payload', $this->ctx($request, ['payload' => $payload]));
 
-        // 8) Адрес 1С
         $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
 
-        // 9) Отправка в 1С (жёстко прошитая Basic Auth)
         try {
-            $client = new \GuzzleHttp\Client([
-                'timeout' => 20,
-                'verify'  => false,
-            ]);
-
+            $client = new \GuzzleHttp\Client(['timeout' => 20, 'verify' => false]);
             $resp = $client->post($url, [
-                'headers' => [
-                    'Accept'       => 'application/json',
-                    'Content-Type' => 'application/json; charset=utf-8',
-                ],
-                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'], // <<< авторизация как просил
-                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'headers' => ['Accept'=>'application/json','Content-Type'=>'application/json; charset=utf-8'],
+                'auth'    => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'body'    => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]);
 
             $body = (string)$resp->getBody();
             $code = $resp->getStatusCode();
-
-            Log::info('scan.send1c: 1C response', $this->ctx($request, ['status' => $code, 'body' => $body]));
+            Log::info('scan.send1c: 1C response', $this->ctx($request, ['status'=>$code,'body'=>$body]));
 
             if ($code < 200 || $code >= 300) {
-                return response()->json(['ok' => false, 'msg' => '1C HTTP '.$code, 'body' => $body], 502);
+                return response()->json(['ok'=>false,'msg'=>'1C HTTP '.$code,'body'=>$body], 502);
             }
 
-            // 10) Успех: пометить отправленные сканы статусом = 2
             if (!empty($sentScanIds)) {
                 DB::table('scan_position_document')
                     ->whereIn('id', $sentScanIds)
@@ -631,9 +538,106 @@ class SkladScanController extends Controller
 
         } catch (\Throwable $e) {
             Log::error('scan.send1c: error', $this->ctx($request, ['err' => $e->getMessage()]));
-            return response()->json(['ok' => false, 'msg' => 'Ошибка отправки в 1С: '.$e->getMessage()], 500);
+            return response()->json(['ok'=>false,'msg'=>'Ошибка отправки в 1С: '.$e->getMessage()], 500);
         }
     }
+
+    public function addExternalPosition(Request $request)
+    {
+        Log::info('scan.addExternal: incoming', $this->ctx($request, ['payload' => $request->all()]));
+
+        $request->validate([
+            'document_id'    => 'required|string|max:50',
+            'barcode'        => 'nullable|string|max:64',
+            'nomen'          => 'required|string|max:255',
+            'characteristic' => 'nullable|string|max:255',
+            'fill_placed'    => 'nullable|boolean',
+            'warehouse_id'   => 'nullable|integer',
+            'active_cell'    => 'nullable|string|max:128',
+        ]);
+
+        // Документ
+        $docIdRaw   = trim((string)$request->input('document_id'));
+        $documentId = ctype_digit($docIdRaw)
+            ? '00-' . str_pad($docIdRaw, 8, '0', STR_PAD_LEFT)
+            : mb_substr($docIdRaw, 0, 50);
+
+        $barcode     = trim((string)$request->input('barcode', ''));
+        $nomen       = trim((string)$request->input('nomen'));
+        $char        = trim((string)$request->input('characteristic', ''));
+        $fillPlaced  = (bool)$request->boolean('fill_placed', true);
+        $warehouseId = $request->input('warehouse_id');
+
+        // ==== ЯЧЕЙКА: number → ssylka ====
+        $activeCellNumber = $request->input('active_cell');
+        if (!$activeCellNumber) {
+            $state            = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+            $activeCellNumber = $state['cell'] ?? null;
+        }
+
+        $cellRef = null;
+        if (!empty($activeCellNumber)) {
+            $cellRow = DB::table('skladskie_yacheiki')->where('number', $activeCellNumber)->first();
+            $cellRef = $cellRow->ssylka ?? null;
+        }
+
+        Log::info('scan.addExternal: cell mapping', $this->ctx($request, [
+            'active_cell_number' => $activeCellNumber,
+            'mapped_ssylka'      => $cellRef,
+        ]));
+
+        // Позиция
+        $position = [
+            'Номенклатура' => $nomen,
+            'СканДельта'   => 1,
+        ];
+        if ($char !== '')    $position['Характеристика'] = $char;
+        if ($barcode !== '') $position['Штрихкод']       = $barcode;
+        if (!empty($cellRef)) $position['Ячейка']        = $cellRef; // ← сюда идёт ssylka
+
+        $payload = [
+            'Номер'              => $documentId,
+            'Позиции'            => [ $position ],
+            'ЗаполнитьРазмещено' => $fillPlaced,
+            'ДобавитьЕслиНет'    => true,
+            'ПроводитьДокумент'  => false,
+        ];
+        Log::info('scan.addExternal: payload', $this->ctx($request, ['payload' => $payload]));
+
+        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
+
+        try {
+            $client = new \GuzzleHttp\Client(['timeout' => 20, 'verify' => false]);
+            $resp = $client->post($url, [
+                'headers' => [
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json; charset=utf-8',
+                ],
+                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+
+            $code = $resp->getStatusCode();
+            $body = (string)$resp->getBody();
+            Log::info('scan.addExternal: 1C response', $this->ctx($request, ['status'=>$code,'body'=>$body]));
+
+            if ($code < 200 || $code >= 300) {
+                return response()->json(['ok'=>false,'msg'=>'1C HTTP '.$code,'body'=>$body], 502);
+            }
+
+            return response()->json([
+                'ok'           => true,
+                'one_c_reply'  => json_decode($body, true),
+                'document_id'  => $documentId,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('scan.addExternal: error', $this->ctx($request, ['err'=>$e->getMessage()]));
+            return response()->json(['ok'=>false, 'msg'=>'Ошибка отправки в 1С: '.$e->getMessage()], 500);
+        }
+    }
+
+
     public function freeScanPage(Request $request)
     {
         $cell = $request->query('cell');
@@ -691,40 +695,84 @@ class SkladScanController extends Controller
 
 // ...
 
+
     public function creatingBlankDocument(Request $request)
     {
-        // валидируем вход
+        // --- вход ---
         $request->validate([
-            'code'    => 'required|string|max:64',
-            'scan_id' => 'nullable|string|max:64',
+            'code'            => 'required|string|max:64',
+            'scan_id'         => 'nullable|string|max:64',
+            'data_executor'   => 'nullable|string|max:100', // с фронта (если есть)
+            'document_no'     => 'nullable|string|max:50',
+            'room'            => 'nullable|string|max:100',
+            'warehouse'       => 'nullable|string|max:100',
         ]);
 
-        $cid   = (string)($request->input('scan_id') ?: $request->header('X-Scan-ID') ?: Str::uuid());
-        $code  = (string)$request->input('code');
+        $cid  = (string)($request->input('scan_id') ?: $request->header('X-Scan-ID') ?: Str::uuid());
+        $code = (string)$request->input('code');
 
         Log::info('scan.1c.creatingBlank: start', $this->ctx($request, [
-            'cid'   => $cid,
-            'code'  => $code,
+            'cid'  => $cid,
+            'code' => $code,
         ]));
 
+        // --- активная ячейка ---
         $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
         $activeCell = is_array($state) ? ($state['cell'] ?? null) : null;
 
+        // --- определяем исполнителя ---
+        $executor = trim((string)$request->input('data_executor'));
+        $executorSource = 'request.data_executor';
+
+        if ($executor === '') {
+            $u = Auth::user();
+            if ($u) {
+                // ВАЖНО: правильное имя колонки в БД — data_executor (без опечаток)
+                $executor = trim((string)($u->data_executor ?? ''));
+                $executorSource = 'users.data_executor';
+
+                if ($executor === '') {
+                    $executor = $u->user_register
+                        ?: $u->name
+                            ?: $u->login
+                                ?: $u->email
+                                    ?: 'Кучеренко Денис'; // поставь то, что точно есть в 1С
+                    $executorSource = 'fallback('.$executorSource.')';
+                }
+            } else {
+                $executor = 'Кучеренко Денис';
+                $executorSource = 'fallback.no_user';
+            }
+        }
+
+        // Подумай: если всегда работаем в "ГП (ячейки)" — можно задать дефолт:
+        $room      = $request->input('room', 'ГП (ячейки)');
+        $warehouse = $request->input('warehouse'); // опционально
+
         $url = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
 
-        try {
-            $client = new \GuzzleHttp\Client(['timeout' => 10, 'verify' => false]);
+        $payload = [
+            'barcode'      => $code,
+            'ActiveCell'   => $activeCell,
+            'scan_id'      => $cid,
+            'Исполнитель'  => $executor,           // <-- ОБЯЗАТЕЛЬНО
+            'Помещение'    => $room,               // дефолт "ГП (ячейки)"
+        ];
+        if ($warehouse)                           $payload['Склад']       = (string)$warehouse;
+        if ($request->filled('document_no'))      $payload['document_no'] = (string)$request->input('document_no');
 
-            $payload = [
-                'barcode'    => $code,
-                'ActiveCell' => $activeCell,
-                'scan_id'    => $cid,
-            ];
+        try {
+            $client = new \GuzzleHttp\Client([
+                'timeout'     => 15,
+                'verify'      => false,
+                'http_errors' => false,
+            ]);
 
             Log::info('scan.1c.creatingBlank: request', $this->ctx($request, [
-                'cid'     => $cid,
-                'url'     => $url,
-                'payload' => $payload,
+                'cid'      => $cid,
+                'url'      => $url,
+                'executor' => ['value' => $executor, 'source' => $executorSource],
+                'payload'  => $payload,
             ]));
 
             $resp = $client->post($url, [
@@ -738,7 +786,7 @@ class SkladScanController extends Controller
 
             $status = $resp->getStatusCode();
             $body   = (string)$resp->getBody();
-            $bodyShort = mb_substr($body, 0, 2000);
+            $bodyShort = mb_substr($body, 0, 4000);
 
             Log::info('scan.1c.creatingBlank: response', $this->ctx($request, [
                 'cid'    => $cid,
@@ -746,16 +794,32 @@ class SkladScanController extends Controller
                 'body'   => $bodyShort,
             ]));
 
+            $json = null;
+            try { $json = $body ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : null; } catch (\Throwable $e) {}
+
             if ($status < 200 || $status >= 300) {
-                return response()->json(['ok' => false, 'cid' => $cid, 'msg' => '1C HTTP '.$status], 502);
+                $msg = '1C HTTP '.$status;
+                if (is_array($json) && isset($json['message'])) {
+                    $msg .= ': '.$json['message'];
+                } elseif (!empty($body)) {
+                    $msg .= '; body: '.$bodyShort;
+                }
+                return response()->json(['ok' => false, 'cid' => $cid, 'msg' => $msg], 502);
             }
 
             return response()->json([
                 'ok'    => true,
                 'cid'   => $cid,
-                'reply' => $body ? json_decode($body, true) : null,
-                'echo'  => ['barcode' => $code, 'active_cell' => $activeCell],
+                'reply' => $json,
+                'echo'  => [
+                    'barcode'        => $code,
+                    'active_cell'    => $activeCell,
+                    'executor'       => $executor,
+                    'executorSource' => $executorSource,
+                    'room'           => $room,
+                ],
             ]);
+
         } catch (\Throwable $e) {
             Log::error('scan.1c.creatingBlank: error', $this->ctx($request, [
                 'cid' => $cid,
@@ -764,7 +828,6 @@ class SkladScanController extends Controller
             return response()->json(['ok' => false, 'cid' => $cid, 'msg' => 'Ошибка вызова 1С: '.$e->getMessage()], 500);
         }
     }
-
 
 //    public function freeScanPage(\Illuminate\Http\Request $request)
 //    {

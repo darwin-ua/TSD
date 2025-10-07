@@ -242,22 +242,23 @@ class SkladOrderController extends Controller
             ], 502);
         }
     }
+
     public function fetchPickOrders(\Illuminate\Http\Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $login    = (string) $user->name;
         $password = (string) $user->parol_1c;
 
-        // 1) Готовим payload для 1С
+        // === 1) Формируем payload для 1С ===
         $executor = trim((string) $request->input('Исполнитель', $user->data_executor ?: 'Кучеренко Денис'));
 
-        // Нормализуем статус (допустимы: ВРаботе / Подготовлено / КПоступлению и т.п.)
+        // Нормализуем статус: "В работе" → "ВРаботе"
         $statusRaw = (string) $request->input('Статус', 'ВРаботе');
-        $status    = preg_replace('/\s+/u', '', $statusRaw); // "В работе" -> "Вработе" (если в 1С ждёшь без пробелов)
+        $status    = preg_replace('/\s+/u', '', $statusRaw);
 
         $payload = [
             'Исполнитель' => $executor,
-            'Статус'      => $status, // если нужно точно "ВРаботе" — передавай уже таким
+            'Статус'      => $status,
         ];
 
         \Log::info('pick.fetch → 1C payload', $payload);
@@ -266,14 +267,14 @@ class SkladOrderController extends Controller
             'login_hex' => bin2hex($login),
         ]);
 
-        // 2) Запрос в 1С
+        // === 2) Запрос в 1С ===
         $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
-            ->asJson()                             // гарантируем JSON-формат тела
-            ->acceptJson()                         // ждём JSON в ответ
+            ->asJson()
+            ->acceptJson()
             ->timeout(60)
             ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', $payload);
 
-        // режим отладки: просто проксируем ответ 1С
+        // === 3) Проверяем HTTP ===
         if ($request->boolean('debug')) {
             return response($resp->body(), $resp->status())
                 ->withHeaders(['Content-Type' => 'application/json; charset=utf-8']);
@@ -284,7 +285,10 @@ class SkladOrderController extends Controller
             return response()->json(['ok' => false, 'msg' => 'Ошибка 1С: ' . $resp->status()], 200);
         }
 
+        // === 4) Разбираем JSON от 1С ===
         $raw  = $resp->body();
+        \Log::info('RAW response from 1C', ['raw' => $raw]);
+
         $json = json_decode($raw, true);
         if (!is_array($json)) {
             $json = $this->sanitize1CJson($raw);
@@ -301,32 +305,141 @@ class SkladOrderController extends Controller
             $orders = json_decode($orders, true) ?: [];
         }
 
-        \Log::info('RAW response from 1C:', ['raw' => $raw]);
-        \Log::info('Parsed JSON:', ['json' => $json]);
-
-        session(['pick_orders' => $orders]);
-
         $count = is_array($orders) ? count($orders) : 0;
         $first = $count ? [
             'Ссылка' => $orders[0]['Ссылка'] ?? null,
             'Статус' => $orders[0]['Статус'] ?? null,
         ] : null;
 
-        \Log::info('pick.fetch saved to session', ['count' => $count, 'first' => $first]);
+        \Log::info('Parsed JSON:', ['count' => $count, 'first' => $first]);
 
+        // === 5) Сохраняем в сессию ===
+        session(['pick_orders' => $orders]);
+        \Log::info('pick.fetch session snapshot', [
+            'sid'   => session()->getId(),
+            'count' => $count,
+            'first' => $first,
+        ]);
+
+        // Принудительно записываем, чтобы не потерять между редиректами
+        session()->save();
+
+        // === 6) Ответ фронту ===
         return response()->json([
             'ok'       => true,
             'count'    => $count,
             'first'    => $first,
-            'redirect' => route('sklad.orders.pick'),
+            'redirect' => $count > 0
+                ? route('sklad.orders.pick')
+                : route('sklad.scan.free'),
         ], 200);
     }
+
+    /**
+     * Санитайзер для “битого” JSON из 1С (пустые значения, запятые и т.д.)
+     */
+    private function sanitize1CJson(?string $raw): ?array
+    {
+        if ($raw === null) return null;
+
+        $s = $raw;
+        // "Ключ":,  -> "Ключ":null,
+        $s = preg_replace('/("[-\wА-Яа-яЁё\s]+")\s*:\s*(?=,|\}|])/u', '$1:null', $s);
+        // Убираем лишние запятые
+        $s = preg_replace('/,\s*([}\]])/', '$1', $s);
+
+        $json = json_decode($s, true);
+        return is_array($json) ? $json : null;
+    }
+
+
+
+//
+//    public function fetchPickOrders(\Illuminate\Http\Request $request)
+//    {
+//        $user = \Illuminate\Support\Facades\Auth::user();
+//        $login    = (string) $user->name;
+//        $password = (string) $user->parol_1c;
+//
+//        // 1) Готовим payload для 1С
+//        $executor = trim((string) $request->input('Исполнитель', $user->data_executor ?: 'Кучеренко Денис'));
+//
+//        // Нормализуем статус (допустимы: ВРаботе / Подготовлено / КПоступлению и т.п.)
+//        $statusRaw = (string) $request->input('Статус', 'ВРаботе');
+//        $status    = preg_replace('/\s+/u', '', $statusRaw); // "В работе" -> "Вработе" (если в 1С ждёшь без пробелов)
+//
+//        $payload = [
+//            'Исполнитель' => $executor,
+//            'Статус'      => $status, // если нужно точно "ВРаботе" — передавай уже таким
+//        ];
+//
+//        \Log::info('pick.fetch → 1C payload', $payload);
+//        \Log::info('pick.fetch → auth', [
+//            'login_len' => mb_strlen($login),
+//            'login_hex' => bin2hex($login),
+//        ]);
+//
+//        // 2) Запрос в 1С
+//        $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
+//            ->asJson()                             // гарантируем JSON-формат тела
+//            ->acceptJson()                         // ждём JSON в ответ
+//            ->timeout(60)
+//            ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', $payload);
+//
+//        // режим отладки: просто проксируем ответ 1С
+//        if ($request->boolean('debug')) {
+//            return response($resp->body(), $resp->status())
+//                ->withHeaders(['Content-Type' => 'application/json; charset=utf-8']);
+//        }
+//
+//        if (!$resp->successful()) {
+//            \Log::error('1C HTTP error', ['status' => $resp->status(), 'body' => mb_substr($resp->body(), 0, 1000)]);
+//            return response()->json(['ok' => false, 'msg' => 'Ошибка 1С: ' . $resp->status()], 200);
+//        }
+//
+//        $raw  = $resp->body();
+//        $json = json_decode($raw, true);
+//        if (!is_array($json)) {
+//            $json = $this->sanitize1CJson($raw);
+//        }
+//        if (!is_array($json)) {
+//            \Log::error('Bad JSON from 1C (even after fix)', ['raw' => mb_substr($raw, 0, 1000)]);
+//            return response()->json(['ok' => false, 'msg' => 'Некорректный JSON от 1С'], 200);
+//        }
+//
+//        $orders = $json['documents'] ?? [];
+//        if ($orders instanceof \Illuminate\Support\Collection) {
+//            $orders = $orders->toArray();
+//        } elseif (is_string($orders)) {
+//            $orders = json_decode($orders, true) ?: [];
+//        }
+//
+//        \Log::info('RAW response from 1C:', ['raw' => $raw]);
+//        \Log::info('Parsed JSON:', ['json' => $json]);
+//
+//        session(['pick_orders' => $orders]);
+//
+//        $count = is_array($orders) ? count($orders) : 0;
+//        $first = $count ? [
+//            'Ссылка' => $orders[0]['Ссылка'] ?? null,
+//            'Статус' => $orders[0]['Статус'] ?? null,
+//        ] : null;
+//
+//        \Log::info('pick.fetch saved to session', ['count' => $count, 'first' => $first]);
+//
+//        return response()->json([
+//            'ok'       => true,
+//            'count'    => $count,
+//            'first'    => $first,
+//            'redirect' => route('sklad.orders.pick'),
+//        ], 200);
+//    }
 
     public function fetchAcceptOrders(Request $request)
     {
         $payload = [
             'Исполнитель' => $request->input('Исполнитель', 'Кучеренко Денис'),
-            'Статус'      => $request->input('Статус', 'КПоступлению'),
+            'Статус'      => $request->input('Статус', 'ВРаботе'),
         ];
 
 
@@ -408,46 +521,55 @@ class SkladOrderController extends Controller
 //
 //        return view('sklad.orders.pick', compact('orders'));
 //    }
-
     public function pickPage()
     {
-        $orders = session('pick_orders', []);
-        if ($orders instanceof \Illuminate\Support\Collection) $orders = $orders->toArray();
-        if (is_string($orders)) $orders = json_decode($orders, true) ?: [];
-
-        // если документов нет — сразу уходим на free, передав активную ячейку
-        if (empty($orders)) {
-            $cell = session('scan_state.cell');
-            return $cell
-                ? redirect()->route('sklad.scan.free', ['cell' => $cell])
-                : redirect()->route('sklad.scan.free');
-        }
-
-        return view('sklad.orders.pick', compact('orders'));
+        $docs = session('pick_orders', []);
+        \Log::info('pick.page session read', [
+            'sid'   => session()->getId(),
+            'count' => is_array($docs) ? count($docs) : 0,
+        ]);
+        return view('sklad.orders.pick', compact('docs'));
     }
-    private function sanitize1CJson(string $raw): ?array
-    {
-        $s = preg_replace('/^\xEF\xBB\xBF/', '', $raw);              // BOM
-        $s = str_replace("\xC2\xA0", ' ', $s);                       // NBSP
-        $s = preg_replace('/:\s*(?=,|\})/u', ': null', $s);          // "Ключ":,  -> null
 
-        // убрать висячие запятые ",]" и ",}"
-        $prev = null; $i = 0;
-        while ($prev !== $s && $i < 5) {
-            $prev = $s;
-            $s = preg_replace('/,\s*([\]\}])/u', '$1', $s);
-            $i++;
-        }
-
-        // ": }" -> ": null}"
-        $s = preg_replace('/:\s*([\]\}])/', ': null$1', $s);
-
-        $arr = json_decode($s, true);
-        if (!is_array($arr) && preg_match('/^(.*[\}\]])/s', $s, $m)) {
-            $arr = json_decode($m[1], true);
-        }
-        return is_array($arr) ? $arr : null;
-    }
+//    public function pickPage()
+//    {
+//        $orders = session('pick_orders', []);
+//        if ($orders instanceof \Illuminate\Support\Collection) $orders = $orders->toArray();
+//        if (is_string($orders)) $orders = json_decode($orders, true) ?: [];
+//
+//        // если документов нет — сразу уходим на free, передав активную ячейку
+//       if (empty($orders)) {
+//            $cell = session('scan_state.cell');
+//            return $cell
+//                ? redirect()->route('sklad.scan.free', ['cell' => $cell])
+//                : redirect()->route('sklad.scan.free');
+//       }
+//
+//        return view('sklad.orders.pick', compact('orders'));
+//    }
+//    private function sanitize1CJson(string $raw): ?array
+//    {
+//        $s = preg_replace('/^\xEF\xBB\xBF/', '', $raw);              // BOM
+//        $s = str_replace("\xC2\xA0", ' ', $s);                       // NBSP
+//        $s = preg_replace('/:\s*(?=,|\})/u', ': null', $s);          // "Ключ":,  -> null
+//
+//        // убрать висячие запятые ",]" и ",}"
+//        $prev = null; $i = 0;
+//        while ($prev !== $s && $i < 5) {
+//            $prev = $s;
+//            $s = preg_replace('/,\s*([\]\}])/u', '$1', $s);
+//            $i++;
+//        }
+//
+//        // ": }" -> ": null}"
+//        $s = preg_replace('/:\s*([\]\}])/', ': null$1', $s);
+//
+//        $arr = json_decode($s, true);
+//        if (!is_array($arr) && preg_match('/^(.*[\}\]])/s', $s, $m)) {
+//            $arr = json_decode($m[1], true);
+//        }
+//        return is_array($arr) ? $arr : null;
+//    }
 
 }
 

@@ -22,8 +22,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::post('/sklad/acceptance/finish', [SkladOrderController::class, 'finishAcceptance'])
-    ->name('sklad.acceptance.finish');
+
+
 
 Route::get('/redis-test', function () {
     try {
@@ -92,13 +92,23 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     Route::post('/sklad/send-invoice', [SkladOrderController::class, 'sendInvoiceRequest'])->name('sklad.send-invoice');
     Route::post('/sklad/orders/pick/fetch', [SkladOrderController::class, 'fetchPickOrders'])
         ->name('sklad.orders.pick.fetch');
+
     Route::get('/sklad/orders/pick', [SkladOrderController::class, 'pickPage'])
         ->name('sklad.orders.pick');
+
     Route::post('/sklad/orders/accept/fetch', [SkladOrderController::class, 'fetchAcceptOrders'])->name('sklad.orders.accept.fetch');
     Route::get ('/sklad/orders/accept',       [SkladOrderController::class, 'showAcceptOrders'])->name('sklad.orders.accept');
 
     Route::post('/sklad/scan/send', [SkladScanController::class, 'sendTo1C'])
         ->name('sklad.scan.send');
+
+    Route::middleware(['web','auth']) // если нужно
+    ->prefix('sklad/tsd')
+        ->name('sklad.tsd.')
+        ->group(function () {
+            Route::post('/finish-accommodation', [SkladTsdController::class, 'finishAccommodation'])
+                ->name('finish_accommodation');
+        });
 
     Route::post('/sklad/scan/store', [SkladScanController::class, 'store'])->name('sklad.scan.store');
 
@@ -131,6 +141,13 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
 
     Route::post('/sklad/tsd/creating-blank', [\App\Http\Controllers\Sklad\SkladScanController::class, 'creatingBlankDocument'])
         ->name('sklad.tsd.creating_blank');
+
+    Route::post('/sklad/scan/position/add-external', [\App\Http\Controllers\Sklad\SkladScanController::class, 'addExternalPosition'])
+        ->name('sklad.scan.position.add_external');
+
+    // routes/web.php
+    Route::post('/sklad/tsd/finish-acceptance', [\App\Http\Controllers\Sklad\SkladScanController::class, 'finishAcceptance'])
+        ->name('sklad.tsd.finish_acceptance');
 
 
 

@@ -1,7 +1,5 @@
 @extends('layouts.app')
 @section('content')
-
-
     @include('sklad.header_adm')
     <style>
         .hl-barcode {
@@ -42,20 +40,28 @@
         .list-group-item {
             font-size: 12px;
         }
-    </style>
-    <style>
-        #positionsUl .list-group-item{ display:flex; flex-direction:column; gap:6px; }
+
+        #positionsUl .list-group-item{ display:flex; flex-direction:column; gap:6px;   border:1px solid #cfd4da !important;
+            border-radius:12px !important;}
         .pos-title{ font-weight:600; line-height:1.25; word-break:break-word; }
         .pos-qty{ margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
         .qty-chip{
-            display:inline-block; padding:2px 8px; border:2px solid #333;
-            border-radius:8px; background:#fffbe6; font-weight:700; font-size:.95em; line-height:1.1; white-space:nowrap;
+            display:inline-block; padding:1px 8px; border:1px solid #333;
+            border-radius:5px; background:#fffbe6; font-weight:700; font-size:.95em; line-height:1; white-space:nowrap;
         }
         .qty-chip.fact{ background:#e7f1ff; } /* визуально отличаем Факт */
         .hl-barcode{ background-color:#fff3cd !important; }
+        /* прибираємо фіксовані "роздільні" бордери, що ставить flush */
+        #positionsUl.list-group-flush .list-group-item + .list-group-item{
+            border-top-width:1px !important; /* щоб рамка зберігалася повністю */
+        }
+
+        /* підсвітка знайденого скану */
+        #positionsUl.list-group-flush .list-group-item.hl-barcode{
+            border-color:#ffca2c !important;
+            background:#fff9e6 !important;
+        }
     </style>
-
-
     <div class="content" style="min-height: 100%; padding: 10px;">
         <section class="content">
             <div class="container-fluid">
@@ -100,10 +106,15 @@
                     </ul>
                 </div>
                 <div class="mt-3">
-                    <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
-                    <button id="btnSend" type="button" class="btn btn-primary d-none"
-                            onclick="console.log('btnSend inline clicked')"
-                            data-send-url="{{ route('sklad.scan.send') }}">Отправить</button>
+                    <button id="btnSend"
+                            type="button"
+                            class="btn btn-primary btn-lg w-100 d-none"
+                            data-send-url="{{ route('sklad.tsd.finish_acceptance') }}">
+                        Отправить
+                    </button>
+                </div>
+                <div class="mt-3">
+                <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
                 </div>
             </div>
         </section>
@@ -137,12 +148,15 @@
             if (btnSend) btnSend.classList.add('d-none');
 
             // ===== Константы/роуты =====
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
             const CODE_MAX        = 11; // длина scan_position_document.code
             const POS_SAVE_URL    = @json(route('sklad.scan.position.store'));
             const STATE_FETCH_URL = @json(route('sklad.scan.session.state'));
             const SEND_URL        = @json(route('sklad.scan.send'));
             const SEARCH_BARCODE_URL = @json(route('sklad.scan.search.barcode'));
+            const ADD_EXTERNAL_POS_URL = @json(route('sklad.scan.position.add_external'));
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const FINISH_URL = @json(route('sklad.tsd.finish_acceptance'));
 
             const CELL_LABEL_URL = @json(route('sklad.cell.label'));
             console.log('[pick] routes:', { POS_SAVE_URL, STATE_FETCH_URL, SEND_URL, SEARCH_BARCODE_URL });
@@ -291,11 +305,15 @@
 
                 const filtered = documents.filter(d => matchesTabByRoom(d.Помещение, activeTab));
 
-                // ⬇️ если в текущей вкладке пусто — уходим в free
+                // если в текущей вкладке пусто — показываем пустое состояние, но НЕ редиректим
                 if (filtered.length === 0) {
-                    window.location.replace(FREE_SCAN_PAGE);
+                    const empty = document.createElement('div');
+                    empty.className = 'alert alert-secondary';
+                    empty.textContent = 'В этой вкладке документов нет.';
+                    docList.appendChild(empty);
                     return;
                 }
+
 
                 filtered.forEach((doc) => {
                     const realIndex = documents.indexOf(doc);
@@ -334,9 +352,11 @@
                     // вернуть исходный текст, если нужно
                     t.textContent = t.dataset.baseLabel || t.textContent.trim();
                 });
-
-                renderDocuments();
+// стало: сначала определяем вкладку по активной ячейке, она сама дернёт renderDocuments() при необходимости
                 loadCellState();
+
+                // renderDocuments();
+                // loadCellState();
             }
 
             // ============== экран позиций документа ==============
@@ -390,7 +410,7 @@
                 li.innerHTML = `
       <div class="pos-title">#${rownum} — ${nom}</div>
       <div class="pos-qty">
-        <span class="qty-chip plan">План: ${qtyPln}</span>
+      <span class="qty-chip fact">План: ${qtyPln}</span>
         <span class="qty-chip fact">Факт: ${qtyFct}</span>
       </div>`;
             }
@@ -404,7 +424,7 @@
                 return max + 1;
             }
 
-            function appendExternalItem(found, code) {
+            async function appendExternalItem(found, code) {
                 // found: {nomen, characteristic, barcode, ...} из 1С
                 const li = document.createElement('li');
                 li.className = 'list-group-item hl-barcode ext-found';
@@ -412,25 +432,25 @@
                 // высчитаем СЛЕДУЮЩИЙ номер строки (max+1)
                 const nextLine = getNextLineNumber();
 
-                // "внешняя" позиция — не из документа
+                // "внешняя" позиция — пока помечаем как внешнюю до подтверждения сервера
                 li.dataset.external     = '1';
                 li.dataset.nom          = (found.nomen || '').toLowerCase();
                 li.dataset.nomOriginal  = found.nomen || '-';
                 li.dataset.barcode      = String(found.barcode || code || '');
-                li.dataset.cell         = '';                 // пусть попадает в текущую вкладку
-                li.dataset.line         = String(nextLine);   // <- присваиваем следующий номер!
-                li.dataset.qty          = '1';                // План 0
-                li.dataset.fact         = '1';                // Факт 0
+                li.dataset.cell         = '';                 // попадёт в текущую вкладку
+                li.dataset.line         = String(nextLine);   // локальный номер до ответа 1С
+                li.dataset.qty          = '1';                // План
+                li.dataset.fact         = '1';                // Факт (мы сканировали штрихкод)
 
-                // отрисовываем тем же шаблоном
                 renderLi(li);
 
                 // бейдж «Не в документе»
                 const title = li.querySelector('.pos-title');
                 if (title) {
                     const badge = document.createElement('span');
-                    badge.textContent = 'Не в документе';
+                    badge.textContent = 'Не в документе (отправляем...)';
                     badge.className = 'badge badge-warning ml-2';
+                    badge.dataset.badge = 'status';
                     title.appendChild(badge);
                 }
 
@@ -442,17 +462,78 @@
                     li.querySelector('.pos-title').after(bc);
                 }
 
-                // ВСТАВЛЯЕМ В КОНЕЦ списка
+                // вставляем В КОНЕЦ списка
                 const ul = document.getElementById('positionsUl');
                 if (ul) {
-                    ul.appendChild(li); // ← вместо prepend
+                    ul.appendChild(li);
                     li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 }
 
                 // пересчёт бейджей/фильтр
                 if (typeof recomputeCountsByCells === 'function') recomputeCountsByCells();
                 if (typeof applyTabFilterInPositions === 'function') applyTabFilterInPositions();
+
+                // === СРАЗУ отправляем на сервер для добавления строки в 1С-документ ===
+                try {
+                    const payload = {
+                            document_id: String(currentDocNo),
+                            warehouse_id: currentWarehouseId,
+                           active_cell: activeState?.cell || null,   // <<< NEW: передаём GUID ячейки
+                        barcode: String(li.dataset.barcode || ''),
+                        quantity: 1,
+                        nomen: found.nomen || null,
+                        characteristic: found.characteristic || null,
+                        fill_placed: true,
+                        line_no_hint: nextLine,
+                        doc_link: currentDoc?.Ссылка || null,
+                };
+
+
+                    const resp = await fetch(ADD_EXTERNAL_POS_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload),
+                    });
+
+                    const raw = await resp.text();
+                    let data = {};
+                    try { data = raw ? JSON.parse(raw) : {}; } catch(e) {}
+
+                    if (!resp.ok || !data.ok) {
+                        console.warn('[ADD-EXTERNAL] not ok', data);
+                        // Ошибка: удаляем строку из UI и уведомляем
+                        li.remove();
+                        alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
+                        return;
+                    }
+
+                    // УСПЕХ: строка добавлена в документ в 1С
+                    // — снимаем "external", можно обновить номер строки если 1С вернула свой
+                    li.dataset.external = '0';
+                    if (data.assigned_line && Number.isInteger(data.assigned_line)) {
+                        li.dataset.line = String(data.assigned_line);
+                    }
+                    // обновим бейдж
+                    const badge = li.querySelector('[data-badge="status"]');
+                    if (badge) {
+                        badge.textContent = 'В документе';
+                        badge.className = 'badge badge-success ml-2';
+                    }
+                    renderLi(li); // перерисуем «План/Факт» (останутся 1/1)
+                } catch (e) {
+                    console.error('[ADD-EXTERNAL] fetch error', e);
+                    // Ошибка сети: удаляем строку и сообщаем
+                    li.remove();
+                    alert('Ошибка при добавлении позиции в документ.');
+                }
             }
+
 
 
             function showPositions(index) {
@@ -676,14 +757,16 @@
                     if (n === numberPosition && !matchedLi) matchedLi = li;
                 });
                 // Если это внешняя строка — «Факт» увеличиваем локально, без отправки в бэкенд
+                // Если это внешняя строка — «Факт» увеличиваем локально, без отправки в бэкенд
                 if (matchedLi && matchedLi.dataset.external === '1') {
                     const cur = parseInt(matchedLi.dataset.fact || '0', 10) || 0;
                     matchedLi.dataset.fact = String(cur + 1);
                     matchedLi.classList.add('hl-barcode');
                     renderLi(matchedLi);
                     matchedLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    return; // 🚫 выходим, не шлём в POS_SAVE_URL
+                    return; // до тех пор, пока строка не будет записана в документ (см. appendExternalItem)
                 }
+
 
 
                 try {
@@ -800,16 +883,21 @@
             } else {
                 console.log('[pick] btnSend wired');
                 btnSend.addEventListener('click', async () => {
-                    console.log('[pick] SEND click. currentDocumentId =', window.currentDocumentId);
-                    if (!window.currentDocumentId) {
-                        alert('Не выбран документ.');
+                    // номер документа — сперва из логики страницы, иначе из заголовка
+                    const pageTitleText = document.getElementById('pageTitle')?.textContent || '';
+                    const titleNo = (pageTitleText.match(/(00-\d+)/) || [])[1] || '';
+                    const number = (window.currentDocumentId && String(window.currentDocumentId)) || titleNo;
+
+                    if (!number) {
+                        alert('Не удалось определить номер документа.');
                         return;
                     }
+
                     try {
                         btnSend.disabled = true;
                         btnSend.textContent = 'Отправляем...';
 
-                        const resp = await fetch(SEND_URL, {
+                        const resp = await fetch(FINISH_URL, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': csrf,
@@ -818,31 +906,27 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                document_id: String(window.currentDocumentId),
-                                mode: 'delta',           // отправляем дельты (СканДельта)
-                                only_active_cell: true,  // только активная ячейка
-                                fill_placed: true        // пробрасываем флаг в 1С
+                                number: number,      // <- Laravel ждёт "number"
+                                // at: new Date().toISOString(), // при желании можно пробрасывать время
                             }),
                         });
 
                         const raw = await resp.text();
-                        console.log('[pick] SEND HTTP', resp.status, resp.statusText, raw);
-
                         let data = {};
-                        try { data = raw ? JSON.parse(raw) : {}; } catch(e) { console.warn('[pick] JSON parse fail', e); }
+                        try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
 
-                        if (!resp.ok || !data.ok) {
+                        if (!resp.ok) {
                             alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
                             return;
                         }
 
-                        alert(`Отправлено: позиций ${data.sent_positions}, сканов ${data.sent_scans}`);
+                        // тут 1С уже отработала — покажем итог
+                        alert('Готово: ' + (data?.Документ || 'операция завершена'));
 
-                        // ✅ Перенаправление на главную страницу склада
+                        // вернёмся на главную
                         window.location.href = '/sklad';
-
                     } catch (e) {
-                        console.error('[pick] SEND error', e);
+                        console.error('[finish_acceptance] error', e);
                         alert('Помилка мережі/сервера');
                     } finally {
                         btnSend.disabled = false;
@@ -852,5 +936,4 @@
             }
         });
     </script>
-
 @endpush
