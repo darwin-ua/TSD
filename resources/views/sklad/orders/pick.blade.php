@@ -109,7 +109,7 @@
                     <button id="btnSend"
                             type="button"
                             class="btn btn-primary btn-lg w-100 d-none"
-                            data-send-url="{{ route('sklad.tsd.finish_acceptance') }}">
+                            data-send-url="{{ route('sklad.acceptance.finish') }}">
                         Отправить
                     </button>
                 </div>
@@ -162,6 +162,8 @@
             console.log('[pick] routes:', { POS_SAVE_URL, STATE_FETCH_URL, SEND_URL, SEARCH_BARCODE_URL });
 
             // ===== Активная ячейка (state из сессии/кеша) =====
+            let activeCellTextNorm = '';
+
             let activeState = null;
 
             // Баннер активной ячейки
@@ -245,48 +247,94 @@
                 });
             }
 
+            // Глобально выше по файлу:
+// let activeState = null;
+// let activeCellTextNorm = ''; // НОРМАЛИЗОВАННЫЙ текст активной ячейки
+
             async function loadCellState() {
                 try {
-                    const r = await fetch(STATE_FETCH_URL, { headers: { 'Accept': 'application/json' }});
+                    // 1) Забираем state
+                    const r = await fetch(STATE_FETCH_URL, { headers: { 'Accept': 'application/json' } });
                     const j = await r.json().catch(() => ({}));
                     activeState = j.state || null;
 
-                    banner.classList.remove('d-none', 'alert-warning');
+                    // 2) Сбрасываем и подготавливаем баннер
+                    banner.classList.remove('d-none', 'alert-warning', 'alert-info');
 
                     const raw = activeState?.cell ?? '';
                     if (!raw) {
+                        activeCellTextNorm = '';
                         banner.classList.add('alert-warning');
                         banner.textContent = 'Ячейка не выбрана. Сначала отсканируйте ячейку на экране "Размещение".';
                         return;
                     }
 
-                    // Тянем сразу label + room + tab
+                    // 3) Пытаемся получить красивую метку/помещение/вкладку с бэка
                     let nice = null, room = null, tab = null;
                     try {
-                        const r2 = await fetch(CELL_LABEL_URL + '?number=' + encodeURIComponent(raw));
-                        const j2 = await r2.json();
-                        nice = j2?.label || null;
-                        room = j2?.room  || null;
-                        tab  = j2?.tab   || null;
-                    } catch (_) {}
+                        const r2  = await fetch(CELL_LABEL_URL + '?number=' + encodeURIComponent(raw));
+                        const j2  = await r2.json();
+                        nice = (j2?.label ?? null);
+                        room = (j2?.room  ?? null);
+                        tab  = (j2?.tab   ?? null);
+                    } catch (_) {
+                        // игнор — используем локальные эвристики
+                    }
 
-                    // Баннер
+                    // 4) Баннер
                     banner.classList.add('alert-info');
-                    banner.textContent = 'Ячейка: ' + (nice || raw);
+                    const label = nice || raw;
+                    banner.textContent = room ? `Ячейка: ${label} (Помещение: ${room})` : `Ячейка: ${label}`;
 
-                    // Если вычислился tab — показываем только одну вкладку
+                    // 5) Нормализованный текст активной ячейки — нужен для проверки инкремента «Факт»
+                    activeCellTextNorm = norm(label || raw || '');
+
+                    // 6) Если бэк не вернул вкладку — пробуем определить по тексту ячейки
+                    if (!tab) {
+                        tab = detectTabByCellText(label) || detectTabByCellText(raw) || null;
+                    }
+
+                    // 7) Пробуем проставить warehouse_id, если его ещё нет
+                    //    Сначала по вычисленной вкладке, иначе — эвристика из первой строки позиций
+                    if (activeState && !activeState.warehouse_id) {
+                        let wh = null;
+                        if (tab && WAREHOUSE_BY_TAB && WAREHOUSE_BY_TAB[tab]) {
+                            wh = WAREHOUSE_BY_TAB[tab];
+                        }
+                        if (!wh) {
+                            wh = inferWarehouseFromFirstRowCell(); // может вернуть null — ок
+                        }
+                        if (wh) {
+                            activeState.warehouse_id = wh;
+                            // Если есть локальная переменная текущего склада — обновим и её
+                            if (typeof currentWarehouseId !== 'undefined' && (currentWarehouseId == null)) {
+                                currentWarehouseId = wh;
+                            }
+                            console.log('[STATE] warehouse_id set →', wh);
+                        }
+                    }
+
+                    // 8) Если определили вкладку — показываем только её и перерисовываем контент
                     if (tab) {
                         activeTab = tab;
-                        // спрятать неактивные
+
+                        // Спрятать неактивные вкладки
                         tabs.forEach(t => {
                             const isActive = (t.dataset.tab === activeTab);
                             t.classList.toggle('active', isActive);
                             t.classList.toggle('d-none', !isActive);
                         });
-                        // Перерисовать список документов уже под нужную вкладку
-                        renderDocuments();
+
+                        // Если сейчас экран документов — перерисуем список;
+                        // если экран позиций — просто применим фильтр (если функция есть)
+                        const onDocsScreen = !docList.classList.contains('d-none');
+                        if (onDocsScreen) {
+                            renderDocuments();
+                        } else if (typeof applyTabFilterInPositions === 'function') {
+                            applyTabFilterInPositions();
+                        }
                     }
-                } catch(e) {
+                } catch (e) {
                     console.warn('Не удалось получить state ячейки', e);
                 }
             }
@@ -305,12 +353,9 @@
 
                 const filtered = documents.filter(d => matchesTabByRoom(d.Помещение, activeTab));
 
-                // если в текущей вкладке пусто — показываем пустое состояние, но НЕ редиректим
+                // ⬇️ если в текущей вкладке пусто — уходим в free
                 if (filtered.length === 0) {
-                    const empty = document.createElement('div');
-                    empty.className = 'alert alert-secondary';
-                    empty.textContent = 'В этой вкладке документов нет.';
-                    docList.appendChild(empty);
+                    window.location.replace(FREE_SCAN_PAGE);
                     return;
                 }
 
@@ -401,19 +446,21 @@
             let currentDoc = null;
             let currentWarehouseId = null;
 
-            // === UI-шаблон позиции: «План + Факт» ===
-            function renderLi(li){
+            function renderLi(li) {
                 const rownum = li.dataset.line || '';
                 const nom    = li.dataset.nomOriginal || '-';
                 const qtyPln = Number(li.dataset.qty || 0);
                 const qtyFct = Number(li.dataset.fact || 0);
+
                 li.innerHTML = `
-      <div class="pos-title">#${rownum} — ${nom}</div>
-      <div class="pos-qty">
-      <span class="qty-chip fact">План: ${qtyPln}</span>
-        <span class="qty-chip fact">Факт: ${qtyFct}</span>
-      </div>`;
+    <div class="pos-title">#${rownum} — ${nom}</div>
+    <div class="pos-qty">
+      <span class="qty-chip plan">План: ${qtyPln}</span>
+      <span class="qty-chip fact">Факт: ${qtyFct}</span>
+    </div>`;
             }
+
+
 
             function getNextLineNumber() {
                 let max = 0;
@@ -578,7 +625,8 @@
 
                     const rownum = Number(line.НомерСтроки ?? (idx + 1));
                     const qtyPln = Number(line.Количество ?? 0) || 0;
-                    const qtyFct = Number(line.Факт ?? line.Отобрано ?? 0) || 0;
+                    // const qtyFct = Number(line.Факт ?? line.Отобрано ?? 0) || 0;
+                    const qtyFct = 0; // всегда 0 при первичной отрисовке
 
                     // datasets для поиска/сканирования/фильтрации
                     li.dataset.nom          = norm(line.Номенклатура);
@@ -586,8 +634,9 @@
                     li.dataset.barcode      = norm(line.Штрихкод);
                     li.dataset.cell         = norm(line.Ячейка);
                     li.dataset.line         = String(rownum); // номер строки
-                    li.dataset.qty          = String(qtyPln); // план
-                    li.dataset.fact         = String(qtyFct); // факт
+                    li.dataset.qty  = String(qtyPln);
+                    li.dataset.fact = '0';
+
 
                     renderLi(li);
                     posUl.appendChild(li);
@@ -757,15 +806,19 @@
                     if (n === numberPosition && !matchedLi) matchedLi = li;
                 });
                 // Если это внешняя строка — «Факт» увеличиваем локально, без отправки в бэкенд
-                // Если это внешняя строка — «Факт» увеличиваем локально, без отправки в бэкенд
-                if (matchedLi && matchedLi.dataset.external === '1') {
+                if (matchedLi) {
+                    const rowCellNorm = (matchedLi.dataset.cell || '');
+                    if (activeCellTextNorm && rowCellNorm && rowCellNorm !== activeCellTextNorm) {
+                        alert('Позиция относится к другой ячейке. Сначала выберите/отсканируйте правильную ячейку.');
+                        return;
+                    }
                     const cur = parseInt(matchedLi.dataset.fact || '0', 10) || 0;
                     matchedLi.dataset.fact = String(cur + 1);
                     matchedLi.classList.add('hl-barcode');
                     renderLi(matchedLi);
                     matchedLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    return; // до тех пор, пока строка не будет записана в документ (см. appendExternalItem)
                 }
+
 
 
 

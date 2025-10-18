@@ -186,62 +186,111 @@ class SkladOrderController extends Controller
 
         return response()->json(['message' => 'Данные успешно получены и обработаны'], 200);
     }
-
-
     public function finishAcceptance(Request $request)
     {
-        // 1) Валидация JSON
+        // 1) Валидация входа
         $data = $request->validate([
-            'Номер'                       => 'required|string',
-            'Позиции'                     => 'required|array|min:1',
-            'Позиции.*.НомерСтроки'       => 'required|integer|min:1',
-            'Позиции.*.НовоеКоличество'   => 'nullable|numeric',
-            'Позиции.*.СканДельта'        => 'nullable|numeric',
+            'Номер'                     => 'required|string',
+            'Позиции'                   => 'required|array|min:1',
+            'Позиции.*.НомерСтроки'     => 'required|integer|min:1',
+            'Позиции.*.НовоеКоличество' => 'nullable|numeric',
+            'Позиции.*.СканДельта'      => 'nullable|numeric',
         ]);
 
-        // Логируем то, что пришло от клиента
-        \Log::info('FinishAcceptance: входящий запрос от фронта', [
-            'payload' => $data,
-        ]);
+        \Log::info('FinishAcceptance: входящий запрос от фронта', ['payload' => $data]);
 
-        // 2) Адрес сервиса FinishAcceptance
+        // 2) Формируем строку URL (именно строку, не Response!)
         $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAcceptance';
 
         try {
-            // 3) Отправляем в 1С с Basic Auth (жёстко заданные креды)
+            // 3) Достаём креды пользователя (или задаём дефолтные при необходимости)
             $user = \Illuminate\Support\Facades\Auth::user();
-            $login = (string) $user->name;
-            $password = (string) $user->parol_1c;
-            Log::info('DEBUG login', [
-                'len' => $user->name,
-                'hex' => bin2hex($user->name),
+            $login    = (string)($user->name       ?? 'КучеренкоД');
+            $password = (string)($user->parol_1c   ?? 'NitraPa$$@0@!');
+
+            \Log::info('DEBUG login', [
+                'len' => $login,
+                'hex' => bin2hex($login),
             ]);
 
+            // 4) Один корректный POST в 1С
+            // Laravel HTTP client по умолчанию шлёт JSON при передаче массива.
             $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
                 ->acceptJson()
+                ->asJson()      // чтобы гарантированно ушёл application/json
                 ->timeout(60)
-                ->withHeaders([
-                    'Content-Type' => 'application/json; charset=utf-8'
-                ])
                 ->post($url, $data);
 
-            // 4) Возвращаем клиенту ответ 1С «как есть»
-            return response($resp->body(), $resp->status())
-                ->withHeaders([
-                    'Content-Type' => $resp->header('Content-Type', 'application/json; charset=utf-8')
-                ]);
-
-        } catch (\Throwable $e) {
-            \Log::error('FinishAcceptance error', [
-                'message' => $e->getMessage(),
+            // 5) Проксируем клиенту ответ 1С «как есть»
+            return response($resp->body(), $resp->status())->withHeaders([
+                'Content-Type' => $resp->header('Content-Type', 'application/json; charset=utf-8')
             ]);
 
+        } catch (\Throwable $e) {
+            \Log::error('FinishAcceptance error', ['message' => $e->getMessage()]);
             return response()->json([
                 'ok'    => false,
                 'error' => 'Gateway error: '.$e->getMessage(),
             ], 502);
         }
     }
+
+
+//    public function finishAcceptance(Request $request)
+//    {
+//        // 1) Валидация JSON
+//        $data = $request->validate([
+//            'Номер'                       => 'required|string',
+//            'Позиции'                     => 'required|array|min:1',
+//            'Позиции.*.НомерСтроки'       => 'required|integer|min:1',
+//            'Позиции.*.НовоеКоличество'   => 'nullable|numeric',
+//            'Позиции.*.СканДельта'        => 'nullable|numeric',
+//        ]);
+//
+//        // Логируем то, что пришло от клиента
+//        \Log::info('FinishAcceptance: входящий запрос от фронта', [
+//            'payload' => $data,
+//        ]);
+//
+//        // 2) Адрес сервиса FinishAcceptance
+//
+//        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAcceptance';
+//
+//        try {
+//            // 3) Отправляем в 1С с Basic Auth (жёстко заданные креды)
+//            $user = \Illuminate\Support\Facades\Auth::user();
+//            $login = (string) $user->name;
+//            $password = (string) $user->parol_1c;
+//            Log::info('DEBUG login', [
+//                'len' => $user->name,
+//                'hex' => bin2hex($user->name),
+//            ]);
+//
+//            $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
+//                ->acceptJson()
+//                ->timeout(60)
+//                ->withHeaders([
+//                    'Content-Type' => 'application/json; charset=utf-8'
+//                ])
+//                ->post($url, $data);
+//
+//            // 4) Возвращаем клиенту ответ 1С «как есть»
+//            return response($resp->body(), $resp->status())
+//                ->withHeaders([
+//                    'Content-Type' => $resp->header('Content-Type', 'application/json; charset=utf-8')
+//                ]);
+//
+//        } catch (\Throwable $e) {
+//            \Log::error('FinishAcceptance error', [
+//                'message' => $e->getMessage(),
+//            ]);
+//
+//            return response()->json([
+//                'ok'    => false,
+//                'error' => 'Gateway error: '.$e->getMessage(),
+//            ], 502);
+//        }
+//    }
 
     public function fetchPickOrders(\Illuminate\Http\Request $request)
     {

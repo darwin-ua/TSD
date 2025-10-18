@@ -692,142 +692,824 @@ class SkladScanController extends Controller
         session(['scan_state.cell' => $cell, 'scan_state.warehouse_id' => $warehouseId]);
         return response()->json(['ok' => true, 'state' => session('scan_state')], 200);
     }
-
-// ...
-
-
-    public function creatingBlankDocument(Request $request)
+    public function creatingBlankDocument(\Illuminate\Http\Request $request)
     {
-        // --- вход ---
-        $request->validate([
-            'code'            => 'required|string|max:64',
-            'scan_id'         => 'nullable|string|max:64',
-            'data_executor'   => 'nullable|string|max:100', // с фронта (если есть)
-            'document_no'     => 'nullable|string|max:50',
-            'room'            => 'nullable|string|max:100',
-            'warehouse'       => 'nullable|string|max:100',
+        // ===== 0) Корреляция и тайминг =====
+        $t0  = microtime(true);
+        $cid = (string)($request->input('scan_id')
+            ?: $request->header('X-Scan-ID')
+                ?: \Illuminate\Support\Str::uuid());
+
+        // ===== 1) Вход и валидация =====
+        $validated = $request->validate([
+            'code'          => 'required|string|max:64',
+            'scan_id'       => 'nullable|string|max:64',
+            'data_executor' => 'nullable|string|max:100',
+            'document_no'   => 'nullable|string|max:50',
+            'room'          => 'nullable|string|max:100',
+            'warehouse'     => 'nullable|string|max:100',
+            'cell_name'     => 'nullable|string|max:150',
         ]);
 
-        $cid  = (string)($request->input('scan_id') ?: $request->header('X-Scan-ID') ?: Str::uuid());
-        $code = (string)$request->input('code');
+        $code = (string)$validated['code'];
 
-        Log::info('scan.1c.creatingBlank: start', $this->ctx($request, [
-            'cid'  => $cid,
-            'code' => $code,
-        ]));
+        // Базовый контекст для логов
+        $ctxBase = [
+            'cid'         => $cid,
+            'ip'          => $request->ip(),
+            'route'       => $request->path(),
+            'ua'          => substr((string)$request->userAgent(), 0, 256),
+            'reqHeaders'  => array_intersect_key($request->headers->all(), array_flip([
+                'x-scan-id','accept','content-type','referer'
+            ])),
+            'reqQuery'    => $request->query(),
+        ];
 
-        // --- активная ячейка ---
-        $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+        \Log::info('scan.1c.creatingBlank:start', $ctxBase + [
+                'payload_raw' => $request->all(),
+            ]);
+
+        // ===== 2) Активная ячейка из сессии/кэша =====
+        $state      = $request->session()->get('active_cell') ?: \Illuminate\Support\Facades\Cache::get($this->cellCacheKey());
         $activeCell = is_array($state) ? ($state['cell'] ?? null) : null;
 
-        // --- определяем исполнителя ---
-        $executor = trim((string)$request->input('data_executor'));
+        // ===== 3) Достаём строку ячейки из БД (учитываем number/ssylka/link) =====
+        $cellRow            = null;
+        $cellNameFor1C      = null;
+        $roomFromCell       = null;
+        $warehouseFromCell  = null;
+        $cellRefGuid        = null;
+        $receptionAreaName  = null; // ВАЖНО: зона приёмки из вашей таблицы
+
+        if (!empty($activeCell)) {
+            $cellRow = \DB::table('skladskie_yacheiki')
+                ->where('number', $activeCell)
+                ->orWhere('ssylka', $activeCell)
+                ->orWhere('link',   $activeCell)
+                ->first();
+        }
+
+        if ($cellRow) {
+            // ваши поля: id | ssylka | sklad | link | number | room | reception_area | versiya_dannykh
+            $cellNameFor1C      = $cellRow->ssylka ?: ($cellRow->name ?? $cellRow->number);
+            $roomFromCell       = $cellRow->room ?? null;
+            $warehouseFromCell  = $cellRow->sklad ?? ($cellRow->warehouse ?? null);
+            $cellRefGuid        = $cellRow->link ?? null;
+            $receptionAreaName  = $cellRow->reception_area ?? null; // например: "Приемка Допы Дарв"
+        }
+
+        \Log::debug('scan.1c.creatingBlank:cell.resolve', $ctxBase + [
+                'activeCell_in'   => $activeCell,
+                'cellRow_found'   => (bool)$cellRow,
+                'cellRow_keys'    => $cellRow ? array_keys((array)$cellRow) : [],
+                'cell_name_1c'    => $cellNameFor1C,
+                'room_from_cell'  => $roomFromCell,
+                'wh_from_cell'    => $warehouseFromCell,
+                'cell_ref'        => $cellRefGuid,
+                'session_state'   => $state,
+            ]);
+
+        // ===== 4) Исполнитель =====
+        $executor       = trim((string)($validated['data_executor'] ?? ''));
         $executorSource = 'request.data_executor';
 
         if ($executor === '') {
-            $u = Auth::user();
+            $u = \Illuminate\Support\Facades\Auth::user();
             if ($u) {
-                // ВАЖНО: правильное имя колонки в БД — data_executor (без опечаток)
-                $executor = trim((string)($u->data_executor ?? ''));
+                $executor       = trim((string)($u->data_executor ?? ''));
                 $executorSource = 'users.data_executor';
-
                 if ($executor === '') {
-                    $executor = $u->user_register
-                        ?: $u->name
-                            ?: $u->login
-                                ?: $u->email
-                                    ?: 'Кучеренко Денис'; // поставь то, что точно есть в 1С
+                    $executor       = $u->user_register ?: $u->name ?: $u->login ?: $u->email ?: 'Кучеренко Денис';
                     $executorSource = 'fallback('.$executorSource.')';
                 }
             } else {
-                $executor = 'Кучеренко Денис';
+                $executor       = 'Кучеренко Денис';
                 $executorSource = 'fallback.no_user';
             }
         }
 
-        // Подумай: если всегда работаем в "ГП (ячейки)" — можно задать дефолт:
-        $room      = $request->input('room', 'ГП (ячейки)');
-        $warehouse = $request->input('warehouse'); // опционально
-
-        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
-
-        $payload = [
-            'barcode'      => $code,
-            'ActiveCell'   => $activeCell,
-            'scan_id'      => $cid,
-            'Исполнитель'  => $executor,           // <-- ОБЯЗАТЕЛЬНО
-            'Помещение'    => $room,               // дефолт "ГП (ячейки)"
-        ];
-        if ($warehouse)                           $payload['Склад']       = (string)$warehouse;
-        if ($request->filled('document_no'))      $payload['document_no'] = (string)$request->input('document_no');
-
-        try {
-            $client = new \GuzzleHttp\Client([
-                'timeout'     => 15,
-                'verify'      => false,
-                'http_errors' => false,
+        \Log::debug('scan.1c.creatingBlank:executor.resolve', $ctxBase + [
+                'executor'       => $executor,
+                'executorSource' => $executorSource,
             ]);
 
-            Log::info('scan.1c.creatingBlank: request', $this->ctx($request, [
-                'cid'      => $cid,
-                'url'      => $url,
-                'executor' => ['value' => $executor, 'source' => $executorSource],
-                'payload'  => $payload,
-            ]));
+        // ===== 5) Прочие входные =====
+        $roomInput      = trim((string)($validated['room'] ?? ''));
+        $warehouseInput = trim((string)($validated['warehouse'] ?? ''));
+        $cellNameInput  = trim((string)($validated['cell_name'] ?? ''));
+        $documentNo     = isset($validated['document_no']) ? (string)$validated['document_no'] : null;
 
+        // ===== 6) Формируем payload для 1С =====
+        $payload = [
+            'barcode'     => $code,
+            'scan_id'     => $cid,
+            'Исполнитель' => $executor,
+        ];
+
+        // Имя/GUID/ActiveCell: приоритет GUID -> имя -> ActiveCell
+        if (!empty($cellRefGuid)) {
+            $payload['cell_ref'] = (string)$cellRefGuid;
+        }
+        if (!empty($cellNameFor1C)) {
+            $payload['Ячейка']    = (string)$cellNameFor1C;
+            $payload['cell_name'] = (string)$cellNameFor1C;
+        } elseif ($cellNameInput !== '') {
+            $payload['cell_name'] = $cellNameInput;
+        } elseif (!empty($activeCell)) {
+            $payload['ActiveCell'] = $activeCell;
+        }
+
+        // Помещение
+        if (!empty($roomFromCell)) {
+            $payload['Помещение'] = (string)$roomFromCell;
+        }
+        if ($roomInput !== '' && $roomInput !== 'ГП (ячейки)') {
+            $payload['Помещение'] = (string)$roomInput;
+        }
+
+        // Склад
+        if (!empty($warehouseFromCell)) {
+            $payload['Склад'] = (string)$warehouseFromCell;
+        } elseif ($warehouseInput !== '') {
+            $payload['Склад'] = (string)$warehouseInput;
+        } else {
+            $payload['Склад'] = 'Дарвин - склад ГП';
+        }
+
+        // ЗонаПриемки из таблицы (если есть)
+        if (!empty($receptionAreaName)) {
+            $payload['ЗонаПриемки'] = (string)$receptionAreaName; // пример: "Приемка Допы Дарв"
+        }
+
+        if (!empty($documentNo)) {
+            $payload['document_no'] = $documentNo;
+        }
+
+        // ===== 7) Вызов 1С =====
+        $url      = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
+        $login    = 'КучеренкоД';
+        $password = 'NitraPa$$@0@!';
+
+        $client = new \GuzzleHttp\Client([
+            'timeout'     => 20,
+            'verify'      => false,
+            'http_errors' => false,
+        ]);
+
+        \Log::info('scan.1c.creatingBlank:request', $ctxBase + [
+                'cid'       => $cid,
+                'url'       => $url,
+                'executor'  => ['value' => $executor, 'source' => $executorSource],
+                'payload'   => $payload,
+                'hasRef'    => array_key_exists('cell_ref', $payload),
+                'hasActive' => array_key_exists('ActiveCell', $payload),
+                'hasName'   => array_key_exists('Ячейка', $payload) || array_key_exists('cell_name', $payload),
+            ]);
+
+        $tCall0 = microtime(true);
+        try {
             $resp = $client->post($url, [
                 'headers' => [
-                    'Accept'       => 'application/json',
-                    'Content-Type' => 'application/json; charset=utf-8',
+                    'Accept'           => 'application/json',
+                    'Content-Type'     => 'application/json; charset=utf-8',
+                    'X-Correlation-ID' => $cid,
                 ],
-                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'auth' => [$login, $password],
                 'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]);
+            $tCall1 = microtime(true);
 
-            $status = $resp->getStatusCode();
-            $body   = (string)$resp->getBody();
-            $bodyShort = mb_substr($body, 0, 4000);
-
-            Log::info('scan.1c.creatingBlank: response', $this->ctx($request, [
-                'cid'    => $cid,
-                'status' => $status,
-                'body'   => $bodyShort,
-            ]));
+            $status    = $resp->getStatusCode();
+            $headers   = $resp->getHeaders();
+            $body      = (string)$resp->getBody();
+            $bodyLen   = strlen($body);
+            $bodyShort = mb_substr($body, 0, 6000);
 
             $json = null;
-            try { $json = $body ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : null; } catch (\Throwable $e) {}
+            $jsonKeys = [];
+            try {
+                $json = $body ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : null;
+                if (is_array($json)) {
+                    $jsonKeys = array_slice(array_keys($json), 0, 20);
+                }
+            } catch (\Throwable $e) {}
+
+            \Log::info('scan.1c.creatingBlank:response', $ctxBase + [
+                    'cid'        => $cid,
+                    'status'     => $status,
+                    'elapsed_ms' => (int)round(($tCall1 - $tCall0) * 1000),
+                    'hdrs'       => array_intersect_key($headers, array_flip(['Content-Type','Content-Length','Date','Server'])),
+                    'body_len'   => $bodyLen,
+                    'body_head'  => $bodyShort,
+                    'json_keys'  => $jsonKeys,
+                ]);
+
+            if ($status >= 500 && $status < 600) {
+                \Log::warning('scan.1c.creatingBlank:server500', $ctxBase + [
+                        'cid'      => $cid,
+                        'message'  => is_array($json) && isset($json['message']) ? $json['message'] : null,
+                        'payload'  => $payload,
+                        'cell_diag'=> [
+                            'activeCell_in'  => $activeCell,
+                            'cell_name_1c'   => $cellNameFor1C,
+                            'cell_ref'       => $cellRefGuid,
+                            'room_from_cell' => $roomFromCell,
+                            'wh_from_cell'   => $warehouseFromCell,
+                        ],
+                    ]);
+            }
 
             if ($status < 200 || $status >= 300) {
                 $msg = '1C HTTP '.$status;
                 if (is_array($json) && isset($json['message'])) {
                     $msg .= ': '.$json['message'];
-                } elseif (!empty($body)) {
+                } elseif (!empty($bodyShort)) {
                     $msg .= '; body: '.$bodyShort;
                 }
-                return response()->json(['ok' => false, 'cid' => $cid, 'msg' => $msg], 502);
+                $out = [
+                    'ok'   => false,
+                    'cid'  => $cid,
+                    'msg'  => $msg,
+                    'echo' => [
+                        'barcode'            => $code,
+                        'active_cell'        => $activeCell,
+                        'executor'           => $executor,
+                        'executorSource'     => $executorSource,
+                        'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+                        'room_sent'          => $payload['Помещение'] ?? null,
+                        'warehouse_sent'     => $payload['Склад'] ?? null,
+                        'cell_name_resolved' => $cellNameFor1C,
+                        'room_resolved'      => $roomFromCell,
+                        'warehouse_resolved' => $warehouseFromCell,
+                        'cell_ref'           => $cellRefGuid,
+                    ],
+                ];
+                $out['elapsed_ms_total'] = (int)round((microtime(true) - $t0) * 1000);
+                return response()->json($out, 502);
             }
 
-            return response()->json([
+            $out = [
                 'ok'    => true,
                 'cid'   => $cid,
                 'reply' => $json,
                 'echo'  => [
-                    'barcode'        => $code,
-                    'active_cell'    => $activeCell,
-                    'executor'       => $executor,
-                    'executorSource' => $executorSource,
-                    'room'           => $room,
+                    'barcode'            => $code,
+                    'active_cell'        => $activeCell,
+                    'executor'           => $executor,
+                    'executorSource'     => $executorSource,
+                    'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+                    'room_sent'          => $payload['Помещение'] ?? null,
+                    'warehouse_sent'     => $payload['Склад'] ?? null,
+                    'cell_name_resolved' => $cellNameFor1C,
+                    'room_resolved'      => $roomFromCell,
+                    'warehouse_resolved' => $warehouseFromCell,
+                    'cell_ref'           => $cellRefGuid,
                 ],
-            ]);
+                'elapsed_ms_total' => (int)round((microtime(true) - $t0) * 1000),
+            ];
+
+            if (is_array($json)) {
+                $out['diag'] = [
+                    'found_count' => $json['found_count'] ?? null,
+                    'doc_search'  => $json['doc_search'] ?? null,
+                    'ts'          => $json['ts'] ?? null,
+                ];
+            }
+
+            return response()->json($out, 200);
 
         } catch (\Throwable $e) {
-            Log::error('scan.1c.creatingBlank: error', $this->ctx($request, [
-                'cid' => $cid,
-                'err' => $e->getMessage(),
-            ]));
-            return response()->json(['ok' => false, 'cid' => $cid, 'msg' => 'Ошибка вызова 1С: '.$e->getMessage()], 500);
+            $elapsed = (int)round((microtime(true) - $tCall0) * 1000);
+            \Log::error('scan.1c.creatingBlank:exception', $ctxBase + [
+                    'cid'        => $cid,
+                    'elapsed_ms' => $elapsed,
+                    'err'        => $e->getMessage(),
+                    'trace'      => substr($e->getTraceAsString(), 0, 4000),
+                    'payload'    => $payload,
+                ]);
+
+            return response()->json([
+                'ok'    => false,
+                'cid'   => $cid,
+                'msg'   => 'Ошибка вызова 1С: '.$e->getMessage(),
+                'echo'  => [
+                    'barcode'            => $code,
+                    'active_cell'        => $activeCell,
+                    'executor'           => $executor,
+                    'executorSource'     => $executorSource,
+                    'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+                    'room_sent'          => $payload['Помещение'] ?? null,
+                    'warehouse_sent'     => $payload['Склад'] ?? null,
+                    'cell_name_resolved' => $cellNameFor1C,
+                    'room_resolved'      => $roomFromCell,
+                    'warehouse_resolved' => $warehouseFromCell,
+                    'cell_ref'           => $cellRefGuid,
+                ],
+                'elapsed_ms_total' => (int)round((microtime(true) - $t0) * 1000),
+            ], 500);
         }
     }
+
+//    public function creatingBlankDocument(\Illuminate\Http\Request $request)
+//    {
+//        // ===== 0) Корреляция и тайминг =====
+//        $t0  = microtime(true);
+//        $cid = (string)($request->input('scan_id')
+//            ?: $request->header('X-Scan-ID')
+//                ?: \Illuminate\Support\Str::uuid());
+//
+//        // ===== 1) Вход и валидация =====
+//        $validated = $request->validate([
+//            'code'          => 'required|string|max:64',
+//            'scan_id'       => 'nullable|string|max:64',
+//            'data_executor' => 'nullable|string|max:100',
+//            'document_no'   => 'nullable|string|max:50',
+//            'room'          => 'nullable|string|max:100',
+//            'warehouse'     => 'nullable|string|max:100',
+//            'cell_name'     => 'nullable|string|max:150',
+//        ]);
+//
+//        $code = (string)$validated['code'];
+//
+//        // Базовый контекст для логов
+//        $ctxBase = [
+//            'cid'         => $cid,
+//            'ip'          => $request->ip(),
+//            'route'       => $request->path(),
+//            'ua'          => substr((string)$request->userAgent(), 0, 256),
+//            'reqHeaders'  => array_intersect_key($request->headers->all(), array_flip([
+//                'x-scan-id','accept','content-type','referer'
+//            ])),
+//            'reqQuery'    => $request->query(),
+//        ];
+//
+//        \Log::info('scan.1c.creatingBlank:start', $ctxBase + [
+//                'payload_raw' => $request->all(),
+//            ]);
+//
+//        // ===== 2) Активная ячейка из сессии/кэша =====
+//        $state      = $request->session()->get('active_cell') ?: \Illuminate\Support\Facades\Cache::get($this->cellCacheKey());
+//        $activeCell = is_array($state) ? ($state['cell'] ?? null) : null;
+//
+//        // ===== 3) Достаём строку ячейки из БД (учитываем number/ssylka/link) =====
+//        $cellRow            = null;
+//        $cellNameFor1C      = null;
+//        $roomFromCell       = null;
+//        $warehouseFromCell  = null;
+//        $cellRefGuid        = null;
+//
+//        if (!empty($activeCell)) {
+//            $cellRow = \DB::table('skladskie_yacheiki')
+//                ->where('number', $activeCell)
+//                ->orWhere('ssylka', $activeCell)
+//                ->orWhere('link',   $activeCell)
+//                ->first();
+//        }
+//
+//        if ($cellRow) {
+//            // твои поля: id | ssylka | sklad | link | number | room | reception_area | versiya_dannykh
+//            $cellNameFor1C      = $cellRow->ssylka ?: ($cellRow->name ?? $cellRow->number);
+//            $roomFromCell       = $cellRow->room ?? null;
+//            $warehouseFromCell  = $cellRow->sklad ?? ($cellRow->warehouse ?? null);
+//            $cellRefGuid        = $cellRow->link ?? null;
+//        }
+//
+//        \Log::debug('scan.1c.creatingBlank:cell.resolve', $ctxBase + [
+//                'activeCell_in'   => $activeCell,
+//                'cellRow_found'   => (bool)$cellRow,
+//                'cellRow_keys'    => $cellRow ? array_keys((array)$cellRow) : [],
+//                'cell_name_1c'    => $cellNameFor1C,
+//                'room_from_cell'  => $roomFromCell,
+//                'wh_from_cell'    => $warehouseFromCell,
+//                'cell_ref'        => $cellRefGuid,
+//                'session_state'   => $state,
+//            ]);
+//
+//        // ===== 4) Исполнитель =====
+//        $executor       = trim((string)($validated['data_executor'] ?? ''));
+//        $executorSource = 'request.data_executor';
+//
+//        if ($executor === '') {
+//            $u = \Illuminate\Support\Facades\Auth::user();
+//            if ($u) {
+//                $executor       = trim((string)($u->data_executor ?? ''));
+//                $executorSource = 'users.data_executor';
+//                if ($executor === '') {
+//                    $executor       = $u->user_register ?: $u->name ?: $u->login ?: $u->email ?: 'Кучеренко Денис';
+//                    $executorSource = 'fallback('.$executorSource.')';
+//                }
+//            } else {
+//                $executor       = 'Кучеренко Денис';
+//                $executorSource = 'fallback.no_user';
+//            }
+//        }
+//
+//        \Log::debug('scan.1c.creatingBlank:executor.resolve', $ctxBase + [
+//                'executor'       => $executor,
+//                'executorSource' => $executorSource,
+//            ]);
+//
+//        // ===== 5) Прочие входные =====
+//        $roomInput      = trim((string)($validated['room'] ?? ''));
+//        $warehouseInput = trim((string)($validated['warehouse'] ?? ''));
+//        $cellNameInput  = trim((string)($validated['cell_name'] ?? ''));
+//        $documentNo     = isset($validated['document_no']) ? (string)$validated['document_no'] : null;
+//
+//        // ===== 6) Формируем payload для 1С =====
+//        $payload = [
+//            'barcode'     => $code,
+//            'scan_id'     => $cid,
+//            'Исполнитель' => $executor,
+//        ];
+//
+//        // Имя/GUID/ActiveCell: приоритет GUID -> имя -> ActiveCell
+//        if (!empty($cellRefGuid)) {
+//            $payload['cell_ref'] = (string)$cellRefGuid;
+//        }
+//        if (!empty($cellNameFor1C)) {
+//            $payload['Ячейка']    = (string)$cellNameFor1C;
+//            $payload['cell_name'] = (string)$cellNameFor1C;
+//        } elseif ($cellNameInput !== '') {
+//            $payload['cell_name'] = $cellNameInput;
+//        } elseif (!empty($activeCell)) {
+//            $payload['ActiveCell'] = $activeCell;
+//        }
+//
+//        // Помещение: таблица > явный ввод (кроме "ГП (ячейки)" как шум) > дефолт останется на стороне 1С
+//        if (!empty($roomFromCell)) {
+//            $payload['Помещение'] = (string)$roomFromCell;
+//        }
+//        if ($roomInput !== '' && $roomInput !== 'ГП (ячейки)') {
+//            $payload['Помещение'] = (string)$roomInput;
+//        }
+//
+//        // Склад: таблица > ввод > дефолт
+//        if (!empty($warehouseFromCell)) {
+//            $payload['Склад'] = (string)$warehouseFromCell;
+//        } elseif ($warehouseInput !== '') {
+//            $payload['Склад'] = (string)$warehouseInput;
+//        } else {
+//            $payload['Склад'] = 'Дарвин - склад ГП';
+//        }
+//
+//        if (!empty($documentNo)) {
+//            $payload['document_no'] = $documentNo;
+//        }
+//
+//        // ===== 7) Вызов 1С =====
+//        $url      = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
+//        $login    = 'КучеренкоД';
+//        $password = 'NitraPa$$@0@!';
+//
+//        $client = new \GuzzleHttp\Client([
+//            'timeout'     => 20,
+//            'verify'      => false,
+//            'http_errors' => false,
+//        ]);
+//
+//        \Log::info('scan.1c.creatingBlank:request', $ctxBase + [
+//                'cid'       => $cid,
+//                'url'       => $url,
+//                'executor'  => ['value' => $executor, 'source' => $executorSource],
+//                'payload'   => $payload,
+//                'hasRef'    => array_key_exists('cell_ref', $payload),
+//                'hasActive' => array_key_exists('ActiveCell', $payload),
+//                'hasName'   => array_key_exists('Ячейка', $payload) || array_key_exists('cell_name', $payload),
+//            ]);
+//
+//        $tCall0 = microtime(true);
+//        try {
+//            $resp = $client->post($url, [
+//                'headers' => [
+//                    'Accept'           => 'application/json',
+//                    'Content-Type'     => 'application/json; charset=utf-8',
+//                    'X-Correlation-ID' => $cid,
+//                ],
+//                'auth' => [$login, $password],
+//                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+//            ]);
+//            $tCall1 = microtime(true);
+//
+//            $status    = $resp->getStatusCode();
+//            $headers   = $resp->getHeaders();
+//            $body      = (string)$resp->getBody();
+//            $bodyLen   = strlen($body);
+//            $bodyShort = mb_substr($body, 0, 6000);
+//
+//            $json = null;
+//            $jsonKeys = [];
+//            try {
+//                $json = $body ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : null;
+//                if (is_array($json)) {
+//                    $jsonKeys = array_slice(array_keys($json), 0, 20);
+//                }
+//            } catch (\Throwable $e) {}
+//
+//            \Log::info('scan.1c.creatingBlank:response', $ctxBase + [
+//                    'cid'        => $cid,
+//                    'status'     => $status,
+//                    'elapsed_ms' => (int)round(($tCall1 - $tCall0) * 1000),
+//                    'hdrs'       => array_intersect_key($headers, array_flip(['Content-Type','Content-Length','Date','Server'])),
+//                    'body_len'   => $bodyLen,
+//                    'body_head'  => $bodyShort,
+//                    'json_keys'  => $jsonKeys,
+//                ]);
+//
+//            if ($status >= 500 && $status < 600) {
+//                \Log::warning('scan.1c.creatingBlank:server500', $ctxBase + [
+//                        'cid'      => $cid,
+//                        'message'  => is_array($json) && isset($json['message']) ? $json['message'] : null,
+//                        'payload'  => $payload,
+//                        'cell_diag'=> [
+//                            'activeCell_in'  => $activeCell,
+//                            'cell_name_1c'   => $cellNameFor1C,
+//                            'cell_ref'       => $cellRefGuid,
+//                            'room_from_cell' => $roomFromCell,
+//                            'wh_from_cell'   => $warehouseFromCell,
+//                        ],
+//                    ]);
+//            }
+//
+//            if ($status < 200 || $status >= 300) {
+//                $msg = '1C HTTP '.$status;
+//                if (is_array($json) && isset($json['message'])) {
+//                    $msg .= ': '.$json['message'];
+//                } elseif (!empty($bodyShort)) {
+//                    $msg .= '; body: '.$bodyShort;
+//                }
+//                $out = [
+//                    'ok'   => false,
+//                    'cid'  => $cid,
+//                    'msg'  => $msg,
+//                    'echo' => [
+//                        'barcode'            => $code,
+//                        'active_cell'        => $activeCell,
+//                        'executor'           => $executor,
+//                        'executorSource'     => $executorSource,
+//                        'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+//                        'room_sent'          => $payload['Помещение'] ?? null,
+//                        'warehouse_sent'     => $payload['Склад'] ?? null,
+//                        'cell_name_resolved' => $cellNameFor1C,
+//                        'room_resolved'      => $roomFromCell,
+//                        'warehouse_resolved' => $warehouseFromCell,
+//                        'cell_ref'           => $cellRefGuid,
+//                    ],
+//                ];
+//                $out['elapsed_ms_total'] = (int)round((microtime(true) - $t0) * 1000);
+//                return response()->json($out, 502);
+//            }
+//
+//            $out = [
+//                'ok'    => true,
+//                'cid'   => $cid,
+//                'reply' => $json,
+//                'echo'  => [
+//                    'barcode'            => $code,
+//                    'active_cell'        => $activeCell,
+//                    'executor'           => $executor,
+//                    'executorSource'     => $executorSource,
+//                    'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+//                    'room_sent'          => $payload['Помещение'] ?? null,
+//                    'warehouse_sent'     => $payload['Склад'] ?? null,
+//                    'cell_name_resolved' => $cellNameFor1C,
+//                    'room_resolved'      => $roomFromCell,
+//                    'warehouse_resolved' => $warehouseFromCell,
+//                    'cell_ref'           => $cellRefGuid,
+//                ],
+//                'elapsed_ms_total' => (int)round((microtime(true) - $t0) * 1000),
+//            ];
+//
+//            if (is_array($json)) {
+//                $out['diag'] = [
+//                    'found_count' => $json['found_count'] ?? null,
+//                    'doc_search'  => $json['doc_search'] ?? null,
+//                    'ts'          => $json['ts'] ?? null,
+//                ];
+//            }
+//
+//            return response()->json($out, 200);
+//
+//        } catch (\Throwable $e) {
+//            $elapsed = (int)round((microtime(true) - $tCall0) * 1000);
+//            \Log::error('scan.1c.creatingBlank:exception', $ctxBase + [
+//                    'cid'        => $cid,
+//                    'elapsed_ms' => $elapsed,
+//                    'err'        => $e->getMessage(),
+//                    'trace'      => substr($e->getTraceAsString(), 0, 4000),
+//                    'payload'    => $payload,
+//                ]);
+//
+//            return response()->json([
+//                'ok'    => false,
+//                'cid'   => $cid,
+//                'msg'   => 'Ошибка вызова 1С: '.$e->getMessage(),
+//                'echo'  => [
+//                    'barcode'            => $code,
+//                    'active_cell'        => $activeCell,
+//                    'executor'           => $executor,
+//                    'executorSource'     => $executorSource,
+//                    'cell_name_sent'     => $payload['cell_name'] ?? ($payload['Ячейка'] ?? null),
+//                    'room_sent'          => $payload['Помещение'] ?? null,
+//                    'warehouse_sent'     => $payload['Склад'] ?? null,
+//                    'cell_name_resolved' => $cellNameFor1C,
+//                    'room_resolved'      => $roomFromCell,
+//                    'warehouse_resolved' => $warehouseFromCell,
+//                    'cell_ref'           => $cellRefGuid,
+//                ],
+//                'elapsed_ms_total' => (int)round((microtime(true) - $t0) * 1000),
+//            ], 500);
+//        }
+//    }
+//
+
+// ...
+//    public function creatingBlankDocument(Request $request)
+//    {
+//        // --- 1) вход и валидация ---
+//        $request->validate([
+//            'code'          => 'required|string|max:64',
+//            'scan_id'       => 'nullable|string|max:64',
+//            'data_executor' => 'nullable|string|max:100',
+//            'document_no'   => 'nullable|string|max:50',
+//            'room'          => 'nullable|string|max:100',
+//            'warehouse'     => 'nullable|string|max:100',
+//            'cell_name'     => 'nullable|string|max:150',
+//        ]);
+//
+//        $cid  = (string)($request->input('scan_id') ?: $request->header('X-Scan-ID') ?: Str::uuid());
+//        $code = (string)$request->input('code');
+//
+//        Log::info('scan.1c.creatingBlank: start', $this->ctx($request, [
+//            'cid'  => $cid,
+//            'code' => $code,
+//        ]));
+//
+//        // --- 2) активная ячейка ---
+//        $state      = $request->session()->get('active_cell') ?: Cache::get($this->cellCacheKey());
+//        $activeCell = is_array($state) ? ($state['cell'] ?? null) : null;
+//
+//        // --- 3) получаем сведения о ячейке из БД ---
+//        $cellRow            = null;
+//        $cellNameFor1C      = null;
+//        $roomFromCell       = null;
+//        $warehouseFromCell  = null;
+//
+//        if ($activeCell) {
+//            $cellRow = \DB::table('skladskie_yacheiki')
+//                ->where('number', $activeCell)
+//                ->orWhere('ssylka', $activeCell)
+//                ->first();
+//
+//            if ($cellRow) {
+//                $cellNameFor1C     = $cellRow->ssylka ?? $cellRow->name ?? $cellRow->number;
+//                $roomFromCell      = $cellRow->room ?? null;
+//                $warehouseFromCell = $cellRow->warehouse ?? null;
+//            }
+//        }
+//
+//        // --- 4) определяем исполнителя ---
+//        $executor = trim((string)$request->input('data_executor'));
+//        $executorSource = 'request.data_executor';
+//
+//        if ($executor === '') {
+//            $u = Auth::user();
+//            if ($u) {
+//                $executor = trim((string)($u->data_executor ?? ''));
+//                $executorSource = 'users.data_executor';
+//
+//                if ($executor === '') {
+//                    $executor = $u->user_register
+//                        ?: $u->name
+//                            ?: $u->login
+//                                ?: $u->email
+//                                    ?: 'Кучеренко Денис';
+//                    $executorSource = 'fallback('.$executorSource.')';
+//                }
+//            } else {
+//                $executor = 'Кучеренко Денис';
+//                $executorSource = 'fallback.no_user';
+//            }
+//        }
+//
+//        // --- 5) доп. входные параметры ---
+//        $roomInput      = trim((string)$request->input('room', ''));
+//        $warehouseInput = trim((string)$request->input('warehouse', ''));
+//        $cellNameInput  = trim((string)$request->input('cell_name', ''));
+//
+//        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
+//
+//        // --- 6) формируем payload ---
+//        $payload = [
+//            'barcode'     => $code,
+//            'ActiveCell'  => $activeCell,
+//            'scan_id'     => $cid,
+//            'Исполнитель' => $executor,
+//        ];
+//
+//        // имя ячейки: сначала из БД, потом из запроса
+//        if (!empty($cellNameFor1C)) {
+//            $payload['Ячейка']    = (string)$cellNameFor1C;
+//            $payload['cell_name'] = (string)$cellNameFor1C;
+//        } elseif ($cellNameInput !== '') {
+//            $payload['cell_name'] = $cellNameInput;
+//        }
+//
+//        // помещение — приоритет из БД
+//        if (!empty($roomFromCell)) {
+//            $payload['Помещение'] = (string)$roomFromCell;
+//        }
+//        if ($roomInput !== '' && $roomInput !== 'ГП (ячейки)') {
+//            $payload['Помещение'] = (string)$roomInput;
+//        }
+//
+//        // склад — приоритет из БД
+//        if (!empty($warehouseFromCell)) {
+//            $payload['Склад'] = (string)$warehouseFromCell;
+//        }
+//        $payload['Склад'] = 'Дарвин - склад ГП';
+//
+//        // номер документа, если передали
+//        if ($request->filled('document_no')) {
+//            $payload['document_no'] = (string)$request->input('document_no');
+//        }
+//
+//        // --- 7) вызов 1С ---
+//        try {
+//            $client = new \GuzzleHttp\Client([
+//                'timeout'     => 15,
+//                'verify'      => false,
+//                'http_errors' => false,
+//            ]);
+//
+//            Log::info('scan.1c.creatingBlank: request', $this->ctx($request, [
+//                'cid'      => $cid,
+//                'url'      => $url,
+//                'executor' => ['value' => $executor, 'source' => $executorSource],
+//                'payload'  => $payload,
+//            ]));
+//
+//            $resp = $client->post($url, [
+//                'headers' => [
+//                    'Accept'       => 'application/json',
+//                    'Content-Type' => 'application/json; charset=utf-8',
+//                ],
+//                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'],
+//                'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+//            ]);
+//
+//            $status = $resp->getStatusCode();
+//            $body   = (string)$resp->getBody();
+//            $bodyShort = mb_substr($body, 0, 4000);
+//
+//            Log::info('scan.1c.creatingBlank: response', $this->ctx($request, [
+//                'cid'    => $cid,
+//                'status' => $status,
+//                'body'   => $bodyShort,
+//            ]));
+//
+//            $json = null;
+//            try {
+//                $json = $body ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : null;
+//            } catch (\Throwable $e) {}
+//
+//            if ($status < 200 || $status >= 300) {
+//                $msg = '1C HTTP '.$status;
+//                if (is_array($json) && isset($json['message'])) {
+//                    $msg .= ': '.$json['message'];
+//                } elseif (!empty($body)) {
+//                    $msg .= '; body: '.$bodyShort;
+//                }
+//                return response()->json(['ok' => false, 'cid' => $cid, 'msg' => $msg], 502);
+//            }
+//
+//            // --- 8) успешный ответ ---
+//            return response()->json([
+//                'ok'    => true,
+//                'cid'   => $cid,
+//                'reply' => $json,
+//                'echo'  => [
+//                    'barcode'            => $code,
+//                    'active_cell'        => $activeCell,
+//                    'executor'           => $executor,
+//                    'executorSource'     => $executorSource,
+//                    'cell_name_sent'     => $payload['cell_name'] ?? $payload['Ячейка'] ?? null,
+//                    'room_sent'          => $payload['Помещение'] ?? null,
+//                    'warehouse_sent'     => $payload['Склад'] ?? null,
+//                    'cell_name_resolved' => $cellNameFor1C,
+//                    'room_resolved'      => $roomFromCell,
+//                    'warehouse_resolved' => $warehouseFromCell,
+//                ],
+//            ]);
+//
+//        } catch (\Throwable $e) {
+//            Log::error('scan.1c.creatingBlank: error', $this->ctx($request, [
+//                'cid' => $cid,
+//                'err' => $e->getMessage(),
+//            ]));
+//            return response()->json(['ok' => false, 'cid' => $cid, 'msg' => 'Ошибка вызова 1С: '.$e->getMessage()], 500);
+//        }
+//    }
+
 
 //    public function freeScanPage(\Illuminate\Http\Request $request)
 //    {

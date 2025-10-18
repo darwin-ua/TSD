@@ -149,7 +149,9 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     Route::post('/sklad/tsd/finish-acceptance', [\App\Http\Controllers\Sklad\SkladScanController::class, 'finishAcceptance'])
         ->name('sklad.tsd.finish_acceptance');
 
-
+    Route::post('/sklad/tsd/finish',
+        [\App\Http\Controllers\Sklad\SkladOrderController::class, 'finishAcceptance']
+    )->name('sklad.acceptance.finish'); // алиас под старое имя
 
 
     Route::post(
