@@ -154,7 +154,8 @@
             const STATE_FETCH_URL = @json(route('sklad.scan.session.state'));
             const SEND_URL        = @json(route('sklad.scan.send'));
             const SEARCH_BARCODE_URL = @json(route('sklad.scan.search.barcode'));
-            const ADD_EXTERNAL_POS_URL = @json(route('sklad.scan.position.add_external'));
+            const ADD_EXTERNAL_POS_URL = @json(route('sklad.scan.addLineByNumber'));
+
             const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
             const FINISH_URL = @json(route('sklad.tsd.finish_acceptance'));
 
@@ -165,6 +166,8 @@
             let activeCellTextNorm = '';
 
             let activeState = null;
+            let currentCellNameFor1C = null; // имя ячейки, которое шлём в 1С как cell_name
+
 
             // Баннер активной ячейки
             let banner = document.getElementById('activeCellBanner');
@@ -288,6 +291,10 @@
 
                     // 5) Нормализованный текст активной ячейки — нужен для проверки инкремента «Факт»
                     activeCellTextNorm = norm(label || raw || '');
+
+                    // 5.1) Сохраняем «имя ячейки для 1С» (его и будем отправлять как cell_name)
+                    currentCellNameFor1C = label || raw || null;
+
 
                     // 6) Если бэк не вернул вкладку — пробуем определить по тексту ячейки
                     if (!tab) {
@@ -471,70 +478,119 @@
                 return max + 1;
             }
 
-            async function appendExternalItem(found, code) {
-                // found: {nomen, characteristic, barcode, ...} из 1С
-                const li = document.createElement('li');
-                li.className = 'list-group-item hl-barcode ext-found';
+            function aggKeyFor(found, code) {
+                const bc = String(found?.barcode || code || '').trim().toLowerCase();
+                if (bc) return 'bc:' + bc;            // агрегируем по штрихкоду
+                const nom = String(found?.nomen || '').trim().toLowerCase();
+                return 'nom:' + nom;                  // фолбек по номенклатуре
+            }
 
-                // высчитаем СЛЕДУЮЩИЙ номер строки (max+1)
-                const nextLine = getNextLineNumber();
+            function getOrCreateAggLi(key, displayNom, displayBarcode) {
+                let li = document.querySelector(`#positionsUl li[data-agg-key="${key}"]`);
+                if (li) return li;
 
-                // "внешняя" позиция — пока помечаем как внешнюю до подтверждения сервера
-                li.dataset.external     = '1';
-                li.dataset.nom          = (found.nomen || '').toLowerCase();
-                li.dataset.nomOriginal  = found.nomen || '-';
-                li.dataset.barcode      = String(found.barcode || code || '');
-                li.dataset.cell         = '';                 // попадёт в текущую вкладку
-                li.dataset.line         = String(nextLine);   // локальный номер до ответа 1С
-                li.dataset.qty          = '1';                // План
-                li.dataset.fact         = '1';                // Факт (мы сканировали штрихкод)
+                li = document.createElement('li');
+                li.className = 'list-group-item agg-line';
+                li.dataset.aggKey      = key;
+                li.dataset.nom         = (displayNom || '').toLowerCase();
+                li.dataset.nomOriginal = displayNom || '-';
+                li.dataset.barcode     = (displayBarcode || '').toLowerCase();
+                li.dataset.cell        = norm(currentCellNameFor1C || activeState?.cell || '');
+                li.dataset.line        = String(getNextLineNumber()); // локальный номер для UI
+                li.dataset.qty         = li.dataset.qty || '0';
+                li.dataset.fact        = '0';
 
-                renderLi(li);
+                const badge = document.createElement('span');
+                badge.className = 'badge badge-warning ml-2';
+                badge.dataset.badge = 'pending';
+                badge.textContent = 'Отправляем...';
 
-                // бейдж «Не в документе»
-                const title = li.querySelector('.pos-title');
-                if (title) {
-                    const badge = document.createElement('span');
-                    badge.textContent = 'Не в документе (отправляем...)';
-                    badge.className = 'badge badge-warning ml-2';
-                    badge.dataset.badge = 'status';
-                    title.appendChild(badge);
-                }
+                li.innerHTML = `
+    <div class="pos-title">#${li.dataset.line} — ${li.dataset.nomOriginal}</div>
+    <div class="pos-qty">
+      <span class="qty-chip plan">План: ${Number(li.dataset.qty) || 0}</span>
+      <span class="qty-chip fact">Факт: 0</span>
+    </div>
+  `;
+                li.querySelector('.pos-title')?.appendChild(badge);
 
-                // показать штрихкод
-                if (li.querySelector('.pos-title') && li.dataset.barcode) {
-                    const bc = document.createElement('div');
-                    bc.className = 'text-muted small';
-                    bc.textContent = 'Штрихкод: ' + li.dataset.barcode;
-                    li.querySelector('.pos-title').after(bc);
-                }
-
-                // вставляем В КОНЕЦ списка
-                const ul = document.getElementById('positionsUl');
-                if (ul) {
-                    ul.appendChild(li);
-                    li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
-
-                // пересчёт бейджей/фильтр
+                posUl.appendChild(li);
+                // актуализируем бейджи/фильтр, как у тебя принято
                 if (typeof recomputeCountsByCells === 'function') recomputeCountsByCells();
                 if (typeof applyTabFilterInPositions === 'function') applyTabFilterInPositions();
 
-                // === СРАЗУ отправляем на сервер для добавления строки в 1С-документ ===
+                return li;
+            }
+
+            function updateLiCounts(li) {
+                const qtyPln = Number(li.dataset.qty || 0) || 0;
+                const qtyFct = Number(li.dataset.fact || 0) || 0;
+                li.querySelector('.pos-qty .plan')?.replaceChildren(document.createTextNode(`План: ${qtyPln}`));
+                li.querySelector('.pos-qty .fact')?.replaceChildren(document.createTextNode(`Факт: ${qtyFct}`));
+            }
+
+            function setPending(li, delta) {
+                const cur = Number(li.dataset.pending || 0);
+                const next = Math.max(0, cur + delta);
+                li.dataset.pending = String(next);
+                let badge = li.querySelector('[data-badge="pending"]');
+
+                if (next > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge badge-warning ml-2';
+                        badge.dataset.badge = 'pending';
+                        li.querySelector('.pos-title')?.appendChild(badge);
+                    }
+                    badge.textContent = `Отправляем... (${next})`;
+                    badge.className = 'badge badge-warning ml-2';
+                } else {
+                    if (badge) {
+                        badge.textContent = 'В документе';
+                        badge.className = 'badge badge-success ml-2';
+                    }
+                }
+            }
+            async function appendExternalItem(found, code) {
+                const displayNom     = found?.nomen || '(по штрихкоду)';
+                const displayBarcode = found?.barcode || code || '';
+
+                // 1) одна агрегированная строка на штрихкод/ном
+                const key = aggKeyFor(found, code);
+                const li  = getOrCreateAggLi(key, displayNom, displayBarcode);
+
+                // 2) UI: оптимистично увеличиваем «Факт» на +1
+                li.dataset.fact = String((Number(li.dataset.fact || 0) || 0) + 1);
+                li.classList.add('hl-barcode');
+                updateLiCounts(li);
+                li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+                // 3) считаем «в полёте»
+                setPending(li, +1);
+
+                // 4) На сервер — ВСЕГДА новая строка
                 try {
                     const payload = {
-                            document_id: String(currentDocNo),
-                            warehouse_id: currentWarehouseId,
-                           active_cell: activeState?.cell || null,   // <<< NEW: передаём GUID ячейки
-                        barcode: String(li.dataset.barcode || ''),
+                        document_no: String(currentDocNo),
+                        code: String(displayBarcode),
                         quantity: 1,
-                        nomen: found.nomen || null,
-                        characteristic: found.characteristic || null,
-                        fill_placed: true,
-                        line_no_hint: nextLine,
-                        doc_link: currentDoc?.Ссылка || null,
-                };
 
+                        // диагностическое
+                        document_id: String(currentDocNo),
+                        warehouse_id: currentWarehouseId,
+                        active_cell: activeState?.cell || null,
+                        barcode: String(displayBarcode),
+                        nomen: found?.nomen || null,
+                        characteristic: found?.characteristic || null,
+                        fill_placed: true,
+                        line_no_hint: Number(li.dataset.line) || undefined,
+                        doc_link: currentDoc?.Ссылка || null,
+
+                        // важно: шлём ИМЯ ячейки
+                        cell_name: currentCellNameFor1C || null,
+
+                        scan_id: (window.crypto?.randomUUID?.() || Date.now()+''),
+                    };
 
                     const resp = await fetch(ADD_EXTERNAL_POS_URL, {
                         method: 'POST',
@@ -553,34 +609,32 @@
                     try { data = raw ? JSON.parse(raw) : {}; } catch(e) {}
 
                     if (!resp.ok || !data.ok) {
-                        console.warn('[ADD-EXTERNAL] not ok', data);
-                        // Ошибка: удаляем строку из UI и уведомляем
-                        li.remove();
+                        // откат UI
+                        li.dataset.fact = String(Math.max(0, (Number(li.dataset.fact || 0) || 0) - 1));
+                        updateLiCounts(li);
+                        setPending(li, -1);
                         alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
                         return;
                     }
 
-                    // УСПЕХ: строка добавлена в документ в 1С
-                    // — снимаем "external", можно обновить номер строки если 1С вернула свой
-                    li.dataset.external = '0';
-                    if (data.assigned_line && Number.isInteger(data.assigned_line)) {
-                        li.dataset.line = String(data.assigned_line);
-                    }
-                    // обновим бейдж
-                    const badge = li.querySelector('[data-badge="status"]');
-                    if (badge) {
-                        badge.textContent = 'В документе';
-                        badge.className = 'badge badge-success ml-2';
-                    }
-                    renderLi(li); // перерисуем «План/Факт» (останутся 1/1)
+                    setPending(li, -1); // успех: уменьшаем pending
+
                 } catch (e) {
                     console.error('[ADD-EXTERNAL] fetch error', e);
-                    // Ошибка сети: удаляем строку и сообщаем
-                    li.remove();
+                    // откат UI
+                    li.dataset.fact = String(Math.max(0, (Number(li.dataset.fact || 0) || 0) - 1));
+                    updateLiCounts(li);
+                    setPending(li, -1);
                     alert('Ошибка при добавлении позиции в документ.');
                 }
             }
 
+            function aggKeyFromRow(line) {
+                const bc  = String(line.Штрихкод || '').trim().toLowerCase();
+                if (bc) return 'bc:' + bc;                  // основной ключ — по штрихкоду
+                const nom = String(line.Номенклатура || '').trim().toLowerCase();
+                return 'nom:' + nom;                        // фолбек — по номенклатуре
+            }
 
 
             function showPositions(index) {
@@ -617,30 +671,63 @@
                 title.textContent = doc.Ссылка?.match(/(00-\d+)/)?.[1] ?? 'Позиции документа';
 
                 // — отрисовка позиций «План + Факт» —
+                // — отрисовка позиций «План + Факт» (АГРЕГИРОВАНО) —
                 posUl.innerHTML = '';
                 const rows = Array.isArray(doc.ТоварыРазмещение) ? doc.ТоварыРазмещение : [];
-                rows.forEach((line, idx) => {
+
+// 1) Группируем строки ТЧ: один ключ = одна визуальная строка
+                const agg = new Map();
+                for (const line of rows) {
+                    const key = aggKeyFromRow(line);
+                    if (!key) continue;
+                    if (!agg.has(key)) {
+                        agg.set(key, {
+                            key,
+                            displayNom: String(line.Номенклатура || '-'),
+                            displayBC:  String(line.Штрихкод || ''),
+                            cell:       String(line.Ячейка || ''),
+                            planSum:    Number(line.Количество ?? 0) || 0,
+                        });
+                    } else {
+                        const a = agg.get(key);
+                        a.planSum += Number(line.Количество ?? 0) || 0; // складываем План
+                    }
+                }
+
+// 2) Рендерим ТОЛЬКО по одной LI на ключ
+                let localLineCounter = 0;
+                for (const a of agg.values()) {
                     const li = document.createElement('li');
-                    li.className = 'list-group-item';
+                    li.className = 'list-group-item agg-line';
 
-                    const rownum = Number(line.НомерСтроки ?? (idx + 1));
-                    const qtyPln = Number(line.Количество ?? 0) || 0;
-                    // const qtyFct = Number(line.Факт ?? line.Отобрано ?? 0) || 0;
-                    const qtyFct = 0; // всегда 0 при первичной отрисовке
-
-                    // datasets для поиска/сканирования/фильтрации
-                    li.dataset.nom          = norm(line.Номенклатура);
-                    li.dataset.nomOriginal  = (line.Номенклатура ?? '-');
-                    li.dataset.barcode      = norm(line.Штрихкод);
-                    li.dataset.cell         = norm(line.Ячейка);
-                    li.dataset.line         = String(rownum); // номер строки
-                    li.dataset.qty  = String(qtyPln);
-                    li.dataset.fact = '0';
-
+                    // datasets — как у тебя, чтобы фильтры/поиск работали
+                    li.dataset.aggKey      = a.key;
+                    li.dataset.nom         = a.displayNom.toLowerCase();
+                    li.dataset.nomOriginal = a.displayNom;
+                    li.dataset.barcode     = a.displayBC.toLowerCase();
+                    li.dataset.cell        = norm(a.cell);
+                    li.dataset.line        = String(++localLineCounter);  // локальная нумерация для UI
+                    li.dataset.qty         = String(a.planSum);           // суммарный ПЛАН по группе
+                    li.dataset.fact        = '0';                         // Факт на старте = 0
 
                     renderLi(li);
                     posUl.appendChild(li);
-                });
+                }
+
+// 3) Обновим бейджи/фильтр
+                if (typeof recomputeCountsByCells === 'function') recomputeCountsByCells();
+                if (typeof applyTabFilterInPositions === 'function') applyTabFilterInPositions();
+
+// 4) Показать/скрыть кнопку "Отправить" по числу агрегированных строк
+                const renderedCount = agg.size;
+                if (btnSend) {
+                    if (renderedCount > 0) {
+                        btnSend.classList.remove('d-none');
+                    } else {
+                        btnSend.classList.add('d-none');
+                    }
+                }
+
 
                 // показать/скрыть кнопку "Отправить" в зависимости от наличия строк
                 if (btnSend) {
@@ -733,7 +820,7 @@
             // ============== Сохранение позиции в БД ==============
             async function savePositionScan(rawCode) {
                 const code = String(rawCode || '').trim();
-                console.log('[SAVE] attempt', { code, currentDocNo, activeState, currentWarehouseId });
+                console.log('[SAVE] force external add', { code, currentDocNo, activeState, currentWarehouseId });
 
                 if (!code) {
                     console.warn('[SAVE] empty code - skip');
@@ -750,81 +837,11 @@
                     return;
                 }
 
-                const numberPosition = resolveNumberPosition(code);
-                if (numberPosition == null) {
-                    console.warn('[SAVE] позиция не найдена в списке — обращаемся к 1С через backend');
-
-                    const safeForSearch = code.length > CODE_MAX ? code.slice(0, CODE_MAX) : code;
-
-                    try {
-                        const resp = await fetch(SEARCH_BARCODE_URL, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': csrf,
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                            },
-                            credentials: 'same-origin',
-                            body: JSON.stringify({ barcode: safeForSearch }),
-                        });
-
-                        const raw = await resp.text();
-                        let data = {};
-                        try { data = raw ? JSON.parse(raw) : {}; } catch(e) {}
-
-                        console.log('[SEARCH BARCODE] HTTP', resp.status, data);
-
-                        if (!resp.ok || !data.ok) {
-                            alert((data && data.msg) ? data.msg : ('HTTP ' + resp.status));
-                            return;
-                        }
-
-                        if (Array.isArray(data.items) && data.items.length > 0) {
-                            const it = data.items[0];
-                            // Вставляем найденную номенклатуру в список
-                            appendExternalItem(it, safeForSearch);
-                            return;
-                        } else {
-                            alert('Штрихкод не найден ни в позициях документа, ни в 1С.');
-                            return;
-                        }
-                    } catch (e) {
-                        console.error('[SEARCH BARCODE] fetch error', e);
-                        alert('Ошибка при обращении к поиску штрихкода в 1С.');
-                        return;
-                    }
-                }
-
-                // усечение кода по длине колонки
-                const safeCode = code.length > CODE_MAX ? code.slice(0, CODE_MAX) : code;
-
-                // найдём сам <li> для подсветки и увеличения «Факт»
-                let matchedLi = null;
-                document.querySelectorAll('#positionsUl li').forEach(li => {
-                    const n = parseInt(li.dataset.line || '', 10);
-                    if (n === numberPosition && !matchedLi) matchedLi = li;
-                });
-                // Если это внешняя строка — «Факт» увеличиваем локально, без отправки в бэкенд
-                if (matchedLi) {
-                    const rowCellNorm = (matchedLi.dataset.cell || '');
-                    if (activeCellTextNorm && rowCellNorm && rowCellNorm !== activeCellTextNorm) {
-                        alert('Позиция относится к другой ячейке. Сначала выберите/отсканируйте правильную ячейку.');
-                        return;
-                    }
-                    const cur = parseInt(matchedLi.dataset.fact || '0', 10) || 0;
-                    matchedLi.dataset.fact = String(cur + 1);
-                    matchedLi.classList.add('hl-barcode');
-                    renderLi(matchedLi);
-                    matchedLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                }
-
-
-
+                const safeForSearch = code.length > CODE_MAX ? code.slice(0, CODE_MAX) : code;
 
                 try {
-                    console.log('[SAVE] POST ->', POS_SAVE_URL);
-                    const resp = await fetch(POS_SAVE_URL, {
+                    // Всегда спрашиваем 1С для красивого названия/хар-ки
+                    const resp = await fetch(SEARCH_BARCODE_URL, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': csrf,
@@ -833,44 +850,27 @@
                             'Content-Type': 'application/json',
                         },
                         credentials: 'same-origin',
-                        body: JSON.stringify({
-                            document_id: String(currentDocNo),
-                            warehouse_id: currentWarehouseId,
-                            code: safeCode,
-                            quantity: 1,
-                            number_position: numberPosition,
-                            lines: [numberPosition],
-                            doc_link: currentDoc?.Ссылка || null,
-                            nom: null,
-                            line_no: numberPosition,
-                        }),
+                        body: JSON.stringify({ barcode: safeForSearch }),
                     });
 
-                    const respText = await resp.text();
-                    console.log('[SAVE] HTTP', resp.status, resp.statusText);
-                    console.log('[SAVE] RAW', respText);
-
+                    const raw = await resp.text();
                     let data = {};
-                    try { data = respText ? JSON.parse(respText) : {}; } catch(e) {}
+                    try { data = raw ? JSON.parse(raw) : {}; } catch(e) {}
 
-                    if (!resp.ok || !data.ok) {
-                        console.warn('[SAVE] backend says NOT ok', data);
-                        alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
+                    console.log('[SEARCH BARCODE] HTTP', resp.status, data);
+
+                    if (resp.ok && data.ok && Array.isArray(data.items) && data.items.length > 0) {
+                        const it = data.items[0];
+                        appendExternalItem(it, code);    // важно: передаём ПОЛНЫЙ code
                         return;
                     }
 
-                    // Успех: увеличиваем «Факт»
-                    if (matchedLi) {
-                        const cur = parseInt(matchedLi.dataset.fact || '0', 10) || 0;
-                        matchedLi.dataset.fact = String(cur + 1);
-                        matchedLi.classList.add('hl-barcode');
-                        renderLi(matchedLi);
-                        matchedLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    }
-
+                    // если не нашли — добавим как «сырой» штрихкод
+                    appendExternalItem({ nomen: '(по штрихкоду)', characteristic: null, barcode: code }, code);
                 } catch (e) {
-                    console.error('[SAVE] fetch error', e);
-                    alert('Помилка мережі/сервера');
+                    console.error('[SEARCH BARCODE] fetch error', e);
+                    // на сетевой ошибке тоже добавляем как «сырой» скан
+                    appendExternalItem({ nomen: '(скан)', characteristic: null, barcode: code }, code);
                 }
             }
 

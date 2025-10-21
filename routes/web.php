@@ -154,6 +154,9 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
     )->name('sklad.acceptance.finish'); // алиас под старое имя
 
 
+    Route::post('/sklad/add-line-by-number', [SkladScanController::class, 'addLineByNumber'])
+        ->name('sklad.scan.addLineByNumber');
+
     Route::post(
         '/sklad/scan/search-barcode',
         [\App\Http\Controllers\Sklad\SkladScanController::class, 'searchBarcode']

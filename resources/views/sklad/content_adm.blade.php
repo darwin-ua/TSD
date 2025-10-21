@@ -135,7 +135,7 @@
                     <div class="col-12">
                         <div class="small-box" style="background-color:#b3b3b3;">
                             <div class="inner" style="color:#ffffff;">
-                                <p>Сканируйте штрихкод пп</p>
+                                <p>Сканируйте штрихкод</p>
                                 <input id="placementBarcode" type="text"
                                        class="form-control form-control-lg mt-2"
                                        placeholder="Скан..." autocomplete="off">

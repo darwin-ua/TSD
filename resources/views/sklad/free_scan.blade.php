@@ -12,6 +12,7 @@
             font-weight: 600;
             line-height: 1.25;
             word-break: break-word;
+            font-size: 12px;
         }
 
         .pos-qty {
@@ -28,7 +29,7 @@
             border-radius: 8px;
             background: #fffbe6;
             font-weight: 700;
-            font-size: .95em;
+            font-size: 13px;
             line-height: 1.1;
             white-space: nowrap;
         }
@@ -42,7 +43,7 @@
         }
 
         .small-muted {
-            font-size: .85em;
+            font-size: 13px;
             color: #6c757d;
         }
     </style>

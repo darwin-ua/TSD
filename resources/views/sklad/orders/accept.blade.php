@@ -55,8 +55,14 @@
                     <ul class="list-group list-group-flush" id="positionsUl"></ul>
                 </div>
                 <div class="mt-3">
-                    <a href="{{ route('sklad.index') }}" class="btn btn-dark">Дом</a>
-                    <button id="theend" class="btn btn-primary ml-1 d-none">Принять</button>
+                    <button id="theend"
+                            type="button"
+                            class="btn btn-primary btn-lg w-100 d-none">
+                        Отправить
+                    </button>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
                 </div>
             </div>
         </section>
