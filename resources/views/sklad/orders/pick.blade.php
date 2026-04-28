@@ -1109,11 +1109,11 @@
 
                 <div class="scan-confirm-actions">
                     <button type="button" class="btn btn-secondary" data-action="continue">
-                        Продолжить сканирование
+                        Скан.
                     </button>
 
                     <button type="button" class="btn btn-danger" data-action="send">
-                        Отправить без сканирования
+                        Отправить без скана.
                     </button>
                 </div>
             </div>
