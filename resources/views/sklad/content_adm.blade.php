@@ -1,5 +1,3 @@
-
-&nbsp;
 <style>
     body {
         background: #f5f6f7;
