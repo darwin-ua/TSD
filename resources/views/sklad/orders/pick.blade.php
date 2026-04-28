@@ -62,6 +62,50 @@
             background:#fff9e6 !important;
         }
 
+        .scan-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .scan-confirm-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,.25);
+        }
+
+        .scan-confirm-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .scan-confirm-text {
+            font-size: 14px;
+            white-space: pre-line;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .scan-confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #positionsUl .list-group-item.border-danger {
+            border: 2px solid #dc3545 !important;
+            background: #ffe6e9 !important;
+        }
 
         #positionsUl .list-group-item.border-danger {
             border: 2px solid #dc3545 !important;
@@ -990,18 +1034,21 @@
                             .map(row => `#${row.line} — ${row.nom} | План: ${row.plan}, Факт: ${row.fact}`)
                             .join('\n');
 
-                        alert(
-                            'Есть строки, которые ни разу не сканировались.\n\n' +
-                            msg +
-                            '\n\nСначала отсканируйте эти позиции, потом отправляйте документ.'
-                        );
-
                         const firstBad = notScannedRows[0]?.element;
                         if (firstBad) {
                             firstBad.scrollIntoView({ block: 'center', behavior: 'smooth' });
                         }
 
-                        return;
+                        const allowSend = await askSendWithoutScanning(
+                            'Есть строки, которые ни разу не сканировались:\n\n' +
+                            msg +
+                            '\n\nЧто делаем?'
+                        );
+
+                        if (!allowSend) {
+                            input?.focus();
+                            return;
+                        }
                     }
                     try {
                         btnSend.disabled = true;
@@ -1045,5 +1092,46 @@
                 });
             }
         });
+
+        function askSendWithoutScanning(message) {
+            return new Promise(resolve => {
+                const old = document.querySelector('.scan-confirm-overlay');
+                if (old) old.remove();
+
+                const overlay = document.createElement('div');
+                overlay.className = 'scan-confirm-overlay';
+
+                overlay.innerHTML = `
+            <div class="scan-confirm-box">
+                <div class="scan-confirm-title">Есть неотсканированные строки</div>
+
+                <div class="scan-confirm-text">${message}</div>
+
+                <div class="scan-confirm-actions">
+                    <button type="button" class="btn btn-secondary" data-action="continue">
+                        Продолжить сканирование
+                    </button>
+
+                    <button type="button" class="btn btn-danger" data-action="send">
+                        Отправить без сканирования
+                    </button>
+                </div>
+            </div>
+        `;
+
+                document.body.appendChild(overlay);
+
+                overlay.querySelector('[data-action="continue"]').addEventListener('click', () => {
+                    overlay.remove();
+                    resolve(false);
+                });
+
+                overlay.querySelector('[data-action="send"]').addEventListener('click', () => {
+                    overlay.remove();
+                    resolve(true);
+                });
+            });
+        }
     </script>
+
 @endpush
