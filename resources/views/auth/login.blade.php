@@ -192,7 +192,7 @@
             </form>
 
             <div class="darwin-footer-text">
-                Darwin Ukraine · склад
+                Darwin / Goodwin · склад
             </div>
 
         </div>
