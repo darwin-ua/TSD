@@ -61,6 +61,12 @@
             border-color:#ffca2c !important;
             background:#fff9e6 !important;
         }
+
+
+        #positionsUl .list-group-item.border-danger {
+            border: 2px solid #dc3545 !important;
+            background: #ffe6e9 !important;
+        }
     </style>
     <div class="content" style="min-height: 100%; padding: 10px;">
         <section class="content">
@@ -930,6 +936,29 @@
             // старт: показываем список доков
             showDocuments();
 
+            function getNotScannedRows() {
+                const badRows = [];
+
+                document.querySelectorAll('#positionsUl li').forEach(li => {
+                    const plan = Number(li.dataset.qty || 0) || 0;
+                    const fact = Number(li.dataset.fact || 0) || 0;
+
+                    // строка есть в плане, но ни разу не сканировалась
+                    if (plan > 0 && fact <= 0) {
+                        badRows.push({
+                            line: li.dataset.line || '-',
+                            nom: li.dataset.nomOriginal || '-',
+                            plan: plan,
+                            fact: fact,
+                            element: li,
+                        });
+                    }
+                });
+
+                return badRows;
+            }
+
+
             // === Кнопка "Отправить" ===
             if (!btnSend) {
                 console.warn('[pick] btnSend not found');
@@ -945,7 +974,35 @@
                         alert('Не удалось определить номер документа.');
                         return;
                     }
+// ===== ПРОВЕРКА: есть ли строки, которые ни разу не сканировались =====
+                    const notScannedRows = getNotScannedRows();
 
+                    if (notScannedRows.length > 0) {
+                        document.querySelectorAll('#positionsUl li').forEach(li => {
+                            li.classList.remove('border-danger');
+                        });
+
+                        notScannedRows.forEach(row => {
+                            row.element.classList.add('border-danger');
+                        });
+
+                        const msg = notScannedRows
+                            .map(row => `#${row.line} — ${row.nom} | План: ${row.plan}, Факт: ${row.fact}`)
+                            .join('\n');
+
+                        alert(
+                            'Есть строки, которые ни разу не сканировались.\n\n' +
+                            msg +
+                            '\n\nСначала отсканируйте эти позиции, потом отправляйте документ.'
+                        );
+
+                        const firstBad = notScannedRows[0]?.element;
+                        if (firstBad) {
+                            firstBad.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                        }
+
+                        return;
+                    }
                     try {
                         btnSend.disabled = true;
                         btnSend.textContent = 'Отправляем...';
