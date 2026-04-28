@@ -1,183 +1,403 @@
 
 &nbsp;
-<div class="content" style="min-height:100%">
+<style>
+    body {
+        background: #f5f6f7;
+    }
+
+    .sklad-page {
+        min-height: calc(100vh - 70px);
+        padding: 18px 12px 30px;
+        background:
+            linear-gradient(135deg, rgba(255, 198, 0, 0.07), rgba(255,255,255,0.96)),
+            #f5f6f7;
+    }
+
+    .sklad-shell {
+        max-width: 430px;
+        margin: 0 auto;
+    }
+
+    .sklad-top-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+        border-top: 5px solid #f3c400;
+    }
+
+    .sklad-header {
+        padding: 18px 18px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #eceff3;
+    }
+
+    .sklad-header-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        color: #171717;
+        line-height: 1.2;
+    }
+
+    .sklad-header-subtitle {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #777777;
+    }
+
+    .sklad-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #171717;
+        color: #f3c400;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .sklad-header-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .sklad-body {
+        padding: 18px;
+    }
+
+    .sklad-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .sklad-btn-refresh {
+        border: none;
+        border-radius: 10px;
+        background: #f3c400;
+        color: #171717;
+        font-weight: 700;
+        padding: 9px 13px;
+        font-size: 14px;
+    }
+
+    .sklad-btn-error {
+        border: none;
+        border-radius: 10px;
+        background: #dc3545;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 9px 13px;
+        font-size: 14px;
+    }
+
+    .sklad-menu-card {
+        background: #ffffff;
+        border: 1px solid #e7e9ee;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+        transition: 0.18s ease;
+    }
+
+    .sklad-menu-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.10);
+        border-color: rgba(243, 196, 0, 0.75);
+    }
+
+    .sklad-menu-title {
+        margin: 0 0 12px;
+        font-size: 17px;
+        font-weight: 800;
+        color: #171717;
+    }
+
+    .sklad-menu-text {
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: #777777;
+    }
+
+    .sklad-main-btn {
+        width: 100%;
+        height: 48px;
+        border: none;
+        border-radius: 11px;
+        background: #171717;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 800;
+        transition: 0.18s ease;
+    }
+
+    .sklad-main-btn:hover {
+        background: #f3c400;
+        color: #171717;
+    }
+
+    .sklad-back-btn {
+        width: 100%;
+        height: 44px;
+        border: none;
+        border-radius: 11px;
+        background: #eef0f3;
+        color: #171717;
+        font-weight: 800;
+        margin-top: 4px;
+    }
+
+    .sklad-scan-input {
+        height: 52px;
+        border-radius: 11px;
+        border: 1px solid #d9dde2;
+        box-shadow: none;
+        font-size: 16px;
+    }
+
+    .sklad-scan-input:focus {
+        border-color: #f3c400;
+        box-shadow: 0 0 0 0.2rem rgba(243, 196, 0, 0.18);
+    }
+
+    .sklad-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(243, 196, 0, 0.15);
+        color: #171717;
+        font-weight: 800;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="content sklad-page" style="min-height:100%">
     <section class="content">
-        <!-- Главное меню -->
-        <div class="container-fluid" id="operationBlock">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
-                    <button type="button" class="btn btn-danger btn-sm">Помилка</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Принять</p>
-                            <button type="button" class="btn btn-secondary btn-switch" data-target="receiveoperation">Так</button>
-                        </div>
+        <div class="sklad-shell">
+            <div class="sklad-top-card">
+
+                <div class="sklad-header">
+                    <div>
+                        <h1 class="sklad-header-title">Склад</h1>
+                        <div class="sklad-header-subtitle">Дарвін · складські операції</div>
+                    </div>
+
+                    <div class="sklad-header-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-door-open" viewBox="0 0 16 16">
+                            <path d="M8.5 10c.276 0 .5-.448.5-1s-.224-1-.5-1-.5.448-.5 1 .224 1 .5 1"/>
+                            <path d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117M11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z"/>
+                        </svg>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Отгрузить</p>
-                            <button type="button" class="btn btn-secondary btn-switch" data-target="alloperation">Так</button>
+
+                <div class="sklad-body">
+
+                    <!-- Главное меню -->
+                    <div class="container-fluid px-0" id="operationBlock">
+                        <div class="sklad-actions">
+                            <button type="button" class="sklad-btn-refresh" onclick="location.reload()">Оновити</button>
+                            <button type="button" class="sklad-btn-error">Помилка</button>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">01</div>
+                                    <p class="sklad-menu-title">Прийняти</p>
+                                    <p class="sklad-menu-text">Операції приймання та розміщення товару</p>
+                                    <button type="button" class="sklad-main-btn btn-switch" data-target="receiveoperation">
+                                        Перейти
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">02</div>
+                                    <p class="sklad-menu-title">Відвантажити</p>
+                                    <p class="sklad-menu-text">Сканування і відвантаження готової продукції</p>
+                                    <button type="button" class="sklad-main-btn btn-switch" data-target="alloperation">
+                                        Перейти
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Отгрузка -->
-        <div class="container-fluid d-none" id="alloperation">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
-                    <button type="button" class="btn btn-danger btn-sm">Помилка</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Сканируйте штрихкод юю</p>
-                            <input id="quickScanInput" type="text" class="form-control form-control-lg mt-2"
-                                   placeholder="Скан..." autofocus autocomplete="off">
+                    <!-- Отгрузка -->
+                    <div class="container-fluid px-0 d-none" id="alloperation">
+                        <div class="sklad-actions">
+                            <button type="button" class="sklad-btn-refresh" onclick="location.reload()">Оновити</button>
+                            <button type="button" class="sklad-btn-error">Помилка</button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const quickScanInput = document.getElementById('quickScanInput');
-                    if (quickScanInput) {
-                        // Автофокус каждые 500 мс
-                        setInterval(() => {
-                            if (document.activeElement !== quickScanInput) {
-                                quickScanInput.focus();
-                            }
-                        }, 500);
 
-                        let quickScanTimeout;
-                        quickScanInput.addEventListener('input', function () {
-                            clearTimeout(quickScanTimeout);
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">SCAN</div>
+                                    <p class="sklad-menu-title">Сканируйте штрихкод</p>
+                                    <p class="sklad-menu-text">После сканирования система перейдёт дальше автоматически</p>
 
-                            quickScanTimeout = setTimeout(() => {
-                                const value = quickScanInput.value.trim();
-                                if (value !== '') {
-                                    console.log('📦 Быстрый скан:', value);
-                                    // Очистка поля
-                                    quickScanInput.value = '';
-                                    // Редирект
-                                    window.location.href = '/sklad/orders/gp';
+                                    <input id="quickScanInput"
+                                           type="text"
+                                           class="form-control form-control-lg sklad-scan-input mt-2"
+                                           placeholder="Скан..."
+                                           autofocus
+                                           autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const quickScanInput = document.getElementById('quickScanInput');
+                                if (quickScanInput) {
+                                    setInterval(() => {
+                                        if (document.activeElement !== quickScanInput) {
+                                            quickScanInput.focus();
+                                        }
+                                    }, 500);
+
+                                    let quickScanTimeout;
+                                    quickScanInput.addEventListener('input', function () {
+                                        clearTimeout(quickScanTimeout);
+
+                                        quickScanTimeout = setTimeout(() => {
+                                            const value = quickScanInput.value.trim();
+                                            if (value !== '') {
+                                                console.log('📦 Быстрый скан:', value);
+                                                quickScanInput.value = '';
+                                                window.location.href = '/sklad/orders/gp';
+                                            }
+                                        }, 300);
+                                    });
                                 }
-                            }, 300);
-                        });
-                    }
-                });
-            </script>
+                            });
+                        </script>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Сканувати</p>
-                            <a href="/sklad/orders/gp" class="btn btn-secondary">Так</a>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <p class="sklad-menu-title">Сканувати</p>
+                                    <p class="sklad-menu-text">Перейти к списку документов отгрузки</p>
+                                    <a href="/sklad/orders/gp" class="sklad-main-btn d-flex align-items-center justify-content-center">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-3">
-                <button class="btn btn-dark btn-switch" data-target="operationBlock">← Назад 4</button>
-            </div>
-        </div>
-        <div class="container-fluid d-none" id="receiveoperation">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex" style="gap: 5px;">
-                    <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">Оновити</button>
-                    <button type="button" class="btn btn-danger btn-sm">Помилка</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="small-box" style="background-color:#b3b3b3;">
-                        <div class="inner" style="color:#ffffff;">
-                            <p>Приёмка</p>
-                            <button id="btnAccept" type="button" class="btn btn-secondary">Так</button>
-                        </div>
-                    </div>
-                </div>
 
-{{--                <div class="col-12">--}}
-{{--                    <div class="small-box" style="background-color: #b3b3b3;">--}}
-{{--                        <div class="inner" style="color: #ffffff;">--}}
-{{--                            <p>Размещение</p>--}}
-{{--                            <a href="" class="btn btn-secondary">Так</a>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Размещение</p>
-                            <button id="btnPick" type="button" class="btn btn-secondary">Так</button>
-                        </div>
+                        <button class="sklad-back-btn btn-switch" data-target="operationBlock">← Назад</button>
                     </div>
-                </div>
 
-                {{-- === ЭТО ДОБАВЛЯЕМ: окно сканирования === --}}
-                {{-- ОДИН блок сканирования (инпут + кнопка "Так") --}}
-                <div class="col-12 d-none" id="placementScan">
-                    <div class="small-box" style="background-color:#b3b3b3;">
-                        <div class="inner" style="color:#ffffff;">
-                            <p>Сканируйте штрихкод ыыыы</p>
-                            <input id="placementBarcode" type="text"
-                                   class="form-control form-control-lg mt-2"
-                                   placeholder="Скан..." autocomplete="off">
-                            <button id="placementScanSubmit" class="btn btn-secondary mt-2">Так</button>
+                    <!-- Приёмка -->
+                    <div class="container-fluid px-0 d-none" id="receiveoperation">
+                        <div class="sklad-actions">
+                            <button type="button" class="sklad-btn-refresh" onclick="location.reload()">Оновити</button>
+                            <button type="button" class="sklad-btn-error">Помилка</button>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Пересчёт</p>
-                            <a href="" class="btn btn-secondary">Так</a>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">01</div>
+                                    <p class="sklad-menu-title">Приёмка</p>
+                                    <p class="sklad-menu-text">Загрузить документы приёмки из 1С</p>
+                                    <button id="btnAccept" type="button" class="sklad-main-btn">
+                                        Перейти
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">02</div>
+                                    <p class="sklad-menu-title">Размещение</p>
+                                    <p class="sklad-menu-text">Сканирование ячейки и переход к размещению</p>
+                                    <button id="btnPick" type="button" class="sklad-main-btn">
+                                        Перейти
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 d-none" id="placementScan">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">SCAN</div>
+                                    <p class="sklad-menu-title">Сканируйте штрихкод</p>
+                                    <p class="sklad-menu-text">Отсканируйте ячейку или штрихкод для размещения</p>
+
+                                    <input id="placementBarcode"
+                                           type="text"
+                                           class="form-control form-control-lg sklad-scan-input mt-2"
+                                           placeholder="Скан..."
+                                           autocomplete="off">
+
+                                    <button id="placementScanSubmit" class="sklad-main-btn mt-3">
+                                        Подтвердить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">03</div>
+                                    <p class="sklad-menu-title">Пересчёт</p>
+                                    <p class="sklad-menu-text">Инвентаризация и проверка остатков</p>
+                                    <a href="" class="sklad-main-btn d-flex align-items-center justify-content-center">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">04</div>
+                                    <p class="sklad-menu-title">Создать</p>
+                                    <p class="sklad-menu-text">Создание нового складского документа</p>
+                                    <a href="" class="sklad-main-btn d-flex align-items-center justify-content-center">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">05</div>
+                                    <p class="sklad-menu-title">Проверка</p>
+                                    <p class="sklad-menu-text">Проверка складских операций</p>
+                                    <a href="" class="sklad-main-btn d-flex align-items-center justify-content-center">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="sklad-menu-card">
+                                    <div class="sklad-badge">06</div>
+                                    <p class="sklad-menu-title">Перемещение</p>
+                                    <p class="sklad-menu-text">Перемещение между ячейками или складами</p>
+                                    <a href="" class="sklad-main-btn d-flex align-items-center justify-content-center">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
                         </div>
+
+                        <button class="sklad-back-btn btn-switch" data-target="operationBlock">← Назад</button>
                     </div>
+
                 </div>
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Создать</p>
-                            <a href="" class="btn btn-secondary">Так</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Проверка</p>
-                            <a href="" class="btn btn-secondary">Так</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="small-box" style="background-color: #b3b3b3;">
-                        <div class="inner" style="color: #ffffff;">
-                            <p>Перемещение</p>
-                            <a href="" class="btn btn-secondary">Так</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-3">
-                <button class="btn btn-dark btn-switch" data-target="operationBlock">← Назад</button>
             </div>
         </div>
     </section>
