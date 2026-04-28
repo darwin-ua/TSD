@@ -35,7 +35,7 @@
                 {{-- Поле штрихкода --}}
                 <div id="barcodeWrapper" class="mb-3 d-none sticky-top bg-white p-2" style="z-index:1000;">
                     <input id="barcodeInput" type="text" class="form-control form-control-lg"
-                           placeholder="Сканируйте номенклатуру или штрихкод..." autocomplete="off">
+                           placeholder="Сканируйте номенклатуру или штрихкод ыыы..." autocomplete="off">
                 </div>
                 {{-- Список документов --}}
                 <div id="documentsList">

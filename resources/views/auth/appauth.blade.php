@@ -18,13 +18,15 @@
     <meta property="og:image" content="uploads/settings/site_logo.png">
     <meta name="twitter:title" content="LK">
     <meta name="twitter:description" content="home">
-    <title>{{ config('app.name', 'LK') }}</title>
+    <title>Склад - система работы с складами</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" type="image/png" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
+
+    <link rel="icon" type="image/x-icon" href="{{ asset('skladicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('skladicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('skladicon.ico') }}">
+
+
     <link media="all" type="text/css" rel="stylesheet" href="/storage/Home_files/bootstrap.min.css">
     <link media="all" type="text/css" rel="stylesheet" href="/storage/Home_files/style.css">
     <link media="all" type="text/css" rel="stylesheet" href="/storage/Home_files/vendors.css">

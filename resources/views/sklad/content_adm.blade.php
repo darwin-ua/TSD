@@ -44,7 +44,7 @@
                 <div class="col-12">
                     <div class="small-box" style="background-color: #b3b3b3;">
                         <div class="inner" style="color: #ffffff;">
-                            <p>Сканируйте штрихкод</p>
+                            <p>Сканируйте штрихкод юю</p>
                             <input id="quickScanInput" type="text" class="form-control form-control-lg mt-2"
                                    placeholder="Скан..." autofocus autocomplete="off">
                         </div>
@@ -131,16 +131,14 @@
 
                 {{-- === ЭТО ДОБАВЛЯЕМ: окно сканирования === --}}
                 {{-- ОДИН блок сканирования (инпут + кнопка "Так") --}}
-                <div class="row d-none" id="placementScan">
-                    <div class="col-12">
-                        <div class="small-box" style="background-color:#b3b3b3;">
-                            <div class="inner" style="color:#ffffff;">
-                                <p>Сканируйте штрихкод</p>
-                                <input id="placementBarcode" type="text"
-                                       class="form-control form-control-lg mt-2"
-                                       placeholder="Скан..." autocomplete="off">
-                                <button id="placementScanSubmit" class="btn btn-secondary mt-2">Так</button>
-                            </div>
+                <div class="col-12 d-none" id="placementScan">
+                    <div class="small-box" style="background-color:#b3b3b3;">
+                        <div class="inner" style="color:#ffffff;">
+                            <p>Сканируйте штрихкод ыыыы</p>
+                            <input id="placementBarcode" type="text"
+                                   class="form-control form-control-lg mt-2"
+                                   placeholder="Скан..." autocomplete="off">
+                            <button id="placementScanSubmit" class="btn btn-secondary mt-2">Так</button>
                         </div>
                     </div>
                 </div>

@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Sklad</title>
-    <link rel="icon" type="image/png" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/AdminLTE/dist/img/sklad.png') }}">
+    <title>Склад - система работы с складами</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('skladicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('skladicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('skladicon.ico') }}">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link href="{{ asset('storage/AdminLTE/plugins/fontawesome-free/css/all.min.css') }}" rel="stylesheet">

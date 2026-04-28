@@ -88,7 +88,7 @@
                 {{-- Поле штрихкода --}}
                 <div id="barcodeWrapper" class="mb-3 d-none">
                     <input id="barcodeInput" type="text" class="form-control form-control-lg"
-                           placeholder="Сканируйте номенклатуру или штрихкод..." autocomplete="off"> </div>
+                           placeholder="Сканируйте номенклатуру или штрихкод иии..." autocomplete="off"> </div>
                 {{-- Список документов --}}
                 <div id="documentsList">
                     @foreach(session('pick_orders', []) as $i => $doc)
