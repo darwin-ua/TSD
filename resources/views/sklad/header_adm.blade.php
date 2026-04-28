@@ -40,13 +40,6 @@
 
 <div class="w-100" style="background-color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-    <!-- Логотип слева -->
-    <div class="logo">
-        <a href="/" style="text-decoration: none; color: black; font-weight: bold; font-size: 18px;">
-            <span  alt="Склад (Дарвiн)" style="height: 30px;">Склад (Дарвiн)</span>
-        </a>
-    </div>
-
     <!-- Меню справа -->
     <ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="gap: 20px; list-style: none;">
         <li class="nav-item">
