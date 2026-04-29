@@ -137,7 +137,6 @@
 
         .darwin-footer-text a {
             color: inherit;
-            text-decoration: none;
         }
 
 
