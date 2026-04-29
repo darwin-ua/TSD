@@ -139,6 +139,11 @@
             color: inherit;
         }
 
+        .darwin-footer-text .eventhes-link {
+            color: inherit;
+            text-decoration: underline;
+        }
+
 
     </style>
 
@@ -199,7 +204,7 @@
 
             <div class="darwin-footer-text">
                 Darwin / Goodwin · склад ·
-                developed byы <a href="https://eventhes.com" target="_blank" rel="noopener noreferrer">
+                developed by <a class="eventhes-link" href="https://eventhes.com" target="_blank" rel="noopener noreferrer">
                     Eventhes
                 </a>
             </div>
