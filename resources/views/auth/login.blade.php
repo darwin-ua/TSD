@@ -134,6 +134,15 @@
             font-size: 12px;
             color: #999999;
         }
+
+        .darwin-footer-text a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .darwin-footer-text a:hover {
+            text-decoration: underline;
+        }
     </style>
 
     <div class="darwin-login-wrap">
@@ -192,7 +201,10 @@
             </form>
 
             <div class="darwin-footer-text">
-                Darwin / Goodwin · склад
+                Darwin / Goodwin · склад ·
+                <a href="https://Eventhes.com" target="_blank" rel="noopener noreferrer">
+                    developed by Eventhes.com
+                </a>
             </div>
 
         </div>
