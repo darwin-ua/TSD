@@ -140,9 +140,7 @@
             text-decoration: none;
         }
 
-        .darwin-footer-text a:hover {
-            text-decoration: underline;
-        }
+
     </style>
 
     <div class="darwin-login-wrap">
@@ -202,8 +200,8 @@
 
             <div class="darwin-footer-text">
                 Darwin / Goodwin · склад ·
-                <a href="https://eventhes.com" target="_blank" rel="noopener noreferrer">
-                    developed by Eventhes
+                developed by <a href="https://eventhes.com" target="_blank" rel="noopener noreferrer">
+                    Eventhes
                 </a>
             </div>
 
