@@ -164,7 +164,7 @@
                 @csrf
 
                 <div class="form-group">
-                    <label for="id_lk">Логин в 1С</label>
+                    <label for="id_lk">Логiн в 1С</label>
                     <input id="id_lk"
                            type="text"
                            class="form-control @error('id_lk') is-invalid @enderror"
@@ -197,7 +197,7 @@
                 </div>
 
                 <button type="submit" class="darwin-login-btn ladda-button" data-style="expand-right">
-                    <span class="ladda-label">Войти</span>
+                    <span class="ladda-label">Увійти</span>
                     <span class="ladda-spinner"></span>
                 </button>
             </form>
