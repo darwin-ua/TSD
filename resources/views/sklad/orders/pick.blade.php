@@ -367,6 +367,60 @@
             font-weight: 800;
             padding: 10px 14px;
         }
+
+
+        .send-status-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: rgba(243, 196, 0, 0.18);
+            color: #171717;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0 auto 12px;
+        }
+
+        .send-status-spinner {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 4px solid rgba(23, 23, 23, 0.12);
+            border-top-color: #f3c400;
+            animation: sendStatusSpin .8s linear infinite;
+        }
+
+        @keyframes sendStatusSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .scan-confirm-box.send-status-box {
+            text-align: center;
+        }
+
+        .send-status-box.success {
+            border-top-color: #198754;
+        }
+
+        .send-status-box.success .send-status-icon {
+            background: rgba(25, 135, 84, 0.12);
+            color: #198754;
+        }
+
+        .send-status-box.error {
+            border-top-color: #dc3545;
+        }
+
+        .send-status-box.error .send-status-icon {
+            background: rgba(220, 53, 69, 0.12);
+            color: #dc3545;
+        }
+
+        .send-status-box .scan-confirm-actions {
+            justify-content: center;
+        }
     </style>
     <div class="content sklad-page" style="min-height:100%">
         <section class="content">
@@ -1342,6 +1396,11 @@
                         btnSend.disabled = true;
                         btnSend.textContent = 'Отправляем...';
 
+                        showSendLoadingModal(
+                            'Отправка данных',
+                            'Идёт отправка документа на сервер. Не закрывайте страницу.'
+                        );
+
                         const resp = await fetch(FINISH_URL, {
                             method: 'POST',
                             headers: {
@@ -1361,18 +1420,34 @@
                         try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
 
                         if (!resp.ok) {
-                            alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
+                            closeSendStatusModal();
+                            await showSendResultModal(
+                                'error',
+                                'Ошибка отправки',
+                                (data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status)
+                            );
                             return;
                         }
 
-                        // тут 1С уже отработала — покажем итог
-                        alert('Готово: ' + (data?.Документ || 'операция завершена'));
+                        closeSendStatusModal();
 
-                        // вернёмся на главную
+                        // тут 1С уже отработала — покажем итог модалкой
+                        await showSendResultModal(
+                            'success',
+                            'Готово',
+                            'Документ успешно отправлен: ' + (data?.Документ || 'операция завершена')
+                        );
+
+                        // вернёмся на главную после кнопки "ОК"
                         window.location.href = '/sklad';
                     } catch (e) {
                         console.error('[finish_acceptance] error', e);
-                        alert('Помилка мережі/сервера');
+                        closeSendStatusModal();
+                        await showSendResultModal(
+                            'error',
+                            'Ошибка отправки',
+                            'Помилка мережі/сервера'
+                        );
                     } finally {
                         btnSend.disabled = false;
                         btnSend.textContent = 'Отправить';
@@ -1380,6 +1455,66 @@
                 });
             }
         });
+
+
+        function closeSendStatusModal() {
+            const old = document.querySelector('.send-status-overlay');
+            if (old) old.remove();
+        }
+
+        function showSendLoadingModal(title, message) {
+            closeSendStatusModal();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'scan-confirm-overlay send-status-overlay';
+
+            overlay.innerHTML = `
+            <div class="scan-confirm-box send-status-box">
+                <div class="send-status-icon">
+                    <div class="send-status-spinner"></div>
+                </div>
+
+                <div class="scan-confirm-title">${title}</div>
+                <div class="scan-confirm-text">${message}</div>
+            </div>
+        `;
+
+            document.body.appendChild(overlay);
+        }
+
+        function showSendResultModal(type, title, message) {
+            return new Promise(resolve => {
+                closeSendStatusModal();
+
+                const overlay = document.createElement('div');
+                overlay.className = 'scan-confirm-overlay send-status-overlay';
+
+                const icon = type === 'success' ? '✓' : '!';
+                const buttonClass = type === 'success' ? 'btn btn-success' : 'btn btn-danger';
+
+                overlay.innerHTML = `
+            <div class="scan-confirm-box send-status-box ${type}">
+                <div class="send-status-icon">${icon}</div>
+
+                <div class="scan-confirm-title">${title}</div>
+                <div class="scan-confirm-text">${message}</div>
+
+                <div class="scan-confirm-actions">
+                    <button type="button" class="${buttonClass}" data-action="ok">
+                        ОК
+                    </button>
+                </div>
+            </div>
+        `;
+
+                document.body.appendChild(overlay);
+
+                overlay.querySelector('[data-action="ok"]').addEventListener('click', () => {
+                    overlay.remove();
+                    resolve(true);
+                });
+            });
+        }
 
         function askSendWithoutScanning(message) {
             return new Promise(resolve => {
@@ -1397,11 +1532,11 @@
 
                 <div class="scan-confirm-actions">
                     <button type="button" class="btn btn-secondary" data-action="continue">
-                        Скан.
+                        Сканировать
                     </button>
 
                     <button type="button" class="btn btn-danger" data-action="send">
-                        Отправить без скана.
+                        Отправить без скана
                     </button>
                 </div>
             </div>
