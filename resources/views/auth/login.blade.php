@@ -202,8 +202,8 @@
 
             <div class="darwin-footer-text">
                 Darwin / Goodwin · склад ·
-                <a href="https://Eventhes.com" target="_blank" rel="noopener noreferrer">
-                    developed by Eventhes.com
+                <a href="https://eventhes.com" target="_blank" rel="noopener noreferrer">
+                    developed by Eventhes
                 </a>
             </div>
 
