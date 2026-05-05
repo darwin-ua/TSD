@@ -2,320 +2,64 @@
 @section('content')
     @include('sklad.header_adm')
     <style>
-        body {
-            background: #f5f6f7;
+        .hl-barcode {
+            background-color: #fff3cd !important; /* мягко-жёлтый */
         }
-
-        .sklad-page {
-            min-height: calc(100vh - 70px);
-            padding: 18px 12px 30px;
-            background:
-                linear-gradient(135deg, rgba(255, 198, 0, 0.07), rgba(255,255,255,0.96)),
-                #f5f6f7;
-        }
-
-        .sklad-shell {
-            max-width: 430px;
-            margin: 0 auto;
-        }
-
-        .sklad-top-card {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
-            overflow: hidden;
-            border-top: 5px solid #f3c400;
-        }
-
-        .sklad-header {
-            padding: 18px 18px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            border-bottom: 1px solid #eceff3;
-        }
-
-        .sklad-header-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 0;
-        }
-
-        .sklad-header-text {
-            min-width: 0;
-        }
-
-        .sklad-header-title {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 800;
-            color: #171717;
-            line-height: 1.2;
-        }
-
-        .sklad-header-subtitle {
-            margin-top: 4px;
-            font-size: 13px;
-            color: #777777;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .sklad-header-icon,
-        .btn-arrow {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: #171717 !important;
-            color: #f3c400 !important;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: none;
-            font-size: 22px;
-            font-weight: 800;
-            padding: 0;
-        }
-
-        .btn-arrow.d-none {
-            display: none !important;
-        }
-
-        .sklad-body {
-            padding: 18px;
-        }
-
-        .sklad-tabs-wrap {
-            margin-bottom: 14px;
-        }
-
-        .nav-tabs {
-            border-bottom: none;
-            display: flex;
-            gap: 8px;
-            margin-bottom: 0 !important;
-        }
-
-        .nav-tabs .nav-item {
-            flex: 1;
-        }
-
-        .nav-tabs .nav-link.custom-tab {
-            width: 100%;
-            text-align: center;
-            border: 1px solid #e7e9ee;
-            border-radius: 11px;
-            background: #eef0f3;
-            color: #171717;
-            font-weight: 800;
-            padding: 10px 6px;
-            font-size: 14px;
-            transition: 0.18s ease;
-        }
-
-        .nav-tabs .nav-link.custom-tab.active {
-            background: #171717;
-            border-color: #171717;
-            color: #f3c400;
-        }
-
-        .sklad-scan-input,
-        #barcodeInput {
-            height: 52px;
-            border-radius: 11px;
-            border: 1px solid #d9dde2;
-            box-shadow: none;
-            font-size: 16px;
-        }
-
-        .sklad-scan-input:focus,
-        #barcodeInput:focus {
-            border-color: #f3c400;
-            box-shadow: 0 0 0 0.2rem rgba(243, 196, 0, 0.18);
-        }
-
-        .sklad-menu-card,
-        #documentsList .card {
-            background: #ffffff;
-            border: 1px solid #e7e9ee;
-            border-radius: 16px;
-            padding: 0;
-            margin-bottom: 14px;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
-            transition: 0.18s ease;
-            overflow: hidden;
-        }
-
-        .sklad-menu-card:hover,
-        #documentsList .card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.10);
-            border-color: rgba(243, 196, 0, 0.75);
-        }
-
-        .doc-header {
-            font-weight: 800;
-            background: #ffffff;
-            padding: 16px 18px;
-            margin-top: 0;
-            cursor: pointer;
-            color: #171717;
-            line-height: 1.35;
-            border-left: 5px solid #f3c400;
-        }
-
-        .doc-header small {
-            display: block;
-            margin-top: 6px;
-            color: #777777;
+        .list-group-item.hl-barcode {
             font-weight: 600;
         }
-
-        .sklad-main-btn {
-            width: 100%;
-            min-height: 48px;
+        .btn-arrow {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            border-radius: 5px;
             border: none;
-            border-radius: 11px;
-            background: #171717;
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 800;
-            transition: 0.18s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            padding: 12px 14px;
         }
-
-        .sklad-main-btn:hover,
-        .sklad-main-btn:focus {
-            background: #f3c400;
-            color: #171717;
-            text-decoration: none;
+        .custom-tab {
+            background-color: #b3b3b3;
+            color: white;
+            border: 1px solid #999;
         }
-
-        .sklad-main-btn:disabled {
-            opacity: .65;
-            cursor: not-allowed;
+        .custom-tab.active {
+            background-color: #999999;
+            color: white;
         }
-
-        .sklad-back-link {
-            width: 100%;
-            min-height: 44px;
-            border: none;
-            border-radius: 11px;
-            background: #eef0f3;
-            color: #171717;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            padding: 11px 14px;
+        .nav-tabs .nav-link {
+            border-radius: 4px 4px 0 0;
         }
-
-        .sklad-back-link:hover,
-        .sklad-back-link:focus {
-            background: #e0e3e8;
-            color: #171717;
-            text-decoration: none;
+        .nav-tabs {
+            border-bottom: none;
         }
-
-        #activeCellBanner.alert {
-            border: none;
-            border-radius: 14px;
-            padding: 12px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 14px;
+        .doc-header {
+            font-weight: bold;
+            background: #f2f2f2;
+            padding: 8px 12px;
+            margin-top: 10px;
+            cursor: pointer;
         }
-
-        #activeCellBanner.alert-info {
-            background: rgba(243, 196, 0, 0.15);
-            color: #171717;
-        }
-
-        #activeCellBanner.alert-warning {
-            background: #fff3cd;
-            color: #664d03;
-        }
-
         .list-group-item {
             font-size: 12px;
         }
 
-        #positionsUl {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        #positionsUl .list-group-item{ display:flex; flex-direction:column; gap:6px;   border:1px solid #cfd4da !important;
+            border-radius:12px !important;}
+        .pos-title{ font-weight:600; line-height:1.25; word-break:break-word; }
+        .pos-qty{ margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+        .qty-chip{
+            display:inline-block; padding:1px 8px; border:1px solid #333;
+            border-radius:5px; background:#fffbe6; font-weight:700; font-size:.95em; line-height:1; white-space:nowrap;
+        }
+        .qty-chip.fact{ background:#e7f1ff; } /* визуально отличаем Факт */
+        .hl-barcode{ background-color:#fff3cd !important; }
+        /* прибираємо фіксовані "роздільні" бордери, що ставить flush */
+        #positionsUl.list-group-flush .list-group-item + .list-group-item{
+            border-top-width:1px !important; /* щоб рамка зберігалася повністю */
         }
 
-        #positionsUl .list-group-item {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            border: 1px solid #e7e9ee !important;
-            border-left: 5px solid #f3c400 !important;
-            border-radius: 14px !important;
-            padding: 14px 14px 13px;
-            background: #ffffff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        #positionsUl.list-group-flush .list-group-item + .list-group-item {
-            border-top-width: 1px !important;
-        }
-
-        .pos-title {
-            font-weight: 800;
-            line-height: 1.25;
-            word-break: break-word;
-            color: #171717;
-        }
-
-        .pos-qty {
-            margin-top: 2px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .qty-chip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px 9px;
-            border: 1px solid rgba(23, 23, 23, .12);
-            border-radius: 999px;
-            background: rgba(243, 196, 0, 0.15);
-            color: #171717;
-            font-weight: 800;
-            font-size: 12px;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        .qty-chip.fact {
-            background: #eef0f3;
-        }
-
-        .hl-barcode,
-        .list-group-item.hl-barcode,
-        #positionsUl.list-group-flush .list-group-item.hl-barcode {
-            border-color: #ffca2c !important;
-            background: #fff9e6 !important;
-            font-weight: 600;
-        }
-
-        #positionsUl .list-group-item.border-danger {
-            border: 2px solid #dc3545 !important;
-            border-left: 5px solid #dc3545 !important;
-            background: #ffe6e9 !important;
+        /* підсвітка знайденого скану */
+        #positionsUl.list-group-flush .list-group-item.hl-barcode{
+            border-color:#ffca2c !important;
+            background:#fff9e6 !important;
         }
 
         .scan-confirm-overlay {
@@ -331,19 +75,17 @@
 
         .scan-confirm-box {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 18px;
             max-width: 520px;
             width: 100%;
-            box-shadow: 0 12px 32px rgba(0,0,0,.25);
-            border-top: 5px solid #f3c400;
+            box-shadow: 0 8px 30px rgba(0,0,0,.25);
         }
 
         .scan-confirm-title {
-            font-weight: 800;
+            font-weight: 700;
             font-size: 18px;
             margin-bottom: 10px;
-            color: #171717;
         }
 
         .scan-confirm-text {
@@ -352,161 +94,77 @@
             max-height: 300px;
             overflow-y: auto;
             margin-bottom: 15px;
-            color: #333333;
         }
 
         .scan-confirm-actions {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            flex-wrap: wrap;
         }
 
-        .scan-confirm-actions .btn {
-            border-radius: 11px;
-            font-weight: 800;
-            padding: 10px 14px;
+        #positionsUl .list-group-item.border-danger {
+            border: 2px solid #dc3545 !important;
+            background: #ffe6e9 !important;
         }
 
-
-        .send-status-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 50%;
-            background: rgba(243, 196, 0, 0.18);
-            color: #171717;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: 900;
-            margin: 0 auto 12px;
-        }
-
-        .send-status-spinner {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 4px solid rgba(23, 23, 23, 0.12);
-            border-top-color: #f3c400;
-            animation: sendStatusSpin .8s linear infinite;
-        }
-
-        @keyframes sendStatusSpin {
-            to { transform: rotate(360deg); }
-        }
-
-        .scan-confirm-box.send-status-box {
-            text-align: center;
-        }
-
-        .send-status-box.success {
-            border-top-color: #198754;
-        }
-
-        .send-status-box.success .send-status-icon {
-            background: rgba(25, 135, 84, 0.12);
-            color: #198754;
-        }
-
-        .send-status-box.error {
-            border-top-color: #dc3545;
-        }
-
-        .send-status-box.error .send-status-icon {
-            background: rgba(220, 53, 69, 0.12);
-            color: #dc3545;
-        }
-
-        .send-status-box .scan-confirm-actions {
-            justify-content: center;
+        #positionsUl .list-group-item.border-danger {
+            border: 2px solid #dc3545 !important;
+            background: #ffe6e9 !important;
         }
     </style>
-    <div class="content sklad-page" style="min-height:100%">
+    <div class="content" style="min-height: 100%; padding: 10px;">
         <section class="content">
-            <div class="sklad-shell">
-                <div class="sklad-top-card">
+            <div class="container-fluid">
+                {{-- Верхняя панель --}}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button id="btnBack" type="button" class="btn btn-arrow bg-secondary text-white d-none" aria-label="Назад">←</button>
 
-                    <div class="sklad-header">
-                        <div class="sklad-header-left">
-                            <button id="btnBack"
-                                    type="button"
-                                    class="btn-arrow d-none"
-                                    aria-label="Назад">←</button>
-
-                            <div class="sklad-header-text">
-                                <h1 class="sklad-header-title" id="pageTitle">Документы отбора</h1>
-                                <div class="sklad-header-subtitle">Дарвін · отбор и размещение</div>
+                    <div class="text-center flex-grow-1">
+                        <strong id="pageTitle">Документы отбора</strong>
+                    </div>
+                </div>
+                {{-- Табы --}}
+                <ul class="nav nav-tabs mb-3" id="docTabs">
+                    <li class="nav-item">
+                        <a class="nav-link custom-tab active" href="#" data-tab="gp">ГП</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-tab" href="#" data-tab="dopy">ДО</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-tab" href="#" data-tab="kom">КО</a>
+                    </li>
+                </ul>
+                {{-- Поле штрихкода --}}
+                <div id="barcodeWrapper" class="mb-3 d-none">
+                    <input id="barcodeInput" type="text" class="form-control form-control-lg"
+                           placeholder="Сканируйте номенклатуру или штрихкод иии..." autocomplete="off"> </div>
+                {{-- Список документов --}}
+                <div id="documentsList">
+                    @foreach(session('pick_orders', []) as $i => $doc)
+                        <div class="card mb-2">
+                            <div class="doc-header select-doc" data-doc-index="{{ $i }}">
+                                {{ $doc['Ссылка'] ?? 'Без названия' }} — Статус: {{ $doc['Статус'] ?? '-' }}
                             </div>
                         </div>
-
-                        <a href="{{ route('sklad.index') }}"
-                           class="sklad-header-icon"
-                           title="Главная">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 fill="currentColor"
-                                 viewBox="0 0 16 16">
-                                <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 2 8h1v6.5A1.5 1.5 0 0 0 4.5 16h7a1.5 1.5 0 0 0 1.5-1.5V8h1a.5.5 0 0 0 .354-.854zM12 7.707V14.5a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5V7.707l4-4z"/>
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div class="sklad-body">
-                        <div id="tabsContainer" class="sklad-tabs-wrap">
-                            {{-- Табы --}}
-                            <ul class="nav nav-tabs mb-3" id="docTabs">
-                                <li class="nav-item">
-                                    <a class="nav-link custom-tab active" href="#" data-tab="gp">ГП</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link custom-tab" href="#" data-tab="dopy">ДО</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link custom-tab" href="#" data-tab="kom">КО</a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        {{-- Поле штрихкода --}}
-                        <div id="barcodeWrapper" class="mb-3 d-none">
-                            <input id="barcodeInput"
-                                   type="text"
-                                   class="form-control form-control-lg sklad-scan-input"
-                                   placeholder="Сканируйте номенклатуру или штрихкод..."
-                                   autocomplete="off">
-                        </div>
-
-                        {{-- Список документов --}}
-                        <div id="documentsList">
-                            @foreach(session('pick_orders', []) as $i => $doc)
-                                <div class="card mb-2">
-                                    <div class="doc-header select-doc" data-doc-index="{{ $i }}">
-                                        {{ $doc['Ссылка'] ?? 'Без названия' }} — Статус: {{ $doc['Статус'] ?? '-' }}
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        {{-- Табличная часть выбранного документа --}}
-                        <div id="positionsList" class="d-none">
-                            <ul class="list-group list-group-flush" id="positionsUl">
-                                {{-- строки вставляются через JS --}}
-                            </ul>
-                        </div>
-
-                        <div class="mt-3">
-                            <button id="btnSend"
-                                    type="button"
-                                    class="sklad-main-btn d-none"
-                                    data-send-url="{{ route('sklad.acceptance.finish') }}">
-                                Отправить
-                            </button>
-                        </div>
-
-                        <div class="mt-3">
-                            <a href="{{ route('sklad.index') }}" class="sklad-back-link">Главная</a>
-                        </div>
-                    </div>
+                    @endforeach
+                </div>
+                {{-- Табличная часть выбранного документа --}}
+                <div id="positionsList" class="d-none">
+                    <ul class="list-group list-group-flush" id="positionsUl">
+                        {{-- строки вставляются через JS --}}
+                    </ul>
+                </div>
+                <div class="mt-3">
+                    <button id="btnSend"
+                            type="button"
+                            class="btn btn-primary btn-lg w-100 d-none"
+                            data-send-url="{{ route('sklad.acceptance.finish') }}">
+                        Отправить
+                    </button>
+                </div>
+                <div class="mt-3">
+                <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
                 </div>
             </div>
         </section>
@@ -1396,11 +1054,6 @@
                         btnSend.disabled = true;
                         btnSend.textContent = 'Отправляем...';
 
-                        showSendLoadingModal(
-                            'Отправка данных',
-                            'Идёт отправка документа на сервер. Не закрывайте страницу.'
-                        );
-
                         const resp = await fetch(FINISH_URL, {
                             method: 'POST',
                             headers: {
@@ -1420,34 +1073,18 @@
                         try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
 
                         if (!resp.ok) {
-                            closeSendStatusModal();
-                            await showSendResultModal(
-                                'error',
-                                'Ошибка отправки',
-                                (data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status)
-                            );
+                            alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
                             return;
                         }
 
-                        closeSendStatusModal();
+                        // тут 1С уже отработала — покажем итог
+                        alert('Готово: ' + (data?.Документ || 'операция завершена'));
 
-                        // тут 1С уже отработала — покажем итог модалкой
-                        await showSendResultModal(
-                            'success',
-                            'Готово',
-                            'Документ успешно отправлен: ' + (data?.Документ || 'операция завершена')
-                        );
-
-                        // вернёмся на главную после кнопки "ОК"
+                        // вернёмся на главную
                         window.location.href = '/sklad';
                     } catch (e) {
                         console.error('[finish_acceptance] error', e);
-                        closeSendStatusModal();
-                        await showSendResultModal(
-                            'error',
-                            'Ошибка отправки',
-                            'Помилка мережі/сервера'
-                        );
+                        alert('Помилка мережі/сервера');
                     } finally {
                         btnSend.disabled = false;
                         btnSend.textContent = 'Отправить';
@@ -1455,66 +1092,6 @@
                 });
             }
         });
-
-
-        function closeSendStatusModal() {
-            const old = document.querySelector('.send-status-overlay');
-            if (old) old.remove();
-        }
-
-        function showSendLoadingModal(title, message) {
-            closeSendStatusModal();
-
-            const overlay = document.createElement('div');
-            overlay.className = 'scan-confirm-overlay send-status-overlay';
-
-            overlay.innerHTML = `
-            <div class="scan-confirm-box send-status-box">
-                <div class="send-status-icon">
-                    <div class="send-status-spinner"></div>
-                </div>
-
-                <div class="scan-confirm-title">${title}</div>
-                <div class="scan-confirm-text">${message}</div>
-            </div>
-        `;
-
-            document.body.appendChild(overlay);
-        }
-
-        function showSendResultModal(type, title, message) {
-            return new Promise(resolve => {
-                closeSendStatusModal();
-
-                const overlay = document.createElement('div');
-                overlay.className = 'scan-confirm-overlay send-status-overlay';
-
-                const icon = type === 'success' ? '✓' : '!';
-                const buttonClass = type === 'success' ? 'btn btn-success' : 'btn btn-danger';
-
-                overlay.innerHTML = `
-            <div class="scan-confirm-box send-status-box ${type}">
-                <div class="send-status-icon">${icon}</div>
-
-                <div class="scan-confirm-title">${title}</div>
-                <div class="scan-confirm-text">${message}</div>
-
-                <div class="scan-confirm-actions">
-                    <button type="button" class="${buttonClass}" data-action="ok">
-                        ОК
-                    </button>
-                </div>
-            </div>
-        `;
-
-                document.body.appendChild(overlay);
-
-                overlay.querySelector('[data-action="ok"]').addEventListener('click', () => {
-                    overlay.remove();
-                    resolve(true);
-                });
-            });
-        }
 
         function askSendWithoutScanning(message) {
             return new Promise(resolve => {
@@ -1532,11 +1109,11 @@
 
                 <div class="scan-confirm-actions">
                     <button type="button" class="btn btn-secondary" data-action="continue">
-                        Сканировать
+                        Скан.
                     </button>
 
                     <button type="button" class="btn btn-danger" data-action="send">
-                        Отправить без скана
+                        Отправить без скана.
                     </button>
                 </div>
             </div>
