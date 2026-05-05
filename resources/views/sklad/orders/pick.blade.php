@@ -1,65 +1,302 @@
 @extends('layouts.app')
 @section('content')
     @include('sklad.header_adm')
+
     <style>
-        .hl-barcode {
-            background-color: #fff3cd !important; /* мягко-жёлтый */
+        body {
+            background: #f5f6f7;
         }
-        .list-group-item.hl-barcode {
-            font-weight: 600;
+
+        header,
+        footer,
+        #search_container {
+            display: none !important;
         }
+
+        .sklad-page {
+            min-height: calc(100vh - 70px);
+            padding: 18px 12px 30px;
+            background:
+                linear-gradient(135deg, rgba(255, 198, 0, 0.07), rgba(255,255,255,0.96)),
+                #f5f6f7;
+        }
+
+        .sklad-shell {
+            max-width: 430px;
+            margin: 0 auto;
+        }
+
+        .sklad-top-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+            overflow: hidden;
+            border-top: 5px solid #f3c400;
+        }
+
+        .sklad-header {
+            padding: 18px 18px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eceff3;
+            gap: 12px;
+        }
+
+        .sklad-header-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            color: #171717;
+            line-height: 1.2;
+        }
+
+        .sklad-header-subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #777777;
+        }
+
+        .sklad-header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #171717;
+            color: #f3c400 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            text-decoration: none !important;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .sklad-body {
+            padding: 18px;
+        }
+
+        #activeCellBanner {
+            max-width: 430px;
+            margin: 0 auto 14px !important;
+            border: 1px solid rgba(243, 196, 0, 0.35) !important;
+            border-radius: 14px !important;
+            background: rgba(243, 196, 0, 0.13) !important;
+            color: #171717 !important;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 12px 14px !important;
+        }
+
         .btn-arrow {
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            border-radius: 5px;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+            border-radius: 12px;
             border: none;
+            background: #171717 !important;
+            color: #f3c400 !important;
+            font-weight: 900;
         }
-        .custom-tab {
-            background-color: #b3b3b3;
-            color: white;
-            border: 1px solid #999;
-        }
-        .custom-tab.active {
-            background-color: #999999;
-            color: white;
-        }
-        .nav-tabs .nav-link {
-            border-radius: 4px 4px 0 0;
-        }
-        .nav-tabs {
+
+        #docTabs {
             border-bottom: none;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px !important;
         }
-        .doc-header {
-            font-weight: bold;
-            background: #f2f2f2;
-            padding: 8px 12px;
-            margin-top: 10px;
+
+        #docTabs .nav-item {
+            flex: 1;
+        }
+
+        .custom-tab {
+            width: 100%;
+            text-align: center;
+            background: #eef0f3 !important;
+            color: #171717 !important;
+            border: none !important;
+            border-radius: 11px !important;
+            font-weight: 800;
+            font-size: 14px;
+            padding: 11px 8px !important;
+        }
+
+        .custom-tab.active {
+            background: #f3c400 !important;
+            color: #171717 !important;
+        }
+
+        /* =========================
+           ДОКУМЕНТЫ
+           один блок = один radius
+           без Bootstrap .card и без .doc-header
+           ========================= */
+
+        #documentsList {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #documentsList.list-group-flush .list-group-item + .list-group-item {
+            border-top-width: 1px !important;
+        }
+
+        #documentsList .doc-line {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #ffffff !important;
+            border: 1px solid #e7e9ee !important;
+            border-radius: 16px !important;
+            padding: 16px 44px 16px 16px !important;
+            margin: 0 !important;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
             cursor: pointer;
+            position: relative;
+            color: #171717;
+            transition: 0.18s ease;
+            overflow: hidden;
         }
-        .list-group-item {
+
+        #documentsList .doc-line:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.10);
+            border-color: rgba(243, 196, 0, 0.75) !important;
+        }
+
+        #documentsList .doc-line::after {
+            content: "›";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc3545;
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .doc-title {
+            font-weight: 800;
+            line-height: 1.35;
+            word-break: break-word;
+            color: #171717;
+            font-size: 14px;
+        }
+
+        .doc-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 38px;
+            height: 24px;
+            border-radius: 999px;
+            background: rgba(243, 196, 0, 0.15);
+            color: #171717;
+            font-weight: 900;
+            font-size: 11px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .doc-meta {
+            color: #777777;
             font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
         }
 
-        #positionsUl .list-group-item{ display:flex; flex-direction:column; gap:6px;   border:1px solid #cfd4da !important;
-            border-radius:12px !important;}
-        .pos-title{ font-weight:600; line-height:1.25; word-break:break-word; }
-        .pos-qty{ margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
-        .qty-chip{
-            display:inline-block; padding:1px 8px; border:1px solid #333;
-            border-radius:5px; background:#fffbe6; font-weight:700; font-size:.95em; line-height:1; white-space:nowrap;
-        }
-        .qty-chip.fact{ background:#e7f1ff; } /* визуально отличаем Факт */
-        .hl-barcode{ background-color:#fff3cd !important; }
-        /* прибираємо фіксовані "роздільні" бордери, що ставить flush */
-        #positionsUl.list-group-flush .list-group-item + .list-group-item{
-            border-top-width:1px !important; /* щоб рамка зберігалася повністю */
+        #barcodeInput {
+            height: 52px;
+            border-radius: 11px;
+            border: 1px solid #d9dde2;
+            box-shadow: none;
+            font-size: 16px;
+            font-weight: 700;
         }
 
-        /* підсвітка знайденого скану */
-        #positionsUl.list-group-flush .list-group-item.hl-barcode{
-            border-color:#ffca2c !important;
-            background:#fff9e6 !important;
+        #barcodeInput:focus {
+            border-color: #f3c400;
+            box-shadow: 0 0 0 0.2rem rgba(243, 196, 0, 0.18);
+        }
+
+        #positionsUl .list-group-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #ffffff !important;
+            border: 1px solid #e7e9ee !important;
+            border-radius: 16px !important;
+            padding: 16px !important;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+        }
+
+        .pos-title {
+            font-weight: 800;
+            line-height: 1.25;
+            word-break: break-word;
+            color: #171717;
+            font-size: 14px;
+        }
+
+        .pos-qty {
+            margin-top: 2px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .qty-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 999px;
+            background: rgba(243, 196, 0, 0.15);
+            color: #171717;
+            font-weight: 900;
+            font-size: 12px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .qty-chip.fact {
+            background: #171717;
+            color: #f3c400;
+        }
+
+        .hl-barcode,
+        #positionsUl.list-group-flush .list-group-item.hl-barcode {
+            background: rgba(243, 196, 0, 0.12) !important;
+            border-color: #f3c400 !important;
+            font-weight: 800;
+        }
+
+        #btnSend {
+            width: 100%;
+            height: 48px;
+            border: none !important;
+            border-radius: 11px !important;
+            background: #dc3545 !important;
+            color: #ffffff !important;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .btn-dark {
+            width: 100%;
+            height: 44px;
+            border: none !important;
+            border-radius: 11px !important;
+            background: #eef0f3 !important;
+            color: #171717 !important;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .scan-confirm-overlay {
@@ -75,17 +312,19 @@
 
         .scan-confirm-box {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 16px;
+            border-top: 5px solid #f3c400;
             padding: 18px;
-            max-width: 520px;
+            max-width: 430px;
             width: 100%;
-            box-shadow: 0 8px 30px rgba(0,0,0,.25);
+            box-shadow: 0 12px 32px rgba(0,0,0,.25);
         }
 
         .scan-confirm-title {
-            font-weight: 700;
+            font-weight: 800;
             font-size: 18px;
             margin-bottom: 10px;
+            color: #171717;
         }
 
         .scan-confirm-text {
@@ -107,69 +346,202 @@
             background: #ffe6e9 !important;
         }
 
-        #positionsUl .list-group-item.border-danger {
-            border: 2px solid #dc3545 !important;
-            background: #ffe6e9 !important;
+        .send-status-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .send-status-overlay.show {
+            display: flex;
+        }
+
+        .send-status-box {
+            background: #fff;
+            border-radius: 16px;
+            border-top: 5px solid #f3c400;
+            padding: 24px 20px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(0,0,0,.25);
+        }
+
+        .send-status-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 16px;
+            background: #171717;
+            color: #f3c400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 34px;
+            font-weight: 900;
+        }
+
+        .send-status-icon.success {
+            background: #198754;
+            color: #ffffff;
+        }
+
+        .send-status-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #171717;
+            margin-bottom: 6px;
+        }
+
+        .send-status-text {
+            font-size: 14px;
+            color: #777777;
+            font-weight: 700;
+        }
+
+        .send-status-spinner {
+            width: 34px;
+            height: 34px;
+            border: 4px solid rgba(243, 196, 0, 0.25);
+            border-top-color: #f3c400;
+            border-radius: 50%;
+            animation: sendSpin .8s linear infinite;
+        }
+
+        @keyframes sendSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sklad-page {
+                padding: 12px 10px 24px;
+            }
+
+            .sklad-body {
+                padding: 14px;
+            }
+
+            .sklad-header-title {
+                font-size: 20px;
+            }
+
+            #documentsList .doc-line,
+            .doc-title {
+                font-size: 13px;
+            }
         }
     </style>
-    <div class="content" style="min-height: 100%; padding: 10px;">
-        <section class="content">
-            <div class="container-fluid">
-                {{-- Верхняя панель --}}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button id="btnBack" type="button" class="btn btn-arrow bg-secondary text-white d-none" aria-label="Назад">←</button>
 
-                    <div class="text-center flex-grow-1">
-                        <strong id="pageTitle">Документы отбора</strong>
-                    </div>
-                </div>
-                {{-- Табы --}}
-                <ul class="nav nav-tabs mb-3" id="docTabs">
-                    <li class="nav-item">
-                        <a class="nav-link custom-tab active" href="#" data-tab="gp">ГП</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link custom-tab" href="#" data-tab="dopy">ДО</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link custom-tab" href="#" data-tab="kom">КО</a>
-                    </li>
-                </ul>
-                {{-- Поле штрихкода --}}
-                <div id="barcodeWrapper" class="mb-3 d-none">
-                    <input id="barcodeInput" type="text" class="form-control form-control-lg"
-                           placeholder="Сканируйте номенклатуру или штрихкод иии..." autocomplete="off"> </div>
-                {{-- Список документов --}}
-                <div id="documentsList">
-                    @foreach(session('pick_orders', []) as $i => $doc)
-                        <div class="card mb-2">
-                            <div class="doc-header select-doc" data-doc-index="{{ $i }}">
-                                {{ $doc['Ссылка'] ?? 'Без названия' }} — Статус: {{ $doc['Статус'] ?? '-' }}
-                            </div>
+    <div class="content sklad-page" style="min-height:100%">
+        <section class="content">
+            <div class="sklad-shell">
+                <div class="sklad-top-card">
+
+                    <div class="sklad-header">
+                        <div>
+                            <h1 class="sklad-header-title" id="pageTitle">Документы отбора</h1>
+                            <div class="sklad-header-subtitle">Размещение · складские операции</div>
                         </div>
-                    @endforeach
-                </div>
-                {{-- Табличная часть выбранного документа --}}
-                <div id="positionsList" class="d-none">
-                    <ul class="list-group list-group-flush" id="positionsUl">
-                        {{-- строки вставляются через JS --}}
-                    </ul>
-                </div>
-                <div class="mt-3">
-                    <button id="btnSend"
-                            type="button"
-                            class="btn btn-primary btn-lg w-100 d-none"
-                            data-send-url="{{ route('sklad.acceptance.finish') }}">
-                        Отправить
-                    </button>
-                </div>
-                <div class="mt-3">
-                <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
+
+                        <a href="{{ route('sklad.index') }}"
+                           class="sklad-header-icon"
+                           title="Главная">
+                            ←
+                        </a>
+                    </div>
+
+                    <div class="sklad-body">
+
+                        <button id="btnBack"
+                                type="button"
+                                class="btn-arrow d-none mb-3"
+                                aria-label="Назад">←</button>
+
+                        <ul class="nav nav-tabs mb-3" id="docTabs">
+                            <li class="nav-item">
+                                <a class="nav-link custom-tab active" href="#" data-tab="gp">ГП</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link custom-tab" href="#" data-tab="dopy">ДО</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link custom-tab" href="#" data-tab="kom">КО</a>
+                            </li>
+                        </ul>
+
+                        <div id="barcodeWrapper" class="mb-3 d-none">
+                            <input id="barcodeInput"
+                                   type="text"
+                                   class="form-control form-control-lg"
+                                   placeholder="Сканируйте номенклатуру или штрихкод..."
+                                   autocomplete="off">
+                        </div>
+
+                        <div id="documentsList" class="list-group list-group-flush">
+                            @foreach(session('pick_orders', []) as $i => $doc)
+                                <div class="list-group-item doc-line select-doc" data-doc-index="{{ $i }}">
+                                    <div class="doc-title">
+                                        <span class="doc-badge">DOC</span>
+                                        {{ $doc['Ссылка'] ?? 'Без названия' }} — Статус: {{ $doc['Статус'] ?? '-' }}
+                                    </div>
+
+                                    <div class="doc-meta">
+                                        Склад: {{ $doc['Склад'] ?? '-' }}<br>
+                                        Помещение: {{ $doc['Помещение'] ?? '-' }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div id="positionsList" class="d-none">
+                            <ul class="list-group list-group-flush" id="positionsUl">
+                                {{-- строки вставляются через JS --}}
+                            </ul>
+                        </div>
+
+                        <div class="mt-3">
+                            <button id="btnSend"
+                                    type="button"
+                                    class="btn btn-primary btn-lg w-100 d-none"
+                                    data-send-url="{{ route('sklad.acceptance.finish') }}">
+                                Отправить
+                            </button>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="{{ route('sklad.index') }}" class="btn btn-dark">Главная</a>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </section>
     </div>
+
+    <div id="sendStatusOverlay" class="send-status-overlay">
+        <div class="send-status-box">
+            <div id="sendStatusIcon" class="send-status-icon">
+                <div class="send-status-spinner"></div>
+            </div>
+
+            <div id="sendStatusTitle" class="send-status-title">
+                Данные отправляются...
+            </div>
+
+            <div id="sendStatusText" class="send-status-text">
+                Подождите, идёт передача данных в 1С
+            </div>
+        </div>
+    </div>
 @endsection
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -194,6 +566,33 @@
             const barcodeWrapper = document.getElementById('barcodeWrapper');
             const btnSend = document.getElementById('btnSend');
 
+            const sendStatusOverlay = document.getElementById('sendStatusOverlay');
+            const sendStatusIcon    = document.getElementById('sendStatusIcon');
+            const sendStatusTitle   = document.getElementById('sendStatusTitle');
+            const sendStatusText    = document.getElementById('sendStatusText');
+
+            function showSendingModal() {
+                if (!sendStatusOverlay) return;
+
+                sendStatusIcon.className = 'send-status-icon';
+                sendStatusIcon.innerHTML = '<div class="send-status-spinner"></div>';
+
+                sendStatusTitle.textContent = 'Данные отправляются...';
+                sendStatusText.textContent = 'Подождите, идёт передача данных в 1С';
+
+                sendStatusOverlay.classList.add('show');
+            }
+
+            function showSentModal(message = 'Данные успешно отправлены') {
+                if (!sendStatusOverlay) return;
+
+                sendStatusIcon.className = 'send-status-icon success';
+                sendStatusIcon.innerHTML = '✓';
+
+                sendStatusTitle.textContent = 'Отправлено';
+                sendStatusText.textContent = message;
+            }
+
             // скрываем кнопку отправки по умолчанию
             if (btnSend) btnSend.classList.add('d-none');
 
@@ -217,7 +616,6 @@
 
             let activeState = null;
             let currentCellNameFor1C = null; // имя ячейки, которое шлём в 1С как cell_name
-
 
             // Баннер активной ячейки
             let banner = document.getElementById('activeCellBanner');
@@ -300,10 +698,6 @@
                 });
             }
 
-            // Глобально выше по файлу:
-// let activeState = null;
-// let activeCellTextNorm = ''; // НОРМАЛИЗОВАННЫЙ текст активной ячейки
-
             async function loadCellState() {
                 try {
                     // 1) Забираем state
@@ -345,25 +739,22 @@
                     // 5.1) Сохраняем «имя ячейки для 1С» (его и будем отправлять как cell_name)
                     currentCellNameFor1C = label || raw || null;
 
-
                     // 6) Если бэк не вернул вкладку — пробуем определить по тексту ячейки
                     if (!tab) {
                         tab = detectTabByCellText(label) || detectTabByCellText(raw) || null;
                     }
 
                     // 7) Пробуем проставить warehouse_id, если его ещё нет
-                    //    Сначала по вычисленной вкладке, иначе — эвристика из первой строки позиций
                     if (activeState && !activeState.warehouse_id) {
                         let wh = null;
                         if (tab && WAREHOUSE_BY_TAB && WAREHOUSE_BY_TAB[tab]) {
                             wh = WAREHOUSE_BY_TAB[tab];
                         }
                         if (!wh) {
-                            wh = inferWarehouseFromFirstRowCell(); // может вернуть null — ок
+                            wh = inferWarehouseFromFirstRowCell();
                         }
                         if (wh) {
                             activeState.warehouse_id = wh;
-                            // Если есть локальная переменная текущего склада — обновим и её
                             if (typeof currentWarehouseId !== 'undefined' && (currentWarehouseId == null)) {
                                 currentWarehouseId = wh;
                             }
@@ -375,15 +766,12 @@
                     if (tab) {
                         activeTab = tab;
 
-                        // Спрятать неактивные вкладки
                         tabs.forEach(t => {
                             const isActive = (t.dataset.tab === activeTab);
                             t.classList.toggle('active', isActive);
                             t.classList.toggle('d-none', !isActive);
                         });
 
-                        // Если сейчас экран документов — перерисуем список;
-                        // если экран позиций — просто применим фильтр (если функция есть)
                         const onDocsScreen = !docList.classList.contains('d-none');
                         if (onDocsScreen) {
                             renderDocuments();
@@ -416,17 +804,26 @@
                     return;
                 }
 
-
                 filtered.forEach((doc) => {
                     const realIndex = documents.indexOf(doc);
-                    const card = document.createElement('div');
-                    card.className = 'card mb-2';
-                    card.innerHTML = `
-        <div class="doc-header select-doc" data-doc-index="${realIndex}">
-          ${doc.Ссылка ?? 'Без названия'} — Статус: ${doc.Статус ?? '-'}<br>
-          <small>Помещение: ${doc.Помещение ?? '-'}</small>
-        </div>`;
-                    docList.appendChild(card);
+
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item doc-line select-doc';
+                    item.dataset.docIndex = realIndex;
+
+                    item.innerHTML = `
+                        <div class="doc-title">
+                            <span class="doc-badge">DOC</span>
+                            ${doc.Ссылка ?? 'Без названия'} — Статус: ${doc.Статус ?? '-'}
+                        </div>
+
+                        <div class="doc-meta">
+                            Склад: ${doc.Склад ?? '-'}<br>
+                            Помещение: ${doc.Помещение ?? '-'}
+                        </div>
+                    `;
+
+                    docList.appendChild(item);
                 });
 
                 docList.querySelectorAll('.select-doc').forEach(el => {
@@ -446,19 +843,15 @@
                 // прячем кнопку "Отправить" на экране списка документов
                 if (btnSend) btnSend.classList.add('d-none');
 
-                // Оставляем только уже выбранную вкладку (activeTab выставили в loadCellState())
+                // Оставляем только уже выбранную вкладку
                 tabs.forEach(t => {
                     const isActive = (t.dataset.tab === activeTab);
                     t.classList.toggle('active', isActive);
                     t.classList.toggle('d-none', !isActive);
-                    // вернуть исходный текст, если нужно
                     t.textContent = t.dataset.baseLabel || t.textContent.trim();
                 });
-// стало: сначала определяем вкладку по активной ячейке, она сама дернёт renderDocuments() при необходимости
-                loadCellState();
 
-                // renderDocuments();
-                // loadCellState();
+                loadCellState();
             }
 
             // ============== экран позиций документа ==============
@@ -510,14 +903,12 @@
                 const qtyFct = Number(li.dataset.fact || 0);
 
                 li.innerHTML = `
-    <div class="pos-title">#${rownum} — ${nom}</div>
-    <div class="pos-qty">
-      <span class="qty-chip plan">План: ${qtyPln}</span>
-      <span class="qty-chip fact">Факт: ${qtyFct}</span>
-    </div>`;
+                    <div class="pos-title">#${rownum} — ${nom}</div>
+                    <div class="pos-qty">
+                        <span class="qty-chip plan">План: ${qtyPln}</span>
+                        <span class="qty-chip fact">Факт: ${qtyFct}</span>
+                    </div>`;
             }
-
-
 
             function getNextLineNumber() {
                 let max = 0;
@@ -530,9 +921,9 @@
 
             function aggKeyFor(found, code) {
                 const bc = String(found?.barcode || code || '').trim().toLowerCase();
-                if (bc) return 'bc:' + bc;            // агрегируем по штрихкоду
+                if (bc) return 'bc:' + bc;
                 const nom = String(found?.nomen || '').trim().toLowerCase();
-                return 'nom:' + nom;                  // фолбек по номенклатуре
+                return 'nom:' + nom;
             }
 
             function getOrCreateAggLi(key, displayNom, displayBarcode) {
@@ -546,7 +937,7 @@
                 li.dataset.nomOriginal = displayNom || '-';
                 li.dataset.barcode     = (displayBarcode || '').toLowerCase();
                 li.dataset.cell        = norm(currentCellNameFor1C || activeState?.cell || '');
-                li.dataset.line        = String(getNextLineNumber()); // локальный номер для UI
+                li.dataset.line        = String(getNextLineNumber());
                 li.dataset.qty         = li.dataset.qty || '0';
                 li.dataset.fact        = '0';
 
@@ -556,16 +947,16 @@
                 badge.textContent = 'Отправляем...';
 
                 li.innerHTML = `
-    <div class="pos-title">#${li.dataset.line} — ${li.dataset.nomOriginal}</div>
-    <div class="pos-qty">
-      <span class="qty-chip plan">План: ${Number(li.dataset.qty) || 0}</span>
-      <span class="qty-chip fact">Факт: 0</span>
-    </div>
-  `;
+                    <div class="pos-title">#${li.dataset.line} — ${li.dataset.nomOriginal}</div>
+                    <div class="pos-qty">
+                        <span class="qty-chip plan">План: ${Number(li.dataset.qty) || 0}</span>
+                        <span class="qty-chip fact">Факт: 0</span>
+                    </div>
+                `;
                 li.querySelector('.pos-title')?.appendChild(badge);
 
                 posUl.appendChild(li);
-                // актуализируем бейджи/фильтр, как у тебя принято
+
                 if (typeof recomputeCountsByCells === 'function') recomputeCountsByCells();
                 if (typeof applyTabFilterInPositions === 'function') applyTabFilterInPositions();
 
@@ -601,31 +992,27 @@
                     }
                 }
             }
+
             async function appendExternalItem(found, code) {
                 const displayNom     = found?.nomen || '(по штрихкоду)';
                 const displayBarcode = found?.barcode || code || '';
 
-                // 1) одна агрегированная строка на штрихкод/ном
                 const key = aggKeyFor(found, code);
                 const li  = getOrCreateAggLi(key, displayNom, displayBarcode);
 
-                // 2) UI: оптимистично увеличиваем «Факт» на +1
                 li.dataset.fact = String((Number(li.dataset.fact || 0) || 0) + 1);
                 li.classList.add('hl-barcode');
                 updateLiCounts(li);
                 li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
-                // 3) считаем «в полёте»
                 setPending(li, +1);
 
-                // 4) На сервер — ВСЕГДА новая строка
                 try {
                     const payload = {
                         document_no: String(currentDocNo),
                         code: String(displayBarcode),
                         quantity: 1,
 
-                        // диагностическое
                         document_id: String(currentDocNo),
                         warehouse_id: currentWarehouseId,
                         active_cell: activeState?.cell || null,
@@ -636,7 +1023,6 @@
                         line_no_hint: Number(li.dataset.line) || undefined,
                         doc_link: currentDoc?.Ссылка || null,
 
-                        // важно: шлём ИМЯ ячейки
                         cell_name: currentCellNameFor1C || null,
 
                         scan_id: (window.crypto?.randomUUID?.() || Date.now()+''),
@@ -659,7 +1045,6 @@
                     try { data = raw ? JSON.parse(raw) : {}; } catch(e) {}
 
                     if (!resp.ok || !data.ok) {
-                        // откат UI
                         li.dataset.fact = String(Math.max(0, (Number(li.dataset.fact || 0) || 0) - 1));
                         updateLiCounts(li);
                         setPending(li, -1);
@@ -667,11 +1052,10 @@
                         return;
                     }
 
-                    setPending(li, -1); // успех: уменьшаем pending
+                    setPending(li, -1);
 
                 } catch (e) {
                     console.error('[ADD-EXTERNAL] fetch error', e);
-                    // откат UI
                     li.dataset.fact = String(Math.max(0, (Number(li.dataset.fact || 0) || 0) - 1));
                     updateLiCounts(li);
                     setPending(li, -1);
@@ -681,11 +1065,10 @@
 
             function aggKeyFromRow(line) {
                 const bc  = String(line.Штрихкод || '').trim().toLowerCase();
-                if (bc) return 'bc:' + bc;                  // основной ключ — по штрихкоду
+                if (bc) return 'bc:' + bc;
                 const nom = String(line.Номенклатура || '').trim().toLowerCase();
-                return 'nom:' + nom;                        // фолбек — по номенклатуре
+                return 'nom:' + nom;
             }
-
 
             function showPositions(index) {
                 const doc = documents[index];
@@ -720,12 +1103,9 @@
 
                 title.textContent = doc.Ссылка?.match(/(00-\d+)/)?.[1] ?? 'Позиции документа';
 
-                // — отрисовка позиций «План + Факт» —
-                // — отрисовка позиций «План + Факт» (АГРЕГИРОВАНО) —
                 posUl.innerHTML = '';
                 const rows = Array.isArray(doc.ТоварыРазмещение) ? doc.ТоварыРазмещение : [];
 
-// 1) Группируем строки ТЧ: один ключ = одна визуальная строка
                 const agg = new Map();
                 for (const line of rows) {
                     const key = aggKeyFromRow(line);
@@ -740,35 +1120,31 @@
                         });
                     } else {
                         const a = agg.get(key);
-                        a.planSum += Number(line.Количество ?? 0) || 0; // складываем План
+                        a.planSum += Number(line.Количество ?? 0) || 0;
                     }
                 }
 
-// 2) Рендерим ТОЛЬКО по одной LI на ключ
                 let localLineCounter = 0;
                 for (const a of agg.values()) {
                     const li = document.createElement('li');
                     li.className = 'list-group-item agg-line';
 
-                    // datasets — как у тебя, чтобы фильтры/поиск работали
                     li.dataset.aggKey      = a.key;
                     li.dataset.nom         = a.displayNom.toLowerCase();
                     li.dataset.nomOriginal = a.displayNom;
                     li.dataset.barcode     = a.displayBC.toLowerCase();
                     li.dataset.cell        = norm(a.cell);
-                    li.dataset.line        = String(++localLineCounter);  // локальная нумерация для UI
-                    li.dataset.qty         = String(a.planSum);           // суммарный ПЛАН по группе
-                    li.dataset.fact        = '0';                         // Факт на старте = 0
+                    li.dataset.line        = String(++localLineCounter);
+                    li.dataset.qty         = String(a.planSum);
+                    li.dataset.fact        = '0';
 
                     renderLi(li);
                     posUl.appendChild(li);
                 }
 
-// 3) Обновим бейджи/фильтр
                 if (typeof recomputeCountsByCells === 'function') recomputeCountsByCells();
                 if (typeof applyTabFilterInPositions === 'function') applyTabFilterInPositions();
 
-// 4) Показать/скрыть кнопку "Отправить" по числу агрегированных строк
                 const renderedCount = agg.size;
                 if (btnSend) {
                     if (renderedCount > 0) {
@@ -778,8 +1154,6 @@
                     }
                 }
 
-
-                // показать/скрыть кнопку "Отправить" в зависимости от наличия строк
                 if (btnSend) {
                     if (rows.length > 0) {
                         btnSend.classList.remove('d-none');
@@ -837,7 +1211,6 @@
                 const isBarcode = /^\d{6,}$/.test(code);
                 let found = null;
 
-                // 1) По штрихкоду — только полное совпадение
                 if (isBarcode) {
                     const val = code.toLowerCase();
                     document.querySelectorAll('#positionsUl li:not(.d-none)').forEach(li => {
@@ -850,7 +1223,6 @@
                     });
                 }
 
-                // 2) По названию — подстрочное совпадение
                 if (found === null && !isBarcode) {
                     const val = code.toLowerCase();
                     document.querySelectorAll('#positionsUl li:not(.d-none)').forEach(li => {
@@ -863,7 +1235,6 @@
                     });
                 }
 
-                // Без фолбеков!
                 return found;
             }
 
@@ -890,7 +1261,6 @@
                 const safeForSearch = code.length > CODE_MAX ? code.slice(0, CODE_MAX) : code;
 
                 try {
-                    // Всегда спрашиваем 1С для красивого названия/хар-ки
                     const resp = await fetch(SEARCH_BARCODE_URL, {
                         method: 'POST',
                         headers: {
@@ -911,15 +1281,13 @@
 
                     if (resp.ok && data.ok && Array.isArray(data.items) && data.items.length > 0) {
                         const it = data.items[0];
-                        appendExternalItem(it, code);    // важно: передаём ПОЛНЫЙ code
+                        appendExternalItem(it, code);
                         return;
                     }
 
-                    // если не нашли — добавим как «сырой» штрихкод
                     appendExternalItem({ nomen: '(по штрихкоду)', characteristic: null, barcode: code }, code);
                 } catch (e) {
                     console.error('[SEARCH BARCODE] fetch error', e);
-                    // на сетевой ошибке тоже добавляем как «сырой» скан
                     appendExternalItem({ nomen: '(скан)', characteristic: null, barcode: code }, code);
                 }
             }
@@ -943,13 +1311,11 @@
                         }
                         const nom = (li.dataset.nom || '');
                         const bc  = (li.dataset.barcode || '');
-                        // для штрихкода — ТОЛЬКО полное совпадение, без includes
                         const match = isBarcodeQuery ? (bc === val) : nom.includes(val);
                         li.classList.toggle('hl-barcode', Boolean(val) && match);
                         if (match) matchesCount++;
                     });
 
-                    // Скроллим только если есть совпадения
                     if (matchesCount > 0) {
                         const first = document.querySelector('#positionsUl li.hl-barcode:not(.d-none)');
                         if (first) first.scrollIntoView({ block:'center', behavior:'smooth' });
@@ -987,7 +1353,6 @@
                     const plan = Number(li.dataset.qty || 0) || 0;
                     const fact = Number(li.dataset.fact || 0) || 0;
 
-                    // строка есть в плане, но ни разу не сканировалась
                     if (plan > 0 && fact <= 0) {
                         badRows.push({
                             line: li.dataset.line || '-',
@@ -1002,14 +1367,12 @@
                 return badRows;
             }
 
-
             // === Кнопка "Отправить" ===
             if (!btnSend) {
                 console.warn('[pick] btnSend not found');
             } else {
                 console.log('[pick] btnSend wired');
                 btnSend.addEventListener('click', async () => {
-                    // номер документа — сперва из логики страницы, иначе из заголовка
                     const pageTitleText = document.getElementById('pageTitle')?.textContent || '';
                     const titleNo = (pageTitleText.match(/(00-\d+)/) || [])[1] || '';
                     const number = (window.currentDocumentId && String(window.currentDocumentId)) || titleNo;
@@ -1018,7 +1381,7 @@
                         alert('Не удалось определить номер документа.');
                         return;
                     }
-// ===== ПРОВЕРКА: есть ли строки, которые ни разу не сканировались =====
+
                     const notScannedRows = getNotScannedRows();
 
                     if (notScannedRows.length > 0) {
@@ -1050,9 +1413,12 @@
                             return;
                         }
                     }
+
                     try {
                         btnSend.disabled = true;
                         btnSend.textContent = 'Отправляем...';
+
+                        showSendingModal();
 
                         const resp = await fetch(FINISH_URL, {
                             method: 'POST',
@@ -1063,8 +1429,7 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                number: number,      // <- Laravel ждёт "number"
-                                // at: new Date().toISOString(), // при желании можно пробрасывать время
+                                number: number,
                             }),
                         });
 
@@ -1073,17 +1438,19 @@
                         try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
 
                         if (!resp.ok) {
+                            sendStatusOverlay?.classList.remove('show');
                             alert((data && (data.msg || JSON.stringify(data))) || ('HTTP ' + resp.status));
                             return;
                         }
 
-                        // тут 1С уже отработала — покажем итог
-                        alert('Готово: ' + (data?.Документ || 'операция завершена'));
+                        showSentModal(data?.Документ || 'Операция завершена');
 
-                        // вернёмся на главную
-                        window.location.href = '/sklad';
+                        setTimeout(() => {
+                            window.location.href = '/sklad';
+                        }, 1200);
                     } catch (e) {
                         console.error('[finish_acceptance] error', e);
+                        sendStatusOverlay?.classList.remove('show');
                         alert('Помилка мережі/сервера');
                     } finally {
                         btnSend.disabled = false;
@@ -1102,22 +1469,22 @@
                 overlay.className = 'scan-confirm-overlay';
 
                 overlay.innerHTML = `
-            <div class="scan-confirm-box">
-                <div class="scan-confirm-title">Есть неотсканированные строки</div>
+                    <div class="scan-confirm-box">
+                        <div class="scan-confirm-title">Есть неотсканированные строки</div>
 
-                <div class="scan-confirm-text">${message}</div>
+                        <div class="scan-confirm-text">${message}</div>
 
-                <div class="scan-confirm-actions">
-                    <button type="button" class="btn btn-secondary" data-action="continue">
-                        Скан.
-                    </button>
+                        <div class="scan-confirm-actions">
+                            <button type="button" class="btn btn-secondary" data-action="continue">
+                                Скан.
+                            </button>
 
-                    <button type="button" class="btn btn-danger" data-action="send">
-                        Отправить без скана.
-                    </button>
-                </div>
-            </div>
-        `;
+                            <button type="button" class="btn btn-danger" data-action="send">
+                                Отправить без скана.
+                            </button>
+                        </div>
+                    </div>
+                `;
 
                 document.body.appendChild(overlay);
 
@@ -1133,5 +1500,4 @@
             });
         }
     </script>
-
 @endpush

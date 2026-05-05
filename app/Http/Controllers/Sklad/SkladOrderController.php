@@ -238,13 +238,20 @@ class SkladOrderController extends Controller
     public function fetchPickOrders(\Illuminate\Http\Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        $login    = (string) $user->name;
-        $password = (string) $user->parol_1c;
 
-        // === 1) Формируем payload для 1С ===
-        $executor = trim((string) $request->input('Исполнитель', $user->data_executor ?: 'Кучеренко Денис'));
+        // Авторизация в 1С
+        // Если у тебя в users.name уже стоит КучеренкоД — можно оставить так.
+        // Но безопаснее иметь fallback.
+        $login    = (string) ($user->name ?: env('TSD_LOGIN', 'КучеренкоД'));
+        $password = (string) ($user->parol_1c ?: env('TSD_PASSWORD', 'NitraPa$$@0@!'));
 
-        // Нормализуем статус: "В работе" → "ВРаботе"
+        // Исполнитель для 1С
+        $executor = trim((string) $request->input(
+            'Исполнитель',
+            $user->data_executor ?: 'Кучеренко Денис'
+        ));
+
+        // "В работе" -> "ВРаботе"
         $statusRaw = (string) $request->input('Статус', 'ВРаботе');
         $status    = preg_replace('/\s+/u', '', $statusRaw);
 
@@ -255,68 +262,169 @@ class SkladOrderController extends Controller
 
         \Log::info('pick.fetch → 1C payload', $payload);
         \Log::info('pick.fetch → auth', [
+            'login'     => $login,
             'login_len' => mb_strlen($login),
             'login_hex' => bin2hex($login),
         ]);
 
-        // === 2) Запрос в 1С ===
         $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
             ->asJson()
             ->acceptJson()
             ->timeout(60)
             ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', $payload);
 
-        // === 3) Проверяем HTTP ===
         if ($request->boolean('debug')) {
             return response($resp->body(), $resp->status())
                 ->withHeaders(['Content-Type' => 'application/json; charset=utf-8']);
         }
 
         if (!$resp->successful()) {
-            \Log::error('1C HTTP error', ['status' => $resp->status(), 'body' => mb_substr($resp->body(), 0, 1000)]);
-            return response()->json(['ok' => false, 'msg' => 'Ошибка 1С: ' . $resp->status()], 200);
+            \Log::error('1C HTTP error', [
+                'status' => $resp->status(),
+                'body'   => mb_substr($resp->body(), 0, 1000),
+            ]);
+
+            return response()->json([
+                'ok'  => false,
+                'msg' => 'Ошибка 1С: ' . $resp->status(),
+            ], 200);
         }
 
-        // === 4) Разбираем JSON от 1С ===
-        $raw  = $resp->body();
-        \Log::info('RAW response from 1C', ['raw' => $raw]);
+        $raw = $resp->body();
+
+        \Log::info('RAW response from 1C', [
+            'raw' => $raw,
+        ]);
 
         $json = json_decode($raw, true);
+
         if (!is_array($json)) {
             $json = $this->sanitize1CJson($raw);
         }
+
         if (!is_array($json)) {
-            \Log::error('Bad JSON from 1C (even after fix)', ['raw' => mb_substr($raw, 0, 1000)]);
-            return response()->json(['ok' => false, 'msg' => 'Некорректный JSON от 1С'], 200);
+            \Log::error('Bad JSON from 1C (even after fix)', [
+                'raw' => mb_substr($raw, 0, 1000),
+            ]);
+
+            return response()->json([
+                'ok'  => false,
+                'msg' => 'Некорректный JSON от 1С',
+            ], 200);
         }
 
         $orders = $json['documents'] ?? [];
+
         if ($orders instanceof \Illuminate\Support\Collection) {
             $orders = $orders->toArray();
         } elseif (is_string($orders)) {
             $orders = json_decode($orders, true) ?: [];
         }
 
-        $count = is_array($orders) ? count($orders) : 0;
+        if (!is_array($orders)) {
+            $orders = [];
+        }
+
+        // ============================================================
+        // ФИЛЬТР ДОКУМЕНТОВ ПО АКТИВНОЙ ЯЧЕЙКЕ
+        // Тут решаем Дарвин/Гудвин.
+        // ============================================================
+
+        $activeState = $request->session()->get('active_cell');
+
+        if (!$activeState) {
+            $activeState = \Illuminate\Support\Facades\Cache::get(
+                'scan:active_cell:user:' . (\Illuminate\Support\Facades\Auth::id() ?? 'guest')
+            );
+        }
+
+        $activeCellRaw = null;
+
+        if (is_array($activeState)) {
+            $activeCellRaw =
+                $activeState['cell'] ??
+                $activeState['cell_barcode'] ??
+                $activeState['cell_name'] ??
+                null;
+        } elseif (is_string($activeState)) {
+            $activeCellRaw = $activeState;
+        }
+
+        $cellRow = null;
+
+        if (!empty($activeCellRaw)) {
+            $cellRow = \Illuminate\Support\Facades\DB::table('skladskie_yacheiki')
+                ->where('number', $activeCellRaw)
+                ->orWhere('ssylka', $activeCellRaw)
+                ->orWhere('link', $activeCellRaw)
+                ->first();
+        }
+
+        if ($cellRow) {
+            $filterSklad = trim((string) $cellRow->sklad);
+
+            // Если reception_area пустой — берём саму ячейку.
+            $filterReceptionArea = trim((string) ($cellRow->reception_area ?: $cellRow->ssylka));
+
+            $beforeCount = count($orders);
+
+            $orders = array_values(array_filter($orders, function ($doc) use ($filterSklad, $filterReceptionArea) {
+                $docSklad = trim((string) ($doc['Склад'] ?? ''));
+                $docZone  = trim((string) ($doc['ЗонаПриемки'] ?? ''));
+
+                // Главное: Дарвин отдельно, Гудвин отдельно.
+                if ($filterSklad !== '' && $docSklad !== $filterSklad) {
+                    return false;
+                }
+
+                // Дополнительно режем по зоне приёмки.
+                if ($filterReceptionArea !== '' && $docZone !== '' && $docZone !== $filterReceptionArea) {
+                    return false;
+                }
+
+                return true;
+            }));
+
+            \Log::info('pick.fetch filtered by active cell', [
+                'active_cell_raw'       => $activeCellRaw,
+                'cell_name'             => $cellRow->ssylka,
+                'filter_sklad'          => $filterSklad,
+                'filter_reception_area' => $filterReceptionArea,
+                'before'                => $beforeCount,
+                'after'                 => count($orders),
+            ]);
+        } else {
+            \Log::warning('pick.fetch active cell not resolved, documents NOT filtered', [
+                'active_state'    => $activeState,
+                'active_cell_raw' => $activeCellRaw,
+            ]);
+        }
+
+        $count = count($orders);
+
         $first = $count ? [
             'Ссылка' => $orders[0]['Ссылка'] ?? null,
             'Статус' => $orders[0]['Статус'] ?? null,
+            'Склад'  => $orders[0]['Склад'] ?? null,
+            'ЗонаПриемки' => $orders[0]['ЗонаПриемки'] ?? null,
         ] : null;
 
-        \Log::info('Parsed JSON:', ['count' => $count, 'first' => $first]);
+        \Log::info('Parsed JSON after filter:', [
+            'count' => $count,
+            'first' => $first,
+        ]);
 
-        // === 5) Сохраняем в сессию ===
+        // ВАЖНО: сохраняем уже отфильтрованные документы
         session(['pick_orders' => $orders]);
+
         \Log::info('pick.fetch session snapshot', [
             'sid'   => session()->getId(),
             'count' => $count,
             'first' => $first,
         ]);
 
-        // Принудительно записываем, чтобы не потерять между редиректами
         session()->save();
 
-        // === 6) Ответ фронту ===
         return response()->json([
             'ok'       => true,
             'count'    => $count,

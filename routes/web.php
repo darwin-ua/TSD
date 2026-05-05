@@ -171,7 +171,7 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
 
         if ($num !== '') {
             $row = \Illuminate\Support\Facades\DB::table('skladskie_yacheiki')
-                ->select('ssylka', 'room')
+                ->select('ssylka', 'ssylka_guid', 'sklad', 'link', 'number', 'room', 'reception_area')
                 ->where('number', $num)
                 ->first();
         }
@@ -179,20 +179,23 @@ Route::middleware(['auth', 'update.cart'])->group(function () {
         $label = $row->ssylka ?? null;
         $room  = $row->room   ?? null;
 
-        // Маппинг room -> tab
         $r = mb_strtolower((string)$room);
         $tab =
-            (str_contains($r, 'доп'))               ? 'dopy' :
-                ((str_contains($r, 'комп'))             ? 'kom'  :
-                    /* по умолчанию всё остальное — ГП */      'gp');
+            (str_contains($r, 'доп')) ? 'dopy' :
+                ((str_contains($r, 'комп')) ? 'kom' : 'gp');
 
         return response()->json([
-            'label' => $label,
-            'room'  => $room,
-            'tab'   => $tab,
+            'ok'             => (bool) $row,
+            'label'          => $label,
+            'cell_name'      => $row->ssylka ?? null,
+            'cell_ref'       => $row->link ?? null,
+            'sklad'          => $row->sklad ?? null,
+            'room'           => $room,
+            'reception_area' => $row->reception_area ?? null,
+            'ssylka_guid'    => $row->ssylka_guid ?? null,
+            'tab'            => $tab,
         ]);
     })->name('sklad.cell.label');
-
 
 //    // routes/web.php
 //    Route::get('/sklad/cell/label', function (\Illuminate\Http\Request $request) {
