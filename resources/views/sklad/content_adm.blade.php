@@ -186,7 +186,37 @@
                 <div class="sklad-header">
                     <div>
                         <h1 class="sklad-header-title">Склад</h1>
-                        <div class="sklad-header-subtitle">Дарвін · складські операції</div>
+                        @php
+                            $user = auth()->user();
+
+                            $companyName = 'Дарвін';
+
+                            if ($user) {
+                                if (!empty($user->organization)) {
+                                    $org = mb_strtolower($user->organization);
+
+                                    if (str_contains($org, 'гудвин') || str_contains($org, 'гудвін')) {
+                                        $companyName = 'Гудвін';
+                                    } elseif (str_contains($org, 'дарвин') || str_contains($org, 'дарвін')) {
+                                        $companyName = 'Дарвін';
+                                    }
+                                } elseif (!empty($user->group)) {
+                                    $group = mb_strtolower($user->group);
+
+                                    if (str_contains($group, 'гудвин') || str_contains($group, 'гудвін')) {
+                                        $companyName = 'Гудвін';
+                                    } elseif (str_contains($group, 'дарвин') || str_contains($group, 'дарвін')) {
+                                        $companyName = 'Дарвін';
+                                    }
+                                } elseif ((string)$user->type_company === '2') {
+                                    $companyName = 'Гудвін';
+                                } elseif ((string)$user->type_company === '1') {
+                                    $companyName = 'Дарвін';
+                                }
+                            }
+                        @endphp
+
+                        <div class="sklad-header-subtitle">{{ $companyName }} · складські операції</div>
                     </div>
 
                     <a href="{{ route('logout') }}"
