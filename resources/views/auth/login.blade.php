@@ -213,7 +213,7 @@
                         </button>
                     </form>
                 </div>
-                <div class="login-bottom-subtitle">Вход в систему ТСД</div>
+                <div class="login-bottom-subtitle">Дарвiy / Гудвiн</div>
             </div>
         </div>
     </div>
