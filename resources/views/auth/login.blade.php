@@ -157,7 +157,7 @@
                     </div>
 
                     <h4 class="login-title">Склад</h4>
-                    <div class="login-subtitle">Вход в ТСД</div>
+                    <div class="login-subtitle">Вход в систему ТСД</div>
                 </div>
 
                 <div class="login-body">
@@ -205,7 +205,7 @@
                         </button>
                     </form>
                 </div>
-
+                <div class="login-subtitle">Вход в систему ТСД</div>
             </div>
         </div>
     </div>
