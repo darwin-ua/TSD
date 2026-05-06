@@ -123,6 +123,14 @@
             border-color: #dc3545 !important;
         }
 
+        .login-bottom-subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #777777;
+            font-weight: 600;
+            padding: 0 18px 22px;
+        }
+
         @media (max-width: 480px) {
             .login-page {
                 padding: 12px 10px 24px;
@@ -205,7 +213,7 @@
                         </button>
                     </form>
                 </div>
-                <div class="login-subtitle">Вход в систему ТСД</div>
+                <div class="login-bottom-subtitle">Вход в систему ТСД</div>
             </div>
         </div>
     </div>
