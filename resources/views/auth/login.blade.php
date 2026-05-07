@@ -165,7 +165,7 @@
                     </div>
 
                     <h4 class="login-title">Склад</h4>
-                    <div class="login-subtitle">Вход в систему ТСД</div>
+                    <div class="login-subtitle">Вхiд до системи ТСД</div>
                 </div>
 
                 <div class="login-body">
@@ -173,7 +173,7 @@
                         @csrf
 
                         <div class="form-group">
-                            <label for="id_lk" class="login-label">Логин в 1С</label>
+                            <label for="id_lk" class="login-label">Логiн в 1С</label>
                             <input id="id_lk"
                                    type="text"
                                    class="form-control login-input @error('id_lk') is-invalid @enderror"
