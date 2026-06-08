@@ -44,5 +44,12 @@ return [
     ],
 
 
+    'tsd' => [
+        // Darwin оставляем как было.
+        'darwin_base_url'  => env('TSD_DARWIN_BASE_URL', 'http://192.168.170.105/PROD_copy/hs/tsd'),
+        // Goodwin ведём в ту же ERP-публикацию, куда подключали ЛК Goodwin.
+        'goodwin_base_url' => env('TSD_GOODWIN_BASE_URL', 'http://185.112.41.230/PROD_Goodwin/hs/tsd'),
+    ],
+
 
 ];

@@ -44,6 +44,7 @@ Route::get('/send-email', function () {
 });
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('login/company-theme', [LoginController::class, 'companyTheme'])->name('login.company-theme');
 Route::post('login', [LoginController::class, 'login']);
 
 Route::get('/lang/{locale}', function ($locale) {

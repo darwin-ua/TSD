@@ -15,6 +15,7 @@ use Throwable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use App\Support\TsdOneC;
 
 
 
@@ -49,9 +50,9 @@ class SkladScanController extends Controller
         ]);
 
         // ===== 2) Жёстко зашитые параметры 1С =====
-        $endpoint = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAcceptance';
-        $login    = 'КучеренкоД';
-        $password = 'NitraPa$$@0@!';
+        $endpoint = TsdOneC::url('FinishAcceptance', Auth::user());
+        $login    = TsdOneC::login(Auth::user());
+        $password = TsdOneC::password(Auth::user());
         $timeout  = 15;
 
         // Формируем тело так, как ждёт 1С
@@ -103,7 +104,7 @@ class SkladScanController extends Controller
         $barcode = trim((string)$request->input('barcode'));
 
         // URL лучше вынести в конфиг/ ENV, но оставлю дефолт для быстрого старта
-        $url = config('services.tsd.search_barcode_url', 'http://192.168.170.105/PROD_copy/hs/tsd/SearchBarcode');
+        $url = TsdOneC::url('SearchBarcode', Auth::user());
 
         // Хелпер контекста для логов
         $ctx = function (array $extra = []) use ($request, $barcode, $url) {
@@ -113,6 +114,7 @@ class SkladScanController extends Controller
                 'user'   => optional(Auth::user())->name,
                 'route'  => $request->path(),
                 'url'    => $url,
+                'tsd'    => TsdOneC::diagnostics(Auth::user()),
                 'barcode'=> $barcode,
             ], $extra);
         };
@@ -122,8 +124,8 @@ class SkladScanController extends Controller
 
         try {
             // Готовим HTTP-клиент (логин/пароль лучше в .env)
-            $login    = env('TSD_LOGIN',     'КучеренкоД');
-            $password = env('TSD_PASSWORD',  'NitraPa$$@0@!');
+            $login    = TsdOneC::login(Auth::user());
+            $password = TsdOneC::password(Auth::user());
 
             Log::info('scan.searchBarcode: request', $ctx([
                 'payload' => ['barcode' => $barcode],
@@ -504,13 +506,13 @@ class SkladScanController extends Controller
         ];
         Log::info('scan.send1c: payload', $this->ctx($request, ['payload' => $payload]));
 
-        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
+        $url = TsdOneC::url('FinishAccommodation', Auth::user());
 
         try {
             $client = new \GuzzleHttp\Client(['timeout' => 20, 'verify' => false]);
             $resp = $client->post($url, [
                 'headers' => ['Accept'=>'application/json','Content-Type'=>'application/json; charset=utf-8'],
-                'auth'    => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'auth'    => [TsdOneC::login(Auth::user()), TsdOneC::password(Auth::user())],
                 'body'    => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]);
 
@@ -604,7 +606,7 @@ class SkladScanController extends Controller
         ];
         Log::info('scan.addExternal: payload', $this->ctx($request, ['payload' => $payload]));
 
-        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAccommodation';
+        $url = TsdOneC::url('FinishAccommodation', Auth::user());
 
         try {
             $client = new \GuzzleHttp\Client(['timeout' => 20, 'verify' => false]);
@@ -613,7 +615,7 @@ class SkladScanController extends Controller
                     'Accept'       => 'application/json',
                     'Content-Type' => 'application/json; charset=utf-8',
                 ],
-                'auth' => ['КучеренкоД', 'NitraPa$$@0@!'],
+                'auth' => [TsdOneC::login(Auth::user()), TsdOneC::password(Auth::user())],
                 'body' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]);
 
@@ -846,9 +848,9 @@ class SkladScanController extends Controller
         }
 
         // ===== 7) Вызов 1С =====
-        $url      = 'http://192.168.170.105/PROD_copy/hs/tsd/CreatingBlankDocument';
-        $login    = 'КучеренкоД';
-        $password = 'NitraPa$$@0@!';
+        $url      = TsdOneC::url('CreatingBlankDocument', Auth::user());
+        $login    = TsdOneC::login(Auth::user());
+        $password = TsdOneC::password(Auth::user());
 
         $client = new \GuzzleHttp\Client([
             'timeout'     => 20,
@@ -1106,9 +1108,9 @@ class SkladScanController extends Controller
         if (!empty($cellNameFor1C)) { $payload['cell_name'] = (string)$cellNameFor1C; }
 
         // ===== 5) Вызов 1С AddLine =====
-        $url      = 'http://192.168.170.105/PROD_copy/hs/tsd/AddLine';
-        $login    = 'КучеренкоД';
-        $password = 'NitraPa$$@0@!';
+        $url      = TsdOneC::url('AddLine', Auth::user());
+        $login    = TsdOneC::login(Auth::user());
+        $password = TsdOneC::password(Auth::user());
 
         $client = new \GuzzleHttp\Client([
             'timeout'     => 20,

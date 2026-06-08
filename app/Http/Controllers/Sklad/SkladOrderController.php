@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Support\TsdOneC;
 
 class SkladOrderController extends Controller
 {
@@ -200,13 +201,13 @@ class SkladOrderController extends Controller
         \Log::info('FinishAcceptance: входящий запрос от фронта', ['payload' => $data]);
 
         // 2) Формируем строку URL (именно строку, не Response!)
-        $url = 'http://192.168.170.105/PROD_copy/hs/tsd/FinishAcceptance';
+        $url = TsdOneC::url('FinishAcceptance', Auth::user());
 
         try {
             // 3) Достаём креды пользователя (или задаём дефолтные при необходимости)
             $user = \Illuminate\Support\Facades\Auth::user();
-            $login    = (string)($user->name       ?? 'КучеренкоД');
-            $password = (string)($user->parol_1c   ?? 'NitraPa$$@0@!');
+            $login    = TsdOneC::login($user);
+            $password = TsdOneC::password($user);
 
             \Log::info('DEBUG login', [
                 'len' => $login,
@@ -242,8 +243,8 @@ class SkladOrderController extends Controller
         // Авторизация в 1С
         // Если у тебя в users.name уже стоит КучеренкоД — можно оставить так.
         // Но безопаснее иметь fallback.
-        $login    = (string) ($user->name ?: env('TSD_LOGIN', 'КучеренкоД'));
-        $password = (string) ($user->parol_1c ?: env('TSD_PASSWORD', 'NitraPa$$@0@!'));
+        $login    = TsdOneC::login($user);
+        $password = TsdOneC::password($user);
 
         // Исполнитель для 1С
         $executor = trim((string) $request->input(
@@ -265,13 +266,14 @@ class SkladOrderController extends Controller
             'login'     => $login,
             'login_len' => mb_strlen($login),
             'login_hex' => bin2hex($login),
+            'tsd'       => TsdOneC::diagnostics($user),
         ]);
 
         $resp = \Illuminate\Support\Facades\Http::withBasicAuth($login, $password)
             ->asJson()
             ->acceptJson()
             ->timeout(60)
-            ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptGoodWarehouse', $payload);
+            ->post(TsdOneC::url('AcceptGoodWarehouse', $user), $payload);
 
         if ($request->boolean('debug')) {
             return response($resp->body(), $resp->status())
@@ -460,7 +462,7 @@ class SkladOrderController extends Controller
         ];
 
 
-        Log::info('accept.fetch -> payload to 1C', $payload);
+        Log::info('accept.fetch -> payload to 1C', ['payload' => $payload, 'tsd' => TsdOneC::diagnostics(Auth::user())]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
         $login = (string) $user->name;
@@ -477,7 +479,7 @@ class SkladOrderController extends Controller
                 'Content-Type' => 'application/json; charset=utf-8',
             ])
             ->withBody(json_encode($payload, JSON_UNESCAPED_UNICODE), 'application/json')
-            ->post('http://192.168.170.105/PROD_copy/hs/tsd/AcceptanceGoods');
+            ->post(TsdOneC::url('AcceptanceGoods', $user));
 
         if ($request->boolean('debug')) {
             return response($resp->body(), $resp->status())

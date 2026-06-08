@@ -17,7 +17,7 @@
             min-height: calc(100vh - 70px);
             padding: 18px 12px 30px;
             background:
-                linear-gradient(135deg, rgba(255, 198, 0, 0.07), rgba(255,255,255,0.96)),
+                linear-gradient(135deg, rgba(var(--theme-accent-rgb), 0.07), rgba(255,255,255,0.96)),
                 #f5f6f7;
         }
 
@@ -31,7 +31,7 @@
             border-radius: 16px;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
             overflow: hidden;
-            border-top: 5px solid #f3c400;
+            border-top: 5px solid var(--theme-accent);
         }
 
         .sklad-header {
@@ -47,7 +47,7 @@
             margin: 0;
             font-size: 22px;
             font-weight: 800;
-            color: #171717;
+            color: var(--theme-heading);
             line-height: 1.2;
         }
 
@@ -61,8 +61,8 @@
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: #171717;
-            color: #f3c400 !important;
+            background: var(--theme-dark);
+            color: #ffffff !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -82,8 +82,8 @@
             font-size: 22px;
             border-radius: 12px;
             border: none;
-            background: #171717 !important;
-            color: #f3c400 !important;
+            background: var(--theme-dark) !important;
+            color: #ffffff !important;
             font-weight: 900;
         }
 
@@ -105,7 +105,7 @@
             box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
             cursor: pointer;
             position: relative;
-            color: #171717;
+            color: var(--theme-heading);
             transition: 0.18s ease;
             overflow: hidden;
         }
@@ -113,7 +113,7 @@
         #documentsList .doc-line:hover {
             transform: translateY(-1px);
             box-shadow: 0 12px 26px rgba(0, 0, 0, 0.10);
-            border-color: rgba(243, 196, 0, 0.75) !important;
+            border-color: rgba(var(--theme-accent-rgb), 0.75) !important;
         }
 
         #documentsList .doc-line::after {
@@ -131,7 +131,7 @@
             font-weight: 800;
             line-height: 1.35;
             word-break: break-word;
-            color: #171717;
+            color: var(--theme-heading);
             font-size: 14px;
         }
 
@@ -142,8 +142,8 @@
             min-width: 38px;
             height: 24px;
             border-radius: 999px;
-            background: rgba(243, 196, 0, 0.15);
-            color: #171717;
+            background: rgba(var(--theme-accent-rgb), 0.15);
+            color: var(--theme-heading);
             font-weight: 900;
             font-size: 11px;
             margin-right: 8px;
@@ -158,10 +158,10 @@
         }
 
         .empty-docs {
-            border: 1px solid rgba(243, 196, 0, 0.35) !important;
+            border: 1px solid rgba(var(--theme-accent-rgb), 0.35) !important;
             border-radius: 14px !important;
-            background: rgba(243, 196, 0, 0.13) !important;
-            color: #171717 !important;
+            background: rgba(var(--theme-accent-rgb), 0.13) !important;
+            color: var(--theme-heading) !important;
             font-weight: 800;
             font-size: 13px;
             padding: 12px 14px !important;
@@ -177,8 +177,8 @@
         }
 
         #barcodeInput:focus {
-            border-color: #f3c400;
-            box-shadow: 0 0 0 0.2rem rgba(243, 196, 0, 0.18);
+            border-color: var(--theme-accent);
+            box-shadow: 0 0 0 0.2rem rgba(var(--theme-accent-rgb), 0.18);
         }
 
         #positionsUl .list-group-item {
@@ -197,7 +197,7 @@
             font-weight: 800;
             line-height: 1.25;
             word-break: break-word;
-            color: #171717;
+            color: var(--theme-heading);
             font-size: 14px;
         }
 
@@ -215,8 +215,8 @@
             padding: 5px 10px;
             border: none;
             border-radius: 999px;
-            background: rgba(243, 196, 0, 0.15);
-            color: #171717;
+            background: rgba(var(--theme-accent-rgb), 0.15);
+            color: var(--theme-heading);
             font-weight: 900;
             font-size: 12px;
             line-height: 1;
@@ -224,14 +224,14 @@
         }
 
         .qty-chip.fact {
-            background: #171717;
-            color: #f3c400;
+            background: var(--theme-dark);
+            color: #ffffff;
         }
 
         .hl-barcode,
         #positionsUl.list-group-flush .list-group-item.hl-barcode {
-            background: rgba(243, 196, 0, 0.12) !important;
-            border-color: #f3c400 !important;
+            background: rgba(var(--theme-accent-rgb), 0.12) !important;
+            border-color: var(--theme-accent) !important;
             font-weight: 800;
         }
 
@@ -252,7 +252,7 @@
             border: none !important;
             border-radius: 11px !important;
             background: #eef0f3 !important;
-            color: #171717 !important;
+            color: var(--theme-heading) !important;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -277,7 +277,7 @@
         .send-status-box {
             background: #fff;
             border-radius: 16px;
-            border-top: 5px solid #f3c400;
+            border-top: 5px solid var(--theme-accent);
             padding: 24px 20px;
             max-width: 380px;
             width: 100%;
@@ -289,8 +289,8 @@
             width: 62px;
             height: 62px;
             border-radius: 16px;
-            background: #171717;
-            color: #f3c400;
+            background: var(--theme-dark);
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -307,7 +307,7 @@
         .send-status-title {
             font-size: 20px;
             font-weight: 900;
-            color: #171717;
+            color: var(--theme-heading);
             margin-bottom: 6px;
         }
 
@@ -320,8 +320,8 @@
         .send-status-spinner {
             width: 34px;
             height: 34px;
-            border: 4px solid rgba(243, 196, 0, 0.25);
-            border-top-color: #f3c400;
+            border: 4px solid rgba(var(--theme-accent-rgb), 0.25);
+            border-top-color: var(--theme-accent);
             border-radius: 50%;
             animation: sendSpin .8s linear infinite;
         }

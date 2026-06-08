@@ -25,6 +25,7 @@ class User extends Authenticatable
         'code_part',
         'name',
         'group',
+        'erp_company',
         'email',
         'password',
         'usertype',

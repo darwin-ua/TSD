@@ -1,39 +1,14 @@
-@php
-    $theme = \App\Support\TsdOneC::theme(auth()->user());
-    $companyName = $theme['company_label'];
-@endphp
-
 <style>
-    :root {
-        --theme-accent: {{ $theme['accent'] }};
-        --theme-accent-rgb: {{ $theme['accent_rgb'] }};
-        --theme-accent-soft: {{ $theme['accent_soft'] }};
-        --theme-accent-soft-strong: {{ $theme['accent_soft_strong'] }};
-        --theme-secondary-accent: {{ $theme['secondary_accent'] }};
-        --theme-secondary-accent-rgb: {{ $theme['secondary_accent_rgb'] }};
-        --theme-dark: {{ $theme['dark'] }};
-        --theme-heading: {{ $theme['heading'] }};
-        --theme-muted: {{ $theme['muted'] }};
-        --theme-surface: {{ $theme['surface'] }};
-        --theme-surface-alt: {{ $theme['surface_alt'] }};
-        --theme-border: {{ $theme['border'] }};
-        --theme-button-text: {{ $theme['button_text'] }};
-        --theme-body-bg: {{ $theme['body_bg'] }};
-        --theme-gradient-from: {{ $theme['gradient_from'] }};
-        --theme-gradient-to: {{ $theme['gradient_to'] }};
-    }
-
     body {
-        background: var(--theme-body-bg);
+        background: #f5f6f7;
     }
 
     .sklad-page {
         min-height: calc(100vh - 70px);
         padding: 18px 12px 30px;
         background:
-            radial-gradient(circle at top left, rgba(var(--theme-accent-rgb), 0.10), transparent 28%),
-            linear-gradient(135deg, var(--theme-gradient-from), var(--theme-gradient-to), rgba(255,255,255,0.96)),
-            var(--theme-body-bg);
+            linear-gradient(135deg, rgba(255, 198, 0, 0.07), rgba(255,255,255,0.96)),
+            #f5f6f7;
     }
 
     .sklad-shell {
@@ -42,16 +17,11 @@
     }
 
     .sklad-top-card {
-        background: var(--theme-surface);
-        border-radius: 18px;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.10);
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
         overflow: hidden;
-        border: 1px solid rgba(var(--theme-accent-rgb), 0.16);
-    }
-
-    .sklad-top-accent {
-        height: 6px;
-        background: linear-gradient(90deg, var(--theme-accent), var(--theme-secondary-accent));
+        border-top: 5px solid #f3c400;
     }
 
     .sklad-header {
@@ -60,57 +30,32 @@
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid #eceff3;
-        gap: 14px;
-    }
-
-    .sklad-brand-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-        padding: 7px 12px;
-        border-radius: 999px;
-        background: rgba(var(--theme-accent-rgb), 0.10);
-        border: 1px solid rgba(var(--theme-accent-rgb), 0.16);
-        color: var(--theme-heading);
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .sklad-brand-pill-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--theme-accent);
-        box-shadow: 0 0 0 4px rgba(var(--theme-accent-rgb), 0.14);
     }
 
     .sklad-header-title {
         margin: 0;
         font-size: 22px;
-        font-weight: 900;
-        color: var(--theme-heading);
+        font-weight: 800;
+        color: #171717;
         line-height: 1.2;
     }
 
     .sklad-header-subtitle {
         margin-top: 4px;
         font-size: 13px;
-        color: var(--theme-muted);
-        font-weight: 600;
+        color: #777777;
     }
 
     .sklad-header-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        background: var(--theme-accent);
-        color: #ffffff;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #171717;
+        color: #f3c400;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        box-shadow: 0 12px 24px rgba(var(--theme-accent-rgb), 0.18);
     }
 
     .sklad-header-icon svg {
@@ -130,70 +75,68 @@
 
     .sklad-btn-refresh {
         border: none;
-        border-radius: 11px;
-        background: var(--theme-accent);
-        color: #ffffff;
-        font-weight: 800;
+        border-radius: 10px;
+        background: #f3c400;
+        color: #171717;
+        font-weight: 700;
         padding: 9px 13px;
         font-size: 14px;
-        box-shadow: 0 10px 18px rgba(var(--theme-accent-rgb), 0.14);
     }
 
     .sklad-btn-error {
         border: none;
-        border-radius: 11px;
-        background: #e8495a;
+        border-radius: 10px;
+        background: #dc3545;
         color: #ffffff;
-        font-weight: 800;
+        font-weight: 700;
         padding: 9px 13px;
         font-size: 14px;
     }
 
     .sklad-menu-card {
-        background: var(--theme-surface);
-        border: 1px solid var(--theme-border);
-        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #e7e9ee;
+        border-radius: 16px;
         padding: 18px;
         margin-bottom: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
         transition: 0.18s ease;
     }
 
     .sklad-menu-card:hover {
         transform: translateY(-1px);
-        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
-        border-color: rgba(var(--theme-accent-rgb), 0.55);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.10);
+        border-color: rgba(243, 196, 0, 0.75);
     }
 
     .sklad-menu-title {
         margin: 0 0 12px;
         font-size: 17px;
-        font-weight: 900;
-        color: var(--theme-heading);
+        font-weight: 800;
+        color: #171717;
     }
 
     .sklad-menu-text {
         margin: 0 0 12px;
         font-size: 13px;
-        color: var(--theme-muted);
+        color: #777777;
     }
 
     .sklad-main-btn {
         width: 100%;
         height: 48px;
         border: none;
-        border-radius: 12px;
-        background: var(--theme-accent);
+        border-radius: 11px;
+        background: #171717;
         color: #ffffff;
         font-size: 15px;
-        font-weight: 900;
+        font-weight: 800;
         transition: 0.18s ease;
-        box-shadow: 0 12px 22px rgba(var(--theme-accent-rgb), 0.16);
     }
 
     .sklad-main-btn:hover {
-        background: var(--theme-dark);
-        color: #ffffff;
+        background: #f3c400;
+        color: #171717;
     }
 
     .sklad-back-btn {
@@ -201,8 +144,8 @@
         height: 44px;
         border: none;
         border-radius: 11px;
-        background: var(--theme-accent-soft);
-        color: var(--theme-heading);
+        background: #eef0f3;
+        color: #171717;
         font-weight: 800;
         margin-top: 4px;
     }
@@ -216,8 +159,8 @@
     }
 
     .sklad-scan-input:focus {
-        border-color: var(--theme-accent);
-        box-shadow: 0 0 0 0.2rem rgba(var(--theme-accent-rgb), 0.18);
+        border-color: #f3c400;
+        box-shadow: 0 0 0 0.2rem rgba(243, 196, 0, 0.18);
     }
 
     .sklad-badge {
@@ -227,9 +170,9 @@
         min-width: 34px;
         height: 24px;
         border-radius: 999px;
-        background: rgba(var(--theme-accent-rgb), 0.12);
-        color: var(--theme-heading);
-        font-weight: 900;
+        background: rgba(243, 196, 0, 0.15);
+        color: #171717;
+        font-weight: 800;
         font-size: 12px;
         margin-bottom: 10px;
     }
@@ -239,16 +182,11 @@
     <section class="content">
         <div class="sklad-shell">
             <div class="sklad-top-card">
-                <div class="sklad-top-accent"></div>
 
                 <div class="sklad-header">
                     <div>
-                        <div class="sklad-brand-pill">
-                            <span class="sklad-brand-pill-dot"></span>
-                            <span>{{ $companyName }}</span> · ERP {{ strtoupper($theme['company']) }}
-                        </div>
                         <h1 class="sklad-header-title">Склад</h1>
-                        <div class="sklad-header-subtitle">{{ $companyName }} · складські операції</div>
+                        <div class="sklad-header-subtitle">Дарвін · складські операції</div>
                     </div>
 
                     <a href="{{ route('logout') }}"
@@ -262,6 +200,7 @@
                              viewBox="0 0 16 16">
                             <path fill-rule="evenodd"
                                   d="M10 12.5a.5.5 0 0 1-.5.5h-8A1.5 1.5 0 0 1 0 11.5v-7A1.5 1.5 0 0 1 1.5 3h8a.5.5 0 0 1 0 1h-8A.5.5 0 0 0 1 4.5v7a.5.5 0 0 0 .5.5h8a.5.5 0 0 1 .5.5"/>
+
                             <path fill-rule="evenodd"
                                   d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
                         </svg>
@@ -274,7 +213,8 @@
                         @csrf
                     </form>
                 </div>
-<div class="sklad-body">
+
+                <div class="sklad-body">
 
                     <!-- Главное меню -->
                     <div class="container-fluid px-0" id="operationBlock">

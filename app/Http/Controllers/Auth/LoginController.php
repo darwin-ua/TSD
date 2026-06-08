@@ -17,6 +17,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Support\Str;
+use App\Support\TsdOneC;
 
 class LoginController extends Controller
 {
@@ -71,6 +72,21 @@ class LoginController extends Controller
         );
     }
 
+
+
+
+    public function companyTheme(Request $request)
+    {
+        $idLk = (string) $request->query('id_lk', '');
+        $forcedCompany = (string) $request->query('company', '');
+
+        $theme = TsdOneC::themeByLogin($idLk, $forcedCompany);
+
+        return response()->json([
+            'ok' => true,
+            'theme' => $theme,
+        ]);
+    }
 
     protected function redirectTo()
     {
