@@ -107,6 +107,7 @@ class TsdOneC
                 'wordmark_html' => '<span class="brand-good">Good</span><span class="brand-win">win</span>',
                 'wordmark_subtitle' => 'Завод світлопрозорих конструкцій',
                 'footer_mark' => 'GOODWIN ERP / ТСД',
+                'favicon' => asset('favicon-goodwin.svg'),
             ];
         }
 
@@ -134,6 +135,7 @@ class TsdOneC
             'wordmark_html' => '<span class="brand-darwin-mark"></span><span class="brand-darwin-text">DARWIN</span>',
             'wordmark_subtitle' => 'Віконні системи',
             'footer_mark' => 'DARWIN ERP / ТСД',
+            'favicon' => asset('favicon-darwin.svg'),
         ];
     }
 

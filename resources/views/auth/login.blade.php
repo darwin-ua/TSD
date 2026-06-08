@@ -414,6 +414,10 @@
                 if (brandSubtitle) {
                     brandSubtitle.textContent = theme.wordmark_subtitle;
                 }
+                const favicon = document.getElementById('dynamic-favicon');
+                if (favicon && theme.favicon) {
+                    favicon.setAttribute('href', theme.favicon);
+                }
             }
 
             let timer = null;

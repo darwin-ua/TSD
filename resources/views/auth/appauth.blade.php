@@ -8,6 +8,9 @@
     <script src="storage/Home_files/resources2.aspx"></script>
     <link id="mlc_chatinlie_styletag" rel="stylesheet" href="storage/Home_files/chatinline.css">
     <link rel="stylesheet" href="storage/Home_files/css">
+    @php
+        $authTheme = \App\Support\TsdOneC::themeByLogin(old('id_lk'), request('company'));
+    @endphp
     <title>Sklad</title>
     <meta name="description" content="home">
     <meta name="keywords" content="home">
@@ -22,9 +25,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('skladicon.ico') }}">
-    <link rel="shortcut icon" href="{{ asset('skladicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('skladicon.ico') }}">
+    <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="{{ $authTheme['favicon'] }}">
+    <link rel="shortcut icon" href="{{ $authTheme['favicon'] }}">
+    <link rel="apple-touch-icon" href="{{ $authTheme['favicon'] }}">
 
 
     <link media="all" type="text/css" rel="stylesheet" href="/storage/Home_files/bootstrap.min.css">

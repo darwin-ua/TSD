@@ -10,9 +10,9 @@
     <meta name="tsd-company" content="{{ $theme['company'] }}">
 
     <title>Склад - система работы с складами</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('skladicon.ico') }}">
-    <link rel="shortcut icon" href="{{ asset('skladicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('skladicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ $theme['favicon'] }}">
+    <link rel="shortcut icon" href="{{ $theme['favicon'] }}">
+    <link rel="apple-touch-icon" href="{{ $theme['favicon'] }}">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link href="{{ asset('storage/AdminLTE/plugins/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
